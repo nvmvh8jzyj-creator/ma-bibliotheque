@@ -121,26 +121,45 @@ body {
 .search-bar {
   background: var(--surface); border: 1.5px solid var(--border);
   border-radius: 12px; padding: 12px 14px; font-size: 15px;
-  width: 100%; color: var(--text); margin-bottom: 10px; -webkit-appearance: none;
+  width: 100%; color: var(--text); margin-bottom: 12px; -webkit-appearance: none;
   box-shadow: var(--shadow);
 }
 .search-bar:focus { outline: none; border-color: var(--purple-light); }
 
+/* STYLE NOUVEAU SEGMENTED CONTROL */
+.segmented-control {
+  display: flex; background: var(--surface2); border-radius: 12px;
+  padding: 3px; margin-bottom: 10px; border: 1px solid var(--border);
+}
+.segment-btn {
+  flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 700;
+  border: none; background: none; color: var(--text2); border-radius: 10px;
+  cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.segment-btn.active {
+  background: var(--surface); color: var(--purple-dark);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+@media (prefers-color-scheme: dark) { .segment-btn.active { color: var(--purple-light); } }
+
+.filter-row-compact {
+  display: flex; gap: 8px; margin-bottom: 16px;
+}
 .filter-select {
-  width: 100%; font-size: 14px; font-weight: 700; padding: 10px 14px;
+  flex: 1; font-size: 13px; font-weight: 700; padding: 9px 12px;
   border-radius: 12px; border: 1.5px solid var(--border);
   background: var(--surface); color: var(--purple-dark);
-  margin-bottom: 10px; -webkit-appearance: none;
+  -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23744F8C' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
   box-shadow: var(--shadow);
 }
 @media (prefers-color-scheme: dark) { .filter-select { color: var(--purple-light); } }
 
-.filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
-.filter-row::-webkit-scrollbar { display: none; }
+.quick-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.quick-chips::-webkit-scrollbar { display: none; }
 .chip {
-  white-space: nowrap; font-size: 12px; font-weight: 600; padding: 7px 14px;
+  white-space: nowrap; font-size: 12px; font-weight: 600; padding: 6px 12px;
   border-radius: 20px; border: 1px solid var(--border);
   background: var(--surface); color: var(--text2); cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: all 0.2s;
@@ -340,24 +359,30 @@ body {
 <div id="pal" class="section visible">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
   
-  <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
-    <option value="all">Filtre principal : Tout afficher</option>
-    <option value="favorite">❤️ Coups de cœur</option>
-    <option value="en_cours">📖 En cours de lecture</option>
-    <option value="a_commencer">⏳ À commencer</option>
-    <option value="attente">📦 En attente de publication</option>
-    <option value="a_acheter">🛒 À acheter</option>
-    <option value="termine">✓ Terminés / Lus</option>
-  </select>
+  <!-- 1. VUE TYPE (SEGMENTED CONTROL) -->
+  <div class="segmented-control">
+    <button class="segment-btn active" id="seg-all" onclick="setSegmentType('all', this)">Tous</button>
+    <button class="segment-btn" id="seg-serie" onclick="setSegmentType('serie', this)">📚 Séries</button>
+    <button class="segment-btn" id="seg-oneshot" onclick="setSegmentType('one_shot', this)">📖 One-shots</button>
+  </div>
 
-  <div class="filter-row">
-    <button class="chip active" id="chip-none" onclick="setChipFilter('none',this)">Vue classique</button>
-    <button class="chip" onclick="setChipFilter('oneshot_a_lire',this)">One-shots à lire</button>
-    <button class="chip" onclick="setChipFilter('next_tome_a_lire',this)">Prochain tome à lire</button>
-    <button class="chip" onclick="setChipFilter('next_tome_a_acheter',this)">🛒 Prochain tome à acheter</button>
-    <button class="chip" onclick="setChipFilter('series_pas_finies',this)">Séries pas finies</button>
-    <button class="chip" onclick="setChipFilter('abandonne',this)">🚫 Séries abandonnées</button>
-    <button class="chip" onclick="setChipFilter('one_shot',this)">Tous One-shots</button>
+  <!-- 2. STATUT & ACTIONS RAPIDES -->
+  <div class="filter-row-compact">
+    <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
+      <option value="all">Tous les statuts</option>
+      <option value="en_cours">📖 En cours de lecture</option>
+      <option value="a_commencer">⏳ À commencer</option>
+      <option value="attente">📦 En attente de publication</option>
+      <option value="a_acheter">🛒 À acheter</option>
+      <option value="termine">✓ Terminés / Lus</option>
+      <option value="abandonne">🚫 Abandonnés</option>
+    </select>
+  </div>
+
+  <div class="quick-chips" style="margin-bottom: 16px;">
+    <button class="chip" id="chip-fav" onclick="toggleQuickChip('favorite', this)">❤️ Coups de cœur</button>
+    <button class="chip" id="chip-next-read" onclick="toggleQuickChip('next_read', this)">⚡ Prochain à lire</button>
+    <button class="chip" id="chip-next-buy" onclick="toggleQuickChip('next_buy', this)">🛒 Prochain à acheter</button>
   </div>
   
   <div id="pal-list"></div>
@@ -615,8 +640,9 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
 let books = [], series = {}, depenses = [];
+let segmentType = 'all'; // 'all', 'serie', 'one_shot'
 let mainStatusFilter = 'all';
-let chipFilter = 'none';
+let activeQuickChip = 'none'; // 'none', 'favorite', 'next_read', 'next_buy'
 let budgetLimit = 75;
 let scannerActive = false;
 
@@ -670,15 +696,27 @@ function showSection(id) {
   }
 }
 
+function setSegmentType(type, el) {
+  segmentType = type;
+  document.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderPAL();
+}
+
 function setMainStatusFilter(val) {
   mainStatusFilter = val;
   renderPAL();
 }
 
-function setChipFilter(f, el) {
-  chipFilter = f;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
+function toggleQuickChip(chip, el) {
+  if (activeQuickChip === chip) {
+    activeQuickChip = 'none';
+    el.classList.remove('active');
+  } else {
+    activeQuickChip = chip;
+    document.querySelectorAll('.quick-chips .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
   renderPAL();
 }
 
@@ -993,7 +1031,7 @@ function renderPAL() {
   
   // CALCUL DES TOMES VIRTUELS MANQUANTS À ACHETER
   let virtualBooks = [];
-  if (chipFilter === 'next_tome_a_acheter' || chipFilter === 'none') {
+  if (activeQuickChip === 'next_buy' || activeQuickChip === 'none') {
     Object.keys(series).forEach(sId => {
       const s = series[sId];
       const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId);
@@ -1004,7 +1042,6 @@ function renderPAL() {
         if (maxOwnedTome < s.totalTomes) {
           const nextTome = Number.isInteger(maxOwnedTome) ? maxOwnedTome + 1 : Math.ceil(maxOwnedTome);
           
-          // Vérifier que ce tome n'existe pas déjà sous statut 'a_acheter'
           const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
           if (!alreadyExists) {
             virtualBooks.push({
@@ -1032,31 +1069,27 @@ function renderPAL() {
     
     if (q && !titleMatch && !authorMatch && !serieMatch) return false;
     
-    if (mainStatusFilter === 'favorite' && !b.favorite) return false;
-    if (mainStatusFilter !== 'all' && mainStatusFilter !== 'favorite' && b.statut !== mainStatusFilter) return false;
-    
-    if (chipFilter === 'none') return !b.isVirtual;
-    if (chipFilter === 'one_shot') return b.type === 'one_shot';
-    if (chipFilter === 'oneshot_a_lire') return b.type === 'one_shot' && b.statut === 'a_commencer';
-    
-    if (chipFilter === 'series_pas_finies') {
-      if (b.type !== 'serie' || !s || b.isVirtual) return false;
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      const isCompleted = allSeriesBooks.length >= s.totalTomes && allSeriesBooks.every(other => other.statut === 'termine');
-      const isAbandoned = allSeriesBooks.some(other => other.statut === 'abandonne');
-      return !isCompleted && !isAbandoned;
-    }
-    
-    if (chipFilter === 'next_tome_a_lire') {
-      if (b.type !== 'serie' || b.statut !== 'a_commencer' || b.isVirtual) return false;
+    // 1. FILTRE SEGMENT (Tous / Séries / One-shots)
+    if (segmentType === 'serie' && b.type !== 'serie') return false;
+    if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
+
+    // 2. FILTRE STATUT PRINCIPAL
+    if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
+
+    // 3. ACTIONS RAPIDES (PUCES)
+    if (activeQuickChip === 'favorite' && !b.favorite) return false;
+
+    if (activeQuickChip === 'next_read') {
+      if (b.isVirtual || b.statut !== 'a_commencer') return false;
+      if (b.type === 'one_shot') return true;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minUnreadTome = allSeriesBooks
         .filter(other => other.statut === 'a_commencer')
         .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
       return b.tomeNum === minUnreadTome;
     }
-    
-    if (chipFilter === 'next_tome_a_acheter') {
+
+    if (activeQuickChip === 'next_buy') {
       if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
       if (b.isVirtual) return true;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
@@ -1065,8 +1098,6 @@ function renderPAL() {
         .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
       return b.tomeNum === minBuyTome;
     }
-
-    if (chipFilter === 'abandonne') return b.statut === 'abandonne';
 
     return !b.isVirtual;
   });
