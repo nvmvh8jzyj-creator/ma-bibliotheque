@@ -126,7 +126,6 @@ body {
 }
 .search-bar:focus { outline: none; border-color: var(--purple-light); }
 
-/* STYLE NOUVEAU SEGMENTED CONTROL */
 .segmented-control {
   display: flex; background: var(--surface2); border-radius: 12px;
   padding: 3px; margin-bottom: 10px; border: 1px solid var(--border);
@@ -217,13 +216,22 @@ body {
 .progress-bar-fill { height: 100%; border-radius: 6px; background: var(--ochre); transition: width 0.3s; }
 
 .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); cursor: pointer; font-weight: 600; }
-.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
-.btn-success { background: var(--green-bg); color: var(--green-dark); border-color: transparent; }
-@media (prefers-color-scheme: dark) { 
-  .btn-accent { color: var(--purple-light); }
-  .btn-success { color: var(--green-bright); }
+.btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; transition: all 0.2s; }
+
+/* BOUTON D'ACTION VALIDER LA LECTURE */
+.btn-action-done { 
+  border-color: rgba(4, 140, 38, 0.3); 
+  color: var(--green-dark); 
+  background: var(--surface);
 }
+@media (prefers-color-scheme: dark) { 
+  .btn-action-done { color: var(--green-bright); border-color: rgba(4, 191, 51, 0.4); } 
+}
+.btn-action-done:active {
+  background: var(--green-bg);
+}
+
+.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
 
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
@@ -359,14 +367,12 @@ body {
 <div id="pal" class="section visible">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
   
-  <!-- 1. VUE TYPE (SEGMENTED CONTROL) -->
   <div class="segmented-control">
     <button class="segment-btn active" id="seg-all" onclick="setSegmentType('all', this)">Tous</button>
     <button class="segment-btn" id="seg-serie" onclick="setSegmentType('serie', this)">📚 Séries</button>
     <button class="segment-btn" id="seg-oneshot" onclick="setSegmentType('one_shot', this)">📖 One-shots</button>
   </div>
 
-  <!-- 2. STATUT & ACTIONS RAPIDES -->
   <div class="filter-row-compact">
     <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
       <option value="all">Tous les statuts</option>
@@ -640,9 +646,9 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
 let books = [], series = {}, depenses = [];
-let segmentType = 'all'; // 'all', 'serie', 'one_shot'
+let segmentType = 'all'; 
 let mainStatusFilter = 'all';
-let activeQuickChip = 'none'; // 'none', 'favorite', 'next_read', 'next_buy'
+let activeQuickChip = 'none'; 
 let budgetLimit = 75;
 let scannerActive = false;
 
@@ -1029,7 +1035,6 @@ function quickAddVirtualBook(serieId, tomeNum) {
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  // CALCUL DES TOMES VIRTUELS MANQUANTS À ACHETER
   let virtualBooks = [];
   if (activeQuickChip === 'next_buy' || activeQuickChip === 'none') {
     Object.keys(series).forEach(sId => {
@@ -1069,14 +1074,11 @@ function renderPAL() {
     
     if (q && !titleMatch && !authorMatch && !serieMatch) return false;
     
-    // 1. FILTRE SEGMENT (Tous / Séries / One-shots)
     if (segmentType === 'serie' && b.type !== 'serie') return false;
     if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
 
-    // 2. FILTRE STATUT PRINCIPAL
     if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
 
-    // 3. ACTIONS RAPIDES (PUCES)
     if (activeQuickChip === 'favorite' && !b.favorite) return false;
 
     if (activeQuickChip === 'next_read') {
@@ -1125,7 +1127,7 @@ function renderPAL() {
         </div>
         <div class="card-actions">
           <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
-          <button class="btn btn-success" onclick="quickAddVirtualBook('${b.serieId}', ${b.tomeNum})">➕ Ajouter à ma PAL</button>
+          <button class="btn btn-action-done" onclick="quickAddVirtualBook('${b.serieId}', ${b.tomeNum})">➕ Ajouter à ma PAL</button>
         </div>
       </div>`;
     }
@@ -1191,7 +1193,7 @@ function renderPAL() {
       ${notePreview ? `<div class="note-preview">${escHtml(notePreview)}</div>` : ''}
       <div class="card-actions">
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
-        ${b.statut!=='termine' ? `<button class="btn btn-success" onclick="markDone(${idx})">Terminé ✓</button>` : ''}
+        ${b.statut!=='termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
       </div>
 
       <div class="edit-panel" id="edit-panel-${idx}">
