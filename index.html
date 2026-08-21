@@ -299,7 +299,7 @@ body {
 }
 @media (prefers-color-scheme: dark) { .segment-btn.active { color: var(--purple-light); } }
 
-.filter-row-compact { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-row-compact { display: flex; gap: 8px; margin-bottom: 12px; }
 .filter-select {
   flex: 1; font-size: 13px; font-weight: 700; padding: 9px 12px;
   border-radius: 12px; border: 1.5px solid var(--border);
@@ -562,6 +562,13 @@ body {
       <option value="a_acheter">🛒 À acheter</option>
       <option value="termine">✓ Terminés / Lus</option>
       <option value="abandonne">🚫 Abandonnés</option>
+    </select>
+
+    <select class="filter-select" id="sort-order-select" onchange="setSortOrder(this.value)">
+      <option value="date_desc">📅 Plus récents d'abord</option>
+      <option value="title_asc">🔤 Titre (A ➔ Z)</option>
+      <option value="author_asc">👤 Auteur·rice (A ➔ Z)</option>
+      <option value="serie_asc">📚 Série / Saga (A ➔ Z)</option>
     </select>
   </div>
 
@@ -858,6 +865,7 @@ body {
 let books = [], series = {}, depenses = [];
 let segmentType = 'all'; 
 let mainStatusFilter = 'all';
+let sortOrder = 'date_desc';
 let activeQuickChip = 'none'; 
 let budgetLimit = 75;
 let scannerActive = false;
@@ -924,6 +932,11 @@ function setSegmentType(type, el) {
 
 function setMainStatusFilter(val) {
   mainStatusFilter = val;
+  renderPAL();
+}
+
+function setSortOrder(val) {
+  sortOrder = val;
   renderPAL();
 }
 
@@ -1356,7 +1369,7 @@ function renderPAL() {
 
   const allItems = [...books, ...virtualBooks];
 
-  const filtered = allItems.filter(b => {
+  let filtered = allItems.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
     const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
@@ -1392,6 +1405,26 @@ function renderPAL() {
     }
 
     return !b.isVirtual;
+  });
+
+  // LOGIQUE DE TRI
+  filtered.sort((a, b) => {
+    if (sortOrder === 'title_asc') {
+      return a.titre.localeCompare(b.titre, 'fr');
+    } else if (sortOrder === 'author_asc') {
+      const authorA = a.auteur || (a.serieId && series[a.serieId] ? series[a.serieId].auteur : '');
+      const authorB = b.auteur || (b.serieId && series[b.serieId] ? series[b.serieId].auteur : '');
+      return authorA.localeCompare(authorB, 'fr');
+    } else if (sortOrder === 'serie_asc') {
+      const serieA = a.serieId && series[a.serieId] ? series[a.serieId].nom : a.titre;
+      const serieB = b.serieId && series[b.serieId] ? series[b.serieId].nom : b.titre;
+      return serieA.localeCompare(serieB, 'fr');
+    } else {
+      // Date d'ajout / par défaut
+      const dateA = a.dateAjout || a.dateFin || '2000-01-01';
+      const dateB = b.dateAjout || b.dateFin || '2000-01-01';
+      return dateB.localeCompare(dateA);
+    }
   });
 
   const total = books.length;
