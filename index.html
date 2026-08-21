@@ -141,9 +141,7 @@ body {
 }
 @media (prefers-color-scheme: dark) { .segment-btn.active { color: var(--purple-light); } }
 
-.filter-row-compact {
-  display: flex; gap: 8px; margin-bottom: 16px;
-}
+.filter-row-compact { display: flex; gap: 8px; margin-bottom: 16px; }
 .filter-select {
   flex: 1; font-size: 13px; font-weight: 700; padding: 9px 12px;
   border-radius: 12px; border: 1.5px solid var(--border);
@@ -170,10 +168,7 @@ body {
   border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
   box-shadow: var(--shadow);
 }
-.book-card.virtual {
-  border: 2px dashed var(--ochre);
-  background: var(--ochre-bg);
-}
+.book-card.virtual { border: 2px dashed var(--ochre); background: var(--ochre-bg); }
 .book-card-content { display: flex; gap: 14px; }
 .book-cover { 
   width: 58px; height: 86px; object-fit: cover; 
@@ -219,17 +214,9 @@ body {
 .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; transition: all 0.2s; }
 
-.btn-action-done { 
-  border-color: rgba(4, 140, 38, 0.3); 
-  color: var(--green-dark); 
-  background: var(--surface);
-}
-@media (prefers-color-scheme: dark) { 
-  .btn-action-done { color: var(--green-bright); border-color: rgba(4, 191, 51, 0.4); } 
-}
-.btn-action-done:active {
-  background: var(--green-bg);
-}
+.btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); background: var(--surface); }
+@media (prefers-color-scheme: dark) { .btn-action-done { color: var(--green-bright); border-color: rgba(4, 191, 51, 0.4); } }
+.btn-action-done:active { background: var(--green-bg); }
 
 .btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
 
@@ -241,20 +228,6 @@ body {
 .section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
 @media (prefers-color-scheme: dark) { .section-label { color: var(--purple-light); } }
 
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
-.stat-num { font-size: 26px; font-weight: 800; }
-.stat-label { font-size: 12px; color: var(--text2); margin-top: 2px; font-weight: 600; }
-.stat-num.danger { color: var(--danger); }
-.stat-num.ok { color: var(--green-dark); }
-@media (prefers-color-scheme: dark) { .stat-num.ok { color: var(--green-bright); } }
-.stat-num.purple { color: var(--purple-light); }
-.stat-num.accent { color: var(--ochre); }
-
-.budget-bar-wrap { background: var(--surface2); border-radius: 8px; height: 12px; margin-bottom: 16px; overflow: hidden; }
-.budget-bar-fill { height: 100%; border-radius: 8px; background: var(--ochre); transition: width 0.4s; }
-.budget-bar-fill.over { background: var(--danger); }
-
 .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
 .form-field { margin-bottom: 12px; }
 .form-field label { font-size: 12px; color: var(--text2); font-weight: 600; display: block; margin-bottom: 4px; }
@@ -263,9 +236,7 @@ body {
   border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); 
   font-family: inherit; -webkit-appearance: none; 
 }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-  outline: none; border-color: var(--purple-light);
-}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--purple-light); }
 .form-field select { 
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23744F8C' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); 
   background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; 
@@ -281,48 +252,20 @@ body {
 .btn-danger-full { background: var(--danger-bg); color: var(--danger); border: none; font-size: 13px; font-weight: 600; box-shadow: none; }
 .btn-scan { background: var(--ochre); color: #fff; box-shadow: 0 4px 10px rgba(217, 139, 72, 0.3); }
 
-.expense-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.expense-row:last-child { border-bottom: none; }
-
-.pioche-section { display: flex; flex-direction: column; gap: 12px; }
-.pioche-btn { 
-  width: 100%; padding: 18px; font-size: 15px; font-weight: 700; 
-  border-radius: var(--radius); border: none; cursor: pointer; 
-  display: flex; align-items: center; justify-content: center; gap: 10px; 
+/* STYLE DES RÉSULTATS DE RECHERCHE EN DIRECT */
+.search-results-box {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
 }
-.pioche-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.pioche-serie-bought { background: var(--green-dark); color: #fff; box-shadow: 0 4px 12px rgba(4, 140, 38, 0.25); }
-.pioche-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.2); }
-.pioche-oneshot { background: var(--ochre); color: #fff; box-shadow: 0 4px 12px rgba(217, 139, 72, 0.2); }
-.pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 22px; text-align: center; display: none; box-shadow: var(--shadow); }
-.pioche-result .pick-book { font-size: 20px; font-weight: 800; color: var(--purple-dark); margin-bottom: 4px; }
-@media (prefers-color-scheme: dark) { .pioche-result .pick-book { color: var(--purple-light); } }
-.pioche-result .pick-info { font-size: 14px; color: var(--text2); font-weight: 500; }
-.pioche-result .pick-dice { font-size: 36px; margin-bottom: 10px; }
-
-.isbn-row { display: flex; gap: 8px; align-items: flex-end; }
-.isbn-row input { flex: 1; }
-.isbn-row button { 
-  flex-shrink: 0; padding: 11px 16px; border-radius: 10px; border: none; 
-  background: var(--purple-bg); color: var(--purple-dark); font-size: 13px; font-weight: 700; cursor: pointer; 
+.search-result-item {
+  display: flex; gap: 12px; background: var(--surface2); padding: 10px;
+  border-radius: 12px; border: 1px solid var(--border); align-items: center;
 }
-@media (prefers-color-scheme: dark) { .isbn-row button { color: var(--purple-light); } }
-
-.isbn-status { font-size: 12px; margin-top: 8px; min-height: 18px; font-weight: 600; }
-.isbn-status.loading { color: var(--text3); }
-.isbn-status.ok { color: var(--green-dark); }
-@media (prefers-color-scheme: dark) { .isbn-status.ok { color: var(--green-bright); } }
-.isbn-status.err { color: var(--danger); }
-
-.cover-preview-wrap { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-.cover-preview { width: 50px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: none; }
-
-.chart-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; margin-top: 14px; padding-top: 20px; }
-.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
-.chart-bar-wrap { width: 100%; background: var(--surface2); border-radius: 6px; flex: 1; display: flex; align-items: flex-end; overflow: hidden; }
-.chart-bar { width: 100%; background: var(--purple-light); border-radius: 6px; transition: height 0.4s ease; min-height: 0; }
-.chart-val { font-size: 10px; font-weight: 700; color: var(--text2); }
-.chart-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; }
+.search-result-cover {
+  width: 40px; height: 60px; object-fit: cover; border-radius: 6px; background: var(--border); flex-shrink: 0;
+}
+.search-result-info { flex: 1; min-width: 0; }
+.search-result-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.search-result-author { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
 .scanner-overlay {
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
@@ -331,16 +274,8 @@ body {
 .scanner-overlay.open { display: flex; }
 .scanner-box { position: relative; width: 280px; height: 280px; border-radius: 20px; overflow: hidden; background: #000; border: 2px solid var(--ochre); }
 .scanner-box video, .scanner-box canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-.scanner-frame {
-  position: absolute; inset: 30px;
-  border: 2px solid white; border-radius: 10px;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,0.4); z-index: 2;
-}
-.scanner-line {
-  position: absolute; left: 0; right: 0; height: 2px;
-  background: var(--ochre); top: 30px; z-index: 3;
-  animation: scan 2s ease-in-out infinite;
-}
+.scanner-frame { position: absolute; inset: 30px; border: 2px solid white; border-radius: 10px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.4); z-index: 2; }
+.scanner-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--ochre); top: 30px; z-index: 3; animation: scan 2s ease-in-out infinite; }
 @keyframes scan { 0%,100% { top: 32px; } 50% { top: calc(100% - 34px); } }
 .scanner-label { color: white; font-size: 14px; margin-top: 16px; text-align: center; font-weight: 600; }
 .scanner-close { margin-top: 20px; padding: 12px 32px; border-radius: 12px; border: none; background: white; color: #1a1a18; font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -394,125 +329,22 @@ body {
   <div id="pal-list"></div>
 </div>
 
-<div id="stats" class="section">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <p class="section-label" style="margin-bottom:0;">Statistiques de lecture</p>
-    <select id="stats-year-select" onchange="renderStats()" style="width:auto; padding:4px 8px; font-size:13px;">
-    </select>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-num purple" id="stat-read-year">0</div>
-      <div class="stat-label">Livres lus cette année</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num ok" id="stat-spend-year">0 €</div>
-      <div class="stat-label">Dépensés cette année</div>
-    </div>
-  </div>
-
-  <div class="form-card">
-    <p class="section-label" style="margin-bottom:4px;">Livres lus par mois</p>
-    <div class="chart-container" id="chart-months"></div>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-num accent" id="stat-avg-days">0 j</div>
-      <div class="stat-label">Temps moyen par livre</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="stat-series-active">0</div>
-      <div class="stat-label">Séries en cours</div>
-    </div>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-num danger" id="stat-series-waiting">0</div>
-      <div class="stat-label">Séries en attente</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num ok" id="stat-series-done">0</div>
-      <div class="stat-label">Séries terminées</div>
-    </div>
-  </div>
-</div>
-
-<div id="pioche" class="section">
-  <p class="section-label">Pioche aléatoire</p>
-  <div class="pioche-section">
-    <button class="pioche-btn pioche-serie-bought" onclick="pioche('serie_en_cours_achetee')">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      🎲 Série EN COURS (Tome déjà acheté)
-    </button>
-    <button class="pioche-btn pioche-serie" onclick="pioche('serie')">
-      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/></svg>
-      📚 Toutes les Séries
-    </button>
-    <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">
-      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      📖 Piocher un One-Shot
-    </button>
-    <div class="pioche-result" id="pioche-result">
-      <div class="pick-dice">🎲</div>
-      <div class="pick-book" id="pick-book"></div>
-      <div class="pick-info" id="pick-info"></div>
-    </div>
-  </div>
-</div>
-
-<div id="budget" class="section">
-  <p class="section-label" id="budget-title-label">Budget mensuel — 75€</p>
-  <div class="stat-grid">
-    <div class="stat-card"><div class="stat-num" id="b-depense">0€</div><div class="stat-label">Dépensé</div></div>
-    <div class="stat-card"><div class="stat-num" id="b-reste">75€</div><div class="stat-label">Restant</div></div>
-  </div>
-  <div class="budget-bar-wrap"><div class="budget-bar-fill" id="b-bar" style="width:0%"></div></div>
-  <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Ajouter une dépense libre</p>
-    <div class="form-field"><label>Intitulé</label><input type="text" id="dep-titre" placeholder="Ex: Achat librairie"></div>
-    <div class="form-field"><label>Montant (€)</label><input type="number" id="dep-montant" placeholder="Ex: 9.83" step="0.01" min="0"></div>
-    <button class="btn-full" onclick="addDepense()">Ajouter</button>
-  </div>
-  <div id="dep-list"></div>
-  <button class="btn-full btn-danger-full" onclick="resetBudget()">Remettre à zéro (nouveau mois)</button>
-</div>
-
+<!-- ONGLET AJOUTER AVEC RECHERCHE AUTO EN DIRECT -->
 <div id="ajouter" class="section">
-  <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Trouver par ISBN</p>
+  <div class="form-card" style="border: 2px solid var(--purple-light);">
+    <p class="section-label" style="margin-bottom:8px;">🔍 Ajout ultra-rapide (Recherche Web)</p>
     <div class="form-field">
-      <label>ISBN (13 ou 10 chiffres)</label>
-      <div class="isbn-row">
-        <input type="text" id="isbn-input" placeholder="Ex: 9782017..." inputmode="numeric" pattern="[0-9]*">
-        <button onclick="lookupISBN()">Rechercher</button>
-      </div>
+      <input type="text" id="auto-search-input" placeholder="Tape un titre, une saga ou un auteur..." oninput="triggerAutoSearch()">
     </div>
-    <button class="btn-full btn-scan" onclick="openScanner()" style="margin-top:0">
-      📷 Scanner le code-barres
+    <button class="btn-full btn-scan" onclick="openScanner()" style="margin-top:4px;">
+      📷 Ou scanner un code-barres
     </button>
-    <div class="isbn-status" id="isbn-status"></div>
-    <button id="google-search-btn" class="btn-full btn-secondary-full" onclick="searchOnGoogle()" style="display:none; margin-top:8px;">
-      🔍 Chercher cet ISBN sur Google
-    </button>
+    <div id="auto-search-results" class="search-results-box"></div>
   </div>
 
   <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Informations du livre</p>
+    <p class="section-label" style="margin-bottom:12px;">Ou Saisie manuelle</p>
     
-    <div class="form-field">
-      <label>URL de la couverture (optionnel)</label>
-      <input type="url" id="new-cover" placeholder="Ex: https://..." onchange="updateCoverPreview(this.value)">
-    </div>
-    <div class="form-field" id="cover-field" style="display:none;">
-      <label>Aperçu de la couverture</label>
-      <div class="cover-preview-wrap">
-        <img id="cover-preview-img" class="cover-preview" src="" alt="Couverture">
-      </div>
-    </div>
-
     <div class="form-field">
       <label>Type de livre</label>
       <select id="new-type" onchange="toggleSerieFields()">
@@ -539,7 +371,7 @@ body {
       <div class="form-field">
         <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:4px;">
           <input type="checkbox" id="new-is-prequel" style="width:auto;-webkit-appearance:checkbox;" onchange="handlePrequelToggle(this.checked)">
-          <span>C'est un préquel (tome zéro / histoire antérieure) ⏳</span>
+          <span>C'est un préquel ⏳</span>
         </label>
       </div>
     </div>
@@ -547,150 +379,89 @@ body {
     <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre" placeholder="Ex: L'Aîné"></div>
     <div class="form-field" id="oneshot-author-wrap"><label>Auteur·rice</label><input type="text" id="new-auteur" list="auteurs-list" placeholder="Ex: Christopher Paolini"></div>
 
-    <button type="button" class="btn-full btn-secondary-full" onclick="searchWikidataInfo()" style="margin-bottom:12px;">
-      ℹ️ Chercher fiche Auteur / Série sur Wikidata
-    </button>
-    <div id="wikidata-info" style="font-size:12px; color:var(--text2); margin-bottom:10px; font-style:italic;"></div>
-
     <div style="display:flex; gap:8px;">
       <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" id="new-prix" placeholder="Ex: 10.50" step="0.01" min="0"></div>
       <div class="form-field" style="flex:1;">
-        <label>Note (/5)</label>
-        <select id="new-rating">
-          <option value="0">Non noté</option>
-          <option value="1">1 ★</option>
-          <option value="2">2 ★★</option>
-          <option value="3">3 ★★★</option>
-          <option value="4">4 ★★★★</option>
-          <option value="5">5 ★★★★★</option>
+        <label>Statut</label>
+        <select id="new-statut" onchange="handleNewStatutChange(this.value)">
+          <option value="a_commencer">À commencer</option>
+          <option value="en_cours">En cours</option>
+          <option value="attente">En attente de publication</option>
+          <option value="a_acheter">🛒 À acheter</option>
+          <option value="termine">Terminé / Lu</option>
+          <option value="abandonne">🚫 Abandonné</option>
         </select>
       </div>
     </div>
 
-    <div class="form-field">
-      <label>Statut de lecture</label>
-      <select id="new-statut" onchange="handleNewStatutChange(this.value)">
-        <option value="a_commencer">À commencer</option>
-        <option value="en_cours">En cours</option>
-        <option value="attente">En attente de publication</option>
-        <option value="a_acheter">🛒 À acheter</option>
-        <option value="termine">Terminé / Lu</option>
-        <option value="abandonne">🚫 Abandonné</option>
-      </select>
-    </div>
-
-    <div style="display:flex; gap:8px;">
-      <div class="form-field" style="flex:1;"><label>Date de début</label><input type="date" id="new-date-debut"></div>
-      <div class="form-field" style="flex:1;"><label>Date de fin</label><input type="date" id="new-date-fin"></div>
-    </div>
-
-    <div class="form-field">
-      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:8px;">
-        <input type="checkbox" id="new-favorite" style="width:auto;-webkit-appearance:checkbox;">
-        <span>Marquer comme Coup de cœur ❤️</span>
-      </label>
-    </div>
-    <div class="form-field"><label>Notes (optionnel)</label><textarea id="new-notes" placeholder="Résumé, avis, personnages..." rows="3"></textarea></div>
-    <button class="btn-full" onclick="addBook()">Ajouter à ma PAL</button>
+    <div class="form-field"><label>URL Couverture</label><input type="url" id="new-cover" placeholder="https://..."></div>
+    <button class="btn-full" onclick="addBook()">Ajouter manuellement</button>
   </div>
 </div>
 
-<div id="reglages" class="section">
-  <p class="section-label">Budget Mensuel</p>
-  <div class="form-card">
-    <p style="font-size: 13px; color: var(--text2); margin-bottom: 8px;">Définir le budget mensuel (€)</p>
-    <div style="display: flex; gap: 8px;">
-      <input type="number" id="setting-budget-limit" placeholder="Ex: 75" min="0" step="1" style="flex:1; font-size:15px; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); color:var(--text);">
-      <button onclick="saveBudgetLimitSetting()" style="padding: 10px 16px; border-radius: 10px; border: none; background: var(--purple-dark); color: white; font-weight: 700; cursor: pointer;">Enregistrer</button>
+<div id="stats" class="section">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <p class="section-label" style="margin-bottom:0;">Statistiques de lecture</p>
+    <select id="stats-year-select" onchange="renderStats()" style="width:auto; padding:4px 8px; font-size:13px;"></select>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num purple" id="stat-read-year">0</div><div class="stat-label">Livres lus cette année</div></div>
+    <div class="stat-card"><div class="stat-num ok" id="stat-spend-year">0 €</div><div class="stat-label">Dépensés cette année</div></div>
+  </div>
+</div>
+
+<div id="pioche" class="section">
+  <p class="section-label">Pioche aléatoire</p>
+  <div class="pioche-section">
+    <button class="pioche-btn pioche-serie-bought" onclick="pioche('serie_en_cours_achetee')">🎲 Série EN COURS (Tome acheté)</button>
+    <button class="pioche-btn pioche-serie" onclick="pioche('serie')">📚 Toutes les Séries</button>
+    <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">📖 Piocher un One-Shot</button>
+    <div class="pioche-result" id="pioche-result">
+      <div class="pick-dice">🎲</div><div class="pick-book" id="pick-book"></div><div class="pick-info" id="pick-info"></div>
     </div>
   </div>
+</div>
 
-  <p class="section-label">Sauvegarde et Restauration</p>
-  <div class="form-card">
-    <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px;">
-      Exporte une copie de tes livres et de ton budget pour ne pas risquer de les perdre.
-    </p>
-    <button class="btn-full" onclick="exportData()">💾 Exporter mes données (JSON)</button>
+<div id="budget" class="section">
+  <p class="section-label" id="budget-title-label">Budget mensuel — 75€</p>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num" id="b-depense">0€</div><div class="stat-label">Dépensé</div></div>
+    <div class="stat-card"><div class="stat-num" id="b-reste">75€</div><div class="stat-label">Restant</div></div>
   </div>
+  <div class="budget-bar-wrap"><div class="budget-bar-fill" id="b-bar" style="width:0%"></div></div>
+</div>
 
+<div id="reglages" class="section">
+  <p class="section-label">Sauvegarde</p>
   <div class="form-card">
-    <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px;">
-      Restaure tes données à partir d'un fichier JSON.
-    </p>
-    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
-    <button class="btn-full btn-secondary-full" onclick="document.getElementById('import-file').click()">📂 Importer un fichier JSON</button>
+    <button class="btn-full" onclick="exportData()">💾 Exporter mes données (JSON)</button>
   </div>
 </div>
 
 <nav class="nav">
-  <button class="nav-btn active" id="nav-pal" onclick="showSection('pal')">
-    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-    PAL
-  </button>
-  <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Stats
-  </button>
-  <button class="nav-btn" id="nav-pioche" onclick="showSection('pioche')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-    Pioche
-  </button>
-  <button class="nav-btn" id="nav-budget" onclick="showSection('budget')">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    Budget
-  </button>
-  <button class="nav-btn" id="nav-ajouter" onclick="showSection('ajouter')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-    Ajouter
-  </button>
-  <button class="nav-btn" id="nav-reglages" onclick="showSection('reglages')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    Réglages
-  </button>
+  <button class="nav-btn active" id="nav-pal" onclick="showSection('pal')">PAL</button>
+  <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">Stats</button>
+  <button class="nav-btn" id="nav-pioche" onclick="showSection('pioche')">Pioche</button>
+  <button class="nav-btn" id="nav-budget" onclick="showSection('budget')">Budget</button>
+  <button class="nav-btn" id="nav-ajouter" onclick="showSection('ajouter')">Ajouter</button>
+  <button class="nav-btn" id="nav-reglages" onclick="showSection('reglages')">Réglages</button>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
 let books = [], series = {}, depenses = [];
-let segmentType = 'all'; 
-let mainStatusFilter = 'all';
-let activeQuickChip = 'none'; 
-let budgetLimit = 75;
-let scannerActive = false;
+let segmentType = 'all', mainStatusFilter = 'all', activeQuickChip = 'none';
+let budgetLimit = 75, searchDebounce = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
   try { series = JSON.parse(localStorage.getItem('pal_series') || '{}'); } catch(e) { series={}; }
-  try { depenses = JSON.parse(localStorage.getItem('pal_budget') || '[]'); } catch(e) { depenses=[]; }
-  try { budgetLimit = parseFloat(localStorage.getItem('pal_budget_limit')) || 75; } catch(e) { budgetLimit = 75; }
-  
-  const limitInput = document.getElementById('setting-budget-limit');
-  if (limitInput) limitInput.value = budgetLimit;
-
-  renderPAL(); 
-  renderBudget();
-  updateAuteursDataList();
-  initStatsYearSelect();
+  renderPAL();
 }
 
 function save() { 
   localStorage.setItem('pal_books', JSON.stringify(books)); 
   localStorage.setItem('pal_series', JSON.stringify(series)); 
-  updateAuteursDataList();
-}
-function saveBudget() { localStorage.setItem('pal_budget', JSON.stringify(depenses)); }
-function saveBudgetLimit() { localStorage.setItem('pal_budget_limit', budgetLimit.toString()); }
-
-function updateAuteursDataList() {
-  const listEl = document.getElementById('auteurs-list');
-  if (!listEl) return;
-
-  const auteursSet = new Set();
-  books.forEach(b => { if (b.auteur && b.auteur.trim()) auteursSet.add(b.auteur.trim()); });
-  Object.keys(series).forEach(id => { if (series[id].auteur && series[id].auteur.trim()) auteursSet.add(series[id].auteur.trim()); });
-
-  const sortedAuteurs = Array.from(auteursSet).sort((a,b) => a.localeCompare(b, 'fr'));
-  listEl.innerHTML = sortedAuteurs.map(a => `<option value="${escHtml(a)}"></option>`).join('');
 }
 
 function showSection(id) {
@@ -700,12 +471,6 @@ function showSection(id) {
     const navBtn = document.getElementById('nav-'+s);
     if (navBtn) navBtn.classList.toggle('active', s===id);
   });
-  if (id === 'ajouter') {
-    populateSerieDropdown();
-    updateAuteursDataList();
-  } else if (id === 'stats') {
-    renderStats();
-  }
 }
 
 function setSegmentType(type, el) {
@@ -715,15 +480,11 @@ function setSegmentType(type, el) {
   renderPAL();
 }
 
-function setMainStatusFilter(val) {
-  mainStatusFilter = val;
-  renderPAL();
-}
+function setMainStatusFilter(val) { mainStatusFilter = val; renderPAL(); }
 
 function toggleQuickChip(chip, el) {
   if (activeQuickChip === chip) {
-    activeQuickChip = 'none';
-    el.classList.remove('active');
+    activeQuickChip = 'none'; el.classList.remove('active');
   } else {
     activeQuickChip = chip;
     document.querySelectorAll('.quick-chips .chip').forEach(c => c.classList.remove('active'));
@@ -732,834 +493,80 @@ function toggleQuickChip(chip, el) {
   renderPAL();
 }
 
-function toggleSerieFields() {
-  const isSerie = document.getElementById('new-type').value === 'serie';
-  document.getElementById('serie-fields').style.display = isSerie ? 'block' : 'none';
-  document.getElementById('oneshot-author-wrap').style.display = isSerie ? 'none' : 'block';
-  if (isSerie) populateSerieDropdown();
-}
-
-function handlePrequelToggle(isPrequel) {
-  if (isPrequel) {
-    document.getElementById('new-tome-num').value = 0.5;
-  }
-}
-
-function handleNewStatutChange(val) {
-  const today = new Date().toISOString().slice(0,10);
-  const debutInput = document.getElementById('new-date-debut');
-  const finInput = document.getElementById('new-date-fin');
-
-  if (val === 'en_cours' && !debutInput.value) {
-    debutInput.value = today;
-  } else if (val === 'termine') {
-    if (!debutInput.value) debutInput.value = today;
-    if (!finInput.value) finInput.value = today;
-  }
-}
-
-function populateSerieDropdown() {
-  const select = document.getElementById('select-serie-id');
-  if (!select) return;
-
-  let html = '<option value="__NEW__">+ Créer une nouvelle série</option>';
-  Object.keys(series).sort((a,b) => series[a].nom.localeCompare(series[b].nom, 'fr')).forEach(id => {
-    const s = series[id];
-    html += `<option value="${id}">${escHtml(s.nom)} (${escHtml(s.auteur || 'Inconnu')})</option>`;
-  });
-
-  select.innerHTML = html;
-  select.value = '__NEW__';
-  handleSerieSelectChange('__NEW__');
-}
-
-function handleSerieSelectChange(id) {
-  const customWrap = document.getElementById('custom-serie-wrap');
-  if (id === '__NEW__') {
-    customWrap.style.display = 'block';
-    document.getElementById('new-serie-nom').value = '';
-    document.getElementById('new-serie-auteur').value = '';
-    document.getElementById('new-serie-total').value = '4';
-  } else {
-    customWrap.style.display = 'none';
-    const s = series[id];
-    if (s) {
-      document.getElementById('new-serie-nom').value = s.nom;
-      document.getElementById('new-serie-auteur').value = s.auteur;
-      document.getElementById('new-serie-total').value = s.totalTomes;
-    }
-  }
-}
-
-async function lookupISBN(isbnOverride) {
-  const isbn = isbnOverride || document.getElementById('isbn-input').value.trim().replace(/\D/g,'');
-  const status = document.getElementById('isbn-status');
-  const googleBtn = document.getElementById('google-search-btn');
-
-  if (!isbn || isbn.length < 10) { 
-    status.className='isbn-status err'; 
-    status.textContent='ISBN invalide.'; 
-    googleBtn.style.display = 'none';
-    return; 
-  }
+/* RECHERCHE AUTO EN DIRECT (GOOGLE BOOKS API) */
+function triggerAutoSearch() {
+  clearTimeout(searchDebounce);
+  const q = document.getElementById('auto-search-input').value.trim();
+  const box = document.getElementById('auto-search-results');
   
-  status.className='isbn-status loading'; 
-  status.textContent='Recherche automatique…';
-  googleBtn.style.display = 'block';
-
-  let book = null;
-
-  try {
-    const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
-    const data = await res.json();
-    const key = `ISBN:${isbn}`;
-    if (data && data[key]) {
-      const olBook = data[key];
-      book = {
-        title: olBook.title,
-        authors: olBook.authors ? olBook.authors.map(a => a.name) : [],
-        cover: olBook.cover ? (olBook.cover.large || olBook.cover.medium) : ''
-      };
-    }
-  } catch(e) {}
-
-  if (book && book.title) {
-    document.getElementById('new-titre').value = book.title || '';
-    if (document.getElementById('new-type').value === 'one_shot') {
-      document.getElementById('new-auteur').value = book.authors ? book.authors.join(', ') : '';
-    } else {
-      document.getElementById('new-serie-auteur').value = book.authors ? book.authors.join(', ') : '';
-    }
-    if (book.cover) {
-      document.getElementById('new-cover').value = book.cover;
-      updateCoverPreview(book.cover);
-    }
-    status.className='isbn-status ok'; 
-    status.textContent=`✓ ${book.title} trouvé !`;
-  } else {
-    status.className='isbn-status err'; 
-    status.textContent='Livre non trouvé en auto. Clique ci-dessous pour chercher sur Google.';
-  }
-}
-
-async function searchWikidataInfo() {
-  const isSerie = document.getElementById('new-type').value === 'serie';
-  const query = isSerie ? document.getElementById('new-serie-nom').value.trim() : document.getElementById('new-auteur').value.trim();
-  const infoEl = document.getElementById('wikidata-info');
+  if (q.length < 3) { box.innerHTML = ''; return; }
   
-  if (!query) { alert('Saisis au moins un nom d\'auteur ou de série.'); return; }
-  
-  infoEl.textContent = 'Recherche sur Wikidata...';
-  try {
-    const res = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=fr&format=json&origin=*`);
-    const data = await res.json();
-    if (data && data.search && data.search.length > 0) {
-      const item = data.search[0];
-      infoEl.textContent = `💡 Trouvé : ${item.label} (${item.description || 'Pas de description'})`;
-    } else {
-      infoEl.textContent = 'Aucune fiche Wikidata trouvée pour cette recherche.';
-    }
-  } catch(e) {
-    infoEl.textContent = 'Erreur lors de la recherche Wikidata.';
-  }
-}
-
-function searchOnGoogle() {
-  const isbn = document.getElementById('isbn-input').value.trim().replace(/\D/g,'');
-  if (isbn) {
-    window.open(`https://www.google.com/search?q=${isbn}+livre`, '_blank');
-  }
-}
-
-function updateCoverPreview(url) {
-  const field = document.getElementById('cover-field');
-  const img = document.getElementById('cover-preview-img');
-  if (url && url.trim().length > 5) {
-    img.src = url.trim();
-    img.style.display = 'block';
-    field.style.display = 'block';
-  } else {
-    img.style.display = 'none';
-    field.style.display = 'none';
-  }
-}
-
-function openScanner() {
-  if (!navigator.mediaDevices) { alert('Caméra non disponible.'); return; }
-  document.getElementById('scanner-overlay').classList.add('open');
-  scannerActive = true;
-  
-  Quagga.init({
-    inputStream: { 
-      name: 'Live', 
-      type: 'LiveStream', 
-      target: document.getElementById('scanner-container'),
-      constraints: { 
-        facingMode: 'environment',
-        width: { min: 640, ideal: 1280, max: 1920 },
-        height: { min: 480, ideal: 720, max: 1080 },
-        focusMode: 'continuous'
-      },
-      area: { top: "20%", right: "15%", left: "15%", bottom: "20%" }
-    },
-    numOfWorkers: navigator.hardwareConcurrency || 2,
-    frequency: 10,
-    decoder: { readers: ['ean_reader'], multiple: false },
-    locate: true
-  }, function(err) {
-    if (err) { alert('Impossible d\'accéder à la caméra.'); closeScanner(); return; }
-    Quagga.start();
-    const video = document.querySelector('#scanner-container video');
-    if(video) video.setAttribute('playsinline', 'true');
-
-    Quagga.onDetected(function(result) {
-      const code = result.codeResult.code;
-      if (code && code.length === 13 && scannerActive) {
-        scannerActive = false;
-        closeScanner();
-        document.getElementById('isbn-input').value = code;
-        lookupISBN(code);
+  searchDebounce = setTimeout(async () => {
+    box.innerHTML = '<p style="font-size:12px; color:var(--text3);">Recherche en cours...</p>';
+    try {
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=5&langRestrict=fr`);
+      const data = await res.json();
+      
+      if (!data.items || !data.items.length) {
+        box.innerHTML = '<p style="font-size:12px; color:var(--text3);">Aucun livre trouvé.</p>';
+        return;
       }
-    });
-  });
-}
 
-function closeScanner() {
-  scannerActive = false;
-  document.getElementById('scanner-overlay').classList.remove('open');
-  try { Quagga.stop(); } catch(e) {}
-}
-
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function toggleFavorite(idx) {
-  books[idx].favorite = !books[idx].favorite;
-  save();
-  renderPAL();
-}
-
-function getRatingStars(rating) {
-  const r = parseInt(rating) || 0;
-  if (r === 0) return '';
-  return '★'.repeat(r) + '☆'.repeat(5 - r);
-}
-
-function addBook() {
-  const titre = document.getElementById('new-titre').value.trim();
-  if (!titre) { alert('Le titre du livre est obligatoire.'); return; }
-  const type = document.getElementById('new-type').value;
-  const statut = document.getElementById('new-statut').value;
-  const prix = parseFloat(document.getElementById('new-prix').value) || 0;
-  const rating = parseInt(document.getElementById('new-rating').value) || 0;
-  const dateDebut = document.getElementById('new-date-debut').value || null;
-  const dateFin = document.getElementById('new-date-fin').value || null;
-  
-  let serieId = null;
-
-  if (type === 'serie') {
-    const selectedSelect = document.getElementById('select-serie-id').value;
-    const serieNom = document.getElementById('new-serie-nom').value.trim();
-    const serieAuteur = document.getElementById('new-serie-auteur').value.trim();
-    const serieTotal = parseInt(document.getElementById('new-serie-total').value) || 1;
-
-    if (!serieNom) { alert('Le nom de la série est obligatoire.'); return; }
-
-    if (selectedSelect === '__NEW__') {
-      serieId = 'serie_' + Date.now();
-      series[serieId] = { nom: serieNom, auteur: serieAuteur, totalTomes: serieTotal };
-    } else {
-      serieId = selectedSelect;
-      series[serieId].nom = serieNom;
-      series[serieId].auteur = serieAuteur;
-      series[serieId].totalTomes = serieTotal;
+      box.innerHTML = data.items.map(item => {
+        const info = item.volumeInfo;
+        const title = info.title || 'Sans titre';
+        const author = info.authors ? info.authors.join(', ') : 'Auteur inconnu';
+        const cover = info.imageLinks ? (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail) : '';
+        
+        return `<div class="search-result-item">
+          ${cover ? `<img src="${cover}" class="search-result-cover">` : ''}
+          <div class="search-result-info">
+            <div class="search-result-title">${escHtml(title)}</div>
+            <div class="search-result-author">${escHtml(author)}</div>
+          </div>
+          <button class="btn btn-accent" onclick="quickAddFromSearch('${escHtml(title)}', '${escHtml(author)}', '${cover}')">➕ Ajouter</button>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      box.innerHTML = '<p style="font-size:12px; color:var(--danger);">Erreur de connexion.</p>';
     }
-  }
+  }, 400);
+}
 
-  const isPrequel = type === 'serie' && document.getElementById('new-is-prequel').checked;
-  const tomeNum = type === 'serie' ? (parseFloat(document.getElementById('new-tome-num').value) || 1) : null;
-
-  const b = { 
+function quickAddFromSearch(title, author, cover) {
+  const b = {
     id: 'book_' + Date.now(),
-    titre, 
-    auteur: type === 'one_shot' ? document.getElementById('new-auteur').value.trim() : '', 
-    type,
-    serieId,
-    tomeNum,
-    isPrequel,
-    statut, 
-    prix,
-    rating,
-    dateDebut,
-    dateFin,
-    notes: document.getElementById('new-notes').value.trim(),
-    cover: document.getElementById('new-cover') ? document.getElementById('new-cover').value.trim() : '',
-    favorite: document.getElementById('new-favorite').checked,
+    titre: title,
+    auteur: author,
+    type: 'one_shot',
+    statut: 'a_commencer',
+    cover: cover,
+    favorite: false,
     dateAjout: new Date().toISOString().slice(0,10)
   };
-
-  if (type === 'serie' && (statut === 'en_cours' || statut === 'attente' || statut === 'termine')) {
-    books.forEach(otherBook => {
-      if (otherBook.type === 'serie' && otherBook.serieId === serieId && otherBook.tomeNum < tomeNum) {
-        otherBook.statut = 'termine';
-        if (!otherBook.dateFin) otherBook.dateFin = b.dateFin || new Date().toISOString().slice(0,10);
-      }
-    });
-  }
-
-  books.unshift(b); 
+  books.unshift(b);
   save();
-
-  ['new-titre','new-auteur','new-notes','new-cover','new-serie-nom','new-serie-auteur','new-prix','new-date-debut','new-date-fin'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = '';
-  });
-  document.getElementById('new-rating').value = '0';
-  document.getElementById('new-favorite').checked = false;
-  document.getElementById('new-is-prequel').checked = false;
-  document.getElementById('isbn-input').value = '';
-  document.getElementById('isbn-status').textContent = '';
-  document.getElementById('google-search-btn').style.display = 'none';
-  if(document.getElementById('cover-field')) document.getElementById('cover-field').style.display = 'none';
-  if(document.getElementById('cover-preview-img')) document.getElementById('cover-preview-img').style.display = 'none';
-
-  showSection('pal'); 
+  document.getElementById('auto-search-input').value = '';
+  document.getElementById('auto-search-results').innerHTML = '';
+  showSection('pal');
   renderPAL();
 }
 
-function quickAddVirtualBook(serieId, tomeNum) {
-  const s = series[serieId];
-  if (!s) return;
-  
-  showSection('ajouter');
-  document.getElementById('new-type').value = 'serie';
-  toggleSerieFields();
-  
-  const select = document.getElementById('select-serie-id');
-  if (select) {
-    select.value = serieId;
-    handleSerieSelectChange(serieId);
-  }
-  
-  document.getElementById('new-tome-num').value = tomeNum;
-  document.getElementById('new-titre').value = `${s.nom} - Tome ${tomeNum}`;
-  document.getElementById('new-statut').value = 'a_commencer';
-}
+function escHtml(s) { return String(s||'').replace(/'/g, "&#39;").replace(/"/g, "&quot;"); }
 
 function renderPAL() {
-  const q = (document.getElementById('search').value||'').toLowerCase();
-  
-  let virtualBooks = [];
-  if (activeQuickChip === 'next_buy' || activeQuickChip === 'none') {
-    Object.keys(series).forEach(sId => {
-      const s = series[sId];
-      const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId);
-      const isAbandoned = seriesBooks.some(b => b.statut === 'abandonne');
-      
-      if (!isAbandoned && seriesBooks.length > 0) {
-        const maxOwnedTome = seriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
-        if (maxOwnedTome < s.totalTomes) {
-          const nextTome = Number.isInteger(maxOwnedTome) ? maxOwnedTome + 1 : Math.ceil(maxOwnedTome);
-          
-          const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
-          if (!alreadyExists) {
-            virtualBooks.push({
-              isVirtual: true,
-              serieId: sId,
-              tomeNum: nextTome,
-              titre: `${s.nom} - Tome ${nextTome}`,
-              auteur: s.auteur,
-              type: 'serie',
-              statut: 'a_acheter'
-            });
-          }
-        }
-      }
-    });
-  }
-
-  const allItems = [...books, ...virtualBooks];
-
-  const filtered = allItems.filter(b => {
-    const s = b.serieId ? series[b.serieId] : null;
-    const titleMatch = b.titre.toLowerCase().includes(q);
-    const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
-    const serieMatch = (s ? s.nom : '').toLowerCase().includes(q);
-    
-    if (q && !titleMatch && !authorMatch && !serieMatch) return false;
-    
-    if (segmentType === 'serie' && b.type !== 'serie') return false;
-    if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
-
-    if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
-
-    if (activeQuickChip === 'favorite' && !b.favorite) return false;
-
-    if (activeQuickChip === 'next_read') {
-      if (b.isVirtual || b.statut !== 'a_commencer') return false;
-      if (b.type === 'one_shot') return true;
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      const minUnreadTome = allSeriesBooks
-        .filter(other => other.statut === 'a_commencer')
-        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
-      return b.tomeNum === minUnreadTome;
-    }
-
-    if (activeQuickChip === 'next_buy') {
-      if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
-      if (b.isVirtual) return true;
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      const minBuyTome = allSeriesBooks
-        .filter(other => other.statut === 'a_acheter')
-        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
-      return b.tomeNum === minBuyTome;
-    }
-
-    return !b.isVirtual;
-  });
-
-  const total = books.length;
-  const enCours = books.filter(b=>b.statut==='en_cours').length;
-  document.getElementById('header-count').textContent = `${total} livres · ${enCours} en cours`;
-
   const list = document.getElementById('pal-list');
-  if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre ici pour l\'instant</div>'; return; }
+  if (!books.length) { list.innerHTML='<div class="empty-state">Aucun livre dans ta bibliothèque. Tape un titre ci-dessus !</div>'; return; }
 
-  list.innerHTML = filtered.map(b => {
-    if (b.isVirtual) {
-      const s = series[b.serieId];
-      return `<div class="book-card virtual">
-        <div class="book-card-content">
-          <div class="book-info-main">
-            <div class="book-title">${escHtml(b.titre)}</div>
-            <div class="book-serie-info">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>
-            <div class="book-author">${escHtml(s.auteur)}</div>
-            <div class="badges" style="margin-top:8px;">
-              <span class="badge badge-acheter">🛒 Tome manquant à acheter</span>
-            </div>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
-          <button class="btn btn-action-done" onclick="quickAddVirtualBook('${b.serieId}', ${b.tomeNum})">➕ Ajouter à ma PAL</button>
-        </div>
-      </div>`;
-    }
-
-    const idx = books.indexOf(b);
-    const isOne = b.type==='one_shot';
-    const s = b.serieId ? series[b.serieId] : null;
-
-    let bClass, bText;
-    if (b.statut==='termine') { bClass='badge-termine'; bText='lu / terminé'; }
-    else if (b.statut==='attente') { bClass='badge-attente'; bText='en attente'; }
-    else if (b.statut==='a_acheter') { bClass='badge-acheter'; bText='🛒 à acheter'; }
-    else if (b.statut==='en_cours') { bClass='badge-encours'; bText='en cours'; }
-    else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
-    else { bClass='badge-acommencer'; bText='à commencer'; }
-
-    const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
-    const notePreview = b.notes ? b.notes.substring(0,80)+(b.notes.length>80?'…':'') : '';
-    const isFav = !!b.favorite;
-
-    let maxTomeAvancement = b.tomeNum || 1;
-    if (!isOne && b.serieId) {
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      maxTomeAvancement = allSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 1), b.tomeNum || 1);
-    }
-
-    const pct = (!isOne && s && s.totalTomes > 0) ? Math.min(Math.round((maxTomeAvancement / s.totalTomes) * 100), 100) : 0;
-    const stars = getRatingStars(b.rating);
-
-    return `<div class="book-card">
-      <div class="book-card-content">
-        ${b.cover ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">` : ''}
-        <div class="book-info-main">
-          <div class="book-top">
-            <div style="flex:1">
-              <div class="book-title">${escHtml(b.titre)}</div>
-              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · ${b.isPrequel ? 'Préquel' : ''} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
-              <div class="book-author">${escHtml(authorDisplay)}</div>
-              ${b.prix > 0 ? `<div class="book-price-info">Prix : ${b.prix.toFixed(2)} €</div>` : ''}
-              ${stars ? `<div class="book-rating">${stars}</div>` : ''}
-            </div>
-            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
-              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
-          </div>
-          <div class="badges">
-            <span class="badge ${bClass}">${bText}</span>
-            ${b.isPrequel ? `<span class="badge badge-prequel">⏳ Préquel</span>` : ''}
-            ${isFav ? `<span class="badge badge-favorite">❤️ Coup de cœur</span>` : ''}
-          </div>
-
-          ${!isOne && s ? `
-            <div class="progress-txt">Avancée série : Tome ${maxTomeAvancement} sur ${s.totalTomes} (${pct}%)</div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-          ` : ''}
-
-          <div>
-            <button class="heart-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${idx})">
-              ${isFav ? '❤️ Coup de cœur' : '🤍 Ajouter aux coups de cœur'}
-            </button>
-          </div>
-        </div>
+  list.innerHTML = books.map((b, idx) => `<div class="book-card">
+    <div class="book-card-content">
+      ${b.cover ? `<img src="${b.cover}" class="book-cover">` : ''}
+      <div class="book-info-main">
+        <div class="book-title">${b.titre}</div>
+        <div class="book-author">${b.auteur}</div>
       </div>
-      ${notePreview ? `<div class="note-preview">${escHtml(notePreview)}</div>` : ''}
-      <div class="card-actions">
-        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
-        ${b.statut!=='termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
-      </div>
-
-      <div class="edit-panel" id="edit-panel-${idx}">
-        <p class="section-label" style="margin-bottom:8px;">Modifier ce livre</p>
-        <div class="form-field"><label>Titre du livre / tome</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
-        ${isOne ? `<div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" list="auteurs-list" value="${escHtml(b.auteur)}"></div>` : ''}
-        ${!isOne && s ? `
-          <div style="background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
-            <p style="font-size:11px; font-weight:700; color:var(--purple-dark); margin-bottom:6px;">Série liée (modifie tous les tomes)</p>
-            <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s.nom)}"></div>
-            <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" list="auteurs-list" value="${escHtml(s.auteur)}"></div>
-            <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s.totalTomes}"></div>
-          </div>
-          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum}"></div>
-          <div class="form-field">
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="edit-is-prequel-${idx}" ${b.isPrequel ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
-              <span>C'est un préquel ⏳</span>
-            </label>
-          </div>
-        ` : ''}
-        <div style="display:flex; gap:8px;">
-          <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
-          <div class="form-field" style="flex:1;">
-            <label>Note (/5)</label>
-            <select id="edit-rating-${idx}">
-              <option value="0" ${(!b.rating || b.rating===0)?'selected':''}>Non noté</option>
-              <option value="1" ${b.rating===1?'selected':''}>1 ★</option>
-              <option value="2" ${b.rating===2?'selected':''}>2 ★★</option>
-              <option value="3" ${b.rating===3?'selected':''}>3 ★★★</option>
-              <option value="4" ${b.rating===4?'selected':''}>4 ★★★★</option>
-              <option value="5" ${b.rating===5?'selected':''}>5 ★★★★★</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <div class="form-field" style="flex:1;">
-            <label>Statut</label>
-            <select id="edit-statut-${idx}">
-              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>À commencer</option>
-              <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>En cours</option>
-              <option value="attente" ${b.statut==='attente'?'selected':''}>En attente</option>
-              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 À acheter</option>
-              <option value="termine" ${b.statut==='termine'?'selected':''}>Terminé / Lu</option>
-              <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <div class="form-field" style="flex:1;"><label>Date début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut || ''}"></div>
-          <div class="form-field" style="flex:1;"><label>Date fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin || ''}"></div>
-        </div>
-        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover)}"></div>
-        <div class="form-field"><label>Notes</label><textarea id="edit-notes-${idx}" rows="3">${escHtml(b.notes)}</textarea></div>
-        <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleEditPanel(idx) {
-  document.getElementById(`edit-panel-${idx}`).classList.toggle('open');
-}
-
-function saveEdit(idx) {
-  const b = books[idx];
-  b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
-  
-  if (b.type === 'one_shot') {
-    b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
-  } else if (b.serieId && series[b.serieId]) {
-    const s = series[b.serieId];
-    s.nom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
-    s.auteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
-    s.totalTomes = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
-    b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
-    b.isPrequel = document.getElementById(`edit-is-prequel-${idx}`).checked;
-  }
-
-  b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
-  b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
-  b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
-  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
-  b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
-  b.notes = document.getElementById(`edit-notes-${idx}`).value.trim();
-
-  save();
-  renderPAL();
-}
-
-function markDone(idx) { 
-  const b = books[idx];
-  b.statut = 'termine'; 
-  const today = new Date().toISOString().slice(0,10);
-  if (!b.dateDebut) b.dateDebut = today;
-  if (!b.dateFin) b.dateFin = today;
-  save(); 
-  renderPAL(); 
-}
-
-function removeBook(idx) {
-  if (confirm(`Supprimer "${books[idx].titre}" ?`)) { books.splice(idx,1); save(); renderPAL(); }
-}
-
-function initStatsYearSelect() {
-  const select = document.getElementById('stats-year-select');
-  if (!select) return;
-
-  const currentYear = new Date().getFullYear();
-  const years = new Set([currentYear]);
-
-  books.forEach(b => {
-    if (b.dateFin) {
-      const y = parseInt(b.dateFin.substring(0,4));
-      if (!isNaN(y)) years.add(y);
-    }
-  });
-
-  const sortedYears = Array.from(years).sort((a,b) => b - a);
-  select.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
-  select.value = currentYear;
-}
-
-function renderStats() {
-  const yearSelect = document.getElementById('stats-year-select');
-  const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
-
-  const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
-  document.getElementById('stat-read-year').textContent = readBooksYear.length;
-
-  const bookSpendYear = books.reduce((s, b) => {
-    const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
-    return (y === selectedYear && b.prix) ? s + b.prix : s;
-  }, 0);
-
-  const depensesSpendYear = depenses.reduce((s, d) => s + (d.montant || 0), 0);
-  document.getElementById('stat-spend-year').textContent = (bookSpendYear + depensesSpendYear).toFixed(2) + ' €';
-
-  const monthCounts = Array(12).fill(0);
-  readBooksYear.forEach(b => {
-    const m = parseInt(b.dateFin.substring(5,7)) - 1;
-    if (m >= 0 && m < 12) monthCounts[m]++;
-  });
-
-  const maxVal = Math.max(...monthCounts, 1);
-  const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-  const chartEl = document.getElementById('chart-months');
-  chartEl.innerHTML = monthCounts.map((cnt, i) => {
-    const pct = Math.round((cnt / maxVal) * 100);
-    return `<div class="chart-col">
-      <div class="chart-val">${cnt > 0 ? cnt : ''}</div>
-      <div class="chart-bar-wrap">
-        <div class="chart-bar" style="height:${pct}%"></div>
-      </div>
-      <div class="chart-label">${monthNames[i]}</div>
-    </div>`;
-  }).join('');
-
-  let totalDays = 0;
-  let validReadCount = 0;
-
-  readBooksYear.forEach(b => {
-    if (b.dateDebut && b.dateFin) {
-      const d1 = new Date(b.dateDebut);
-      const d2 = new Date(b.dateFin);
-      const diffTime = d2 - d1;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      if (diffDays > 0) {
-        totalDays += diffDays;
-        validReadCount++;
-      }
-    }
-  });
-
-  const avgDays = validReadCount > 0 ? Math.round(totalDays / validReadCount) : 0;
-  document.getElementById('stat-avg-days').textContent = avgDays > 0 ? `${avgDays} j` : 'N/A';
-
-  let activeSeries = 0;
-  let waitingSeries = 0;
-  let doneSeries = 0;
-
-  Object.keys(series).forEach(id => {
-    const s = series[id];
-    const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
-    
-    const hasEnCours = seriesBooks.some(b => b.statut === 'en_cours');
-    const hasAttente = seriesBooks.some(b => b.statut === 'attente');
-    const isAbandoned = seriesBooks.some(b => b.statut === 'abandonne');
-    const maxTomeInPal = seriesBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
-    
-    if (!isAbandoned) {
-      if (hasEnCours) {
-        activeSeries++;
-      } else if (hasAttente) {
-        waitingSeries++;
-      } else if (maxTomeInPal >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine')) {
-        doneSeries++;
-      } else {
-        activeSeries++;
-      }
-    }
-  });
-
-  document.getElementById('stat-series-active').textContent = activeSeries;
-  document.getElementById('stat-series-waiting').textContent = waitingSeries;
-  document.getElementById('stat-series-done').textContent = doneSeries;
-}
-
-function pioche(mode) {
-  let pool = [];
-  
-  if (mode === 'serie_en_cours_achetee') {
-    const activeSeriesIds = new Set(
-      books.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
-    );
-    
-    pool = books.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId));
-  } else if (mode === 'serie') {
-    pool = books.filter(b => b.type === 'serie' && (b.statut === 'a_commencer' || b.statut === 'en_cours'));
-  } else {
-    pool = books.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
-  }
-
-  const res = document.getElementById('pioche-result');
-  res.style.display = 'block';
-  
-  if (!pool.length) {
-    document.getElementById('pick-book').textContent = mode === 'serie_en_cours_achetee' ? 'Aucune suite achetée à commencer !' : 'Aucun livre disponible !';
-    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux tomes dans ta PAL.'; 
-    return;
-  }
-  
-  const pick = pool[Math.floor(Math.random()*pool.length)];
-  const s = pick.serieId ? series[pick.serieId] : null;
-
-  document.getElementById('pick-book').textContent = pick.titre;
-  document.getElementById('pick-info').textContent = [
-    s ? `${s.nom} (${pick.isPrequel ? 'Préquel' : 'Tome ' + pick.tomeNum})` : '',
-    s ? s.auteur : pick.auteur
-  ].filter(Boolean).join(' · ');
-}
-
-function renderBudget() {
-  const titleEl = document.getElementById('budget-title-label');
-  if (titleEl) titleEl.textContent = `Budget mensuel — ${budgetLimit}€`;
-
-  const total = depenses.reduce((s,d)=>s+d.montant,0);
-  const reste = budgetLimit - total; 
-  const pct = budgetLimit > 0 ? Math.min((total/budgetLimit)*100, 100) : 100;
-
-  document.getElementById('b-depense').textContent = total.toFixed(2)+'€';
-  
-  const re = document.getElementById('b-reste');
-  re.textContent = reste.toFixed(2)+'€'; 
-  re.className = 'stat-num ' + (reste < 0 ? 'danger' : 'ok');
-
-  const bar = document.getElementById('b-bar');
-  bar.style.width = pct + '%'; 
-  bar.classList.toggle('over', total > budgetLimit);
-
-  const dl = document.getElementById('dep-list');
-  if (!depenses.length) { dl.innerHTML = ''; return; }
-  
-  dl.innerHTML = '<div class="form-card">' + depenses.map((d,i) => `<div class="expense-row">
-    <span style="font-size:14px; font-weight:600">${escHtml(d.titre)}</span>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:14px;font-weight:700">${d.montant.toFixed(2)}€</span>
-      <button class="del-btn" onclick="removeDepense(${i})" aria-label="Supprimer">
-        <svg viewBox="0 0 24 24" width="16" height="16" style="stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div></div>`).join('') + '</div>';
-}
-
-function addDepense() {
-  const titre = document.getElementById('dep-titre').value.trim();
-  const montant = parseFloat(document.getElementById('dep-montant').value);
-  if (!titre||isNaN(montant)||montant<=0) { alert('Titre et montant requis.'); return; }
-  depenses.push({titre,montant}); saveBudget();
-  document.getElementById('dep-titre').value=''; document.getElementById('dep-montant').value='';
-  renderBudget();
-}
-
-function removeDepense(i) { depenses.splice(i,1); saveBudget(); renderBudget(); }
-function resetBudget() { if (confirm('Remettre le budget à zéro ?')) { depenses=[]; saveBudget(); renderBudget(); } }
-
-function saveBudgetLimitSetting() {
-  const val = parseFloat(document.getElementById('setting-budget-limit').value);
-  if (isNaN(val) || val < 0) { alert('Veuillez entrer un montant valide.'); return; }
-  budgetLimit = val;
-  saveBudgetLimit();
-  renderBudget();
-  alert('Budget mis à jour !');
-}
-
-function exportData() {
-  const data = {
-    books: books,
-    series: series,
-    depenses: depenses,
-    budgetLimit: budgetLimit,
-    exportDate: new Date().toISOString()
-  };
-  
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `ma_bibliotheque_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.books && Array.isArray(data.books)) {
-        if (confirm("Importer ces données écrasera tes données actuelles. Continuer ?")) {
-          books = data.books;
-          series = data.series || {};
-          depenses = data.depenses || [];
-          if (data.budgetLimit !== undefined) {
-            budgetLimit = parseFloat(data.budgetLimit) || 75;
-            saveBudgetLimit();
-            const limitInput = document.getElementById('setting-budget-limit');
-            if (limitInput) limitInput.value = budgetLimit;
-          }
-          save();
-          saveBudget();
-          renderPAL();
-          renderBudget();
-          populateSerieDropdown();
-          initStatsYearSelect();
-          alert("Importation réussie !");
-          showSection('pal');
-        }
-      } else {
-        alert("Le fichier JSON n'est pas au bon format.");
-      }
-    } catch (err) {
-      alert("Erreur lors de la lecture du fichier : " + err.message);
-    }
-  };
-  reader.readAsText(file);
+    </div>
+  </div>`).join('');
 }
 
 load();
