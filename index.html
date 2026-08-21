@@ -252,25 +252,14 @@ body {
 .btn-danger-full { background: var(--danger-bg); color: var(--danger); border: none; font-size: 13px; font-weight: 600; box-shadow: none; }
 .btn-scan { background: var(--ochre); color: #fff; box-shadow: 0 4px 10px rgba(217, 139, 72, 0.3); }
 
-/* STYLE DES RÉSULTATS DE RECHERCHE EN DIRECT */
-.search-results-box {
-  display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
-}
-.search-result-item {
-  display: flex; gap: 12px; background: var(--surface2); padding: 10px;
-  border-radius: 12px; border: 1px solid var(--border); align-items: center;
-}
-.search-result-cover {
-  width: 40px; height: 60px; object-fit: cover; border-radius: 6px; background: var(--border); flex-shrink: 0;
-}
+.search-results-box { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.search-result-item { display: flex; gap: 12px; background: var(--surface2); padding: 10px; border-radius: 12px; border: 1px solid var(--border); align-items: center; }
+.search-result-cover { width: 40px; height: 60px; object-fit: cover; border-radius: 6px; background: var(--border); flex-shrink: 0; }
 .search-result-info { flex: 1; min-width: 0; }
 .search-result-title { font-size: 14px; font-weight: 700; color: var(--text); }
 .search-result-author { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
-.scanner-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-  z-index: 100; flex-direction: column; align-items: center; justify-content: center;
-}
+.scanner-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
 .scanner-overlay.open { display: flex; }
 .scanner-box { position: relative; width: 280px; height: 280px; border-radius: 20px; overflow: hidden; background: #000; border: 2px solid var(--ochre); }
 .scanner-box video, .scanner-box canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -287,7 +276,7 @@ body {
 
 <div class="header">
   <h1>Ma bibliothèque</h1>
-  <p id="header-count">Chargement...</p>
+  <p id="header-count">Initialisation...</p>
 </div>
 
 <div class="scanner-overlay" id="scanner-overlay">
@@ -329,7 +318,6 @@ body {
   <div id="pal-list"></div>
 </div>
 
-<!-- ONGLET AJOUTER AVEC RECHERCHE AUTO EN DIRECT -->
 <div id="ajouter" class="section">
   <div class="form-card" style="border: 2px solid var(--purple-light);">
     <p class="section-label" style="margin-bottom:8px;">🔍 Ajout ultra-rapide (Recherche Web)</p>
@@ -343,7 +331,7 @@ body {
   </div>
 
   <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Ou Saisie manuelle</p>
+    <p class="section-label" style="margin-bottom:12px;">Saisie manuelle</p>
     
     <div class="form-field">
       <label>Type de livre</label>
@@ -447,16 +435,28 @@ body {
   <button class="nav-btn" id="nav-reglages" onclick="showSection('reglages')">Réglages</button>
 </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+<!-- CHARGEMENT DU SCANNER DIFFÉRÉ EN ARRIÈRE-PLAN (DEFER) -->
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js" defer></script>
+
 <script>
 let books = [], series = {}, depenses = [];
 let segmentType = 'all', mainStatusFilter = 'all', activeQuickChip = 'none';
 let budgetLimit = 75, searchDebounce = null;
 
+// CHARGEMENT ULTRA-RAPIDE INSTANTANÉ
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
   try { series = JSON.parse(localStorage.getItem('pal_series') || '{}'); } catch(e) { series={}; }
+  try { depenses = JSON.parse(localStorage.getItem('pal_budget') || '[]'); } catch(e) { depenses=[]; }
+  
+  // Affiche la PAL immédiatement
   renderPAL();
+
+  // Diffère le reste des calculs de 50ms pour libérer l'affichage principal
+  setTimeout(() => {
+    updateAuteursDataList();
+    initStatsYearSelect();
+  }, 50);
 }
 
 function save() { 
@@ -493,7 +493,6 @@ function toggleQuickChip(chip, el) {
   renderPAL();
 }
 
-/* RECHERCHE AUTO EN DIRECT (GOOGLE BOOKS API) */
 function triggerAutoSearch() {
   clearTimeout(searchDebounce);
   const q = document.getElementById('auto-search-input').value.trim();
@@ -530,7 +529,7 @@ function triggerAutoSearch() {
     } catch(e) {
       box.innerHTML = '<p style="font-size:12px; color:var(--danger);">Erreur de connexion.</p>';
     }
-  }, 400);
+  }, 350);
 }
 
 function quickAddFromSearch(title, author, cover) {
@@ -556,14 +555,22 @@ function escHtml(s) { return String(s||'').replace(/'/g, "&#39;").replace(/"/g, 
 
 function renderPAL() {
   const list = document.getElementById('pal-list');
-  if (!books.length) { list.innerHTML='<div class="empty-state">Aucun livre dans ta bibliothèque. Tape un titre ci-dessus !</div>'; return; }
+  
+  const total = books.length;
+  const enCours = books.filter(b=>b.statut==='en_cours').length;
+  document.getElementById('header-count').textContent = `${total} livres · ${enCours} en cours`;
+
+  if (!books.length) { 
+    list.innerHTML='<div class="empty-state">Aucun livre dans ta bibliothèque.<br>Va dans "Ajouter" pour rechercher un livre !</div>'; 
+    return; 
+  }
 
   list.innerHTML = books.map((b, idx) => `<div class="book-card">
     <div class="book-card-content">
       ${b.cover ? `<img src="${b.cover}" class="book-cover">` : ''}
       <div class="book-info-main">
-        <div class="book-title">${b.titre}</div>
-        <div class="book-author">${b.auteur}</div>
+        <div class="book-title">${escHtml(b.titre)}</div>
+        <div class="book-author">${escHtml(b.auteur)}</div>
       </div>
     </div>
   </div>`).join('');
