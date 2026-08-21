@@ -636,7 +636,7 @@ body {
       🎲 Série EN COURS (Tome déjà acheté)
     </button>
     <button class="pioche-btn pioche-serie" onclick="pioche('serie')">
-      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
       📚 Toutes les Séries
     </button>
     <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">
@@ -1917,36 +1917,80 @@ function copyExportText() {
   }
 }
 
+function processParsedData(data) {
+  if (!data.books || !Array.isArray(data.books)) {
+    alert("Les données à importer ne sont pas au bon format.");
+    return;
+  }
+
+  const isMerge = confirm("Souhaites-tu FUSIONNER ces données avec tes livres actuels ?\n\n- Cliquer sur OK pour ajouter/fusionner sans supprimer tes livres actuels.\n- Cliquer sur Annuler pour tout remplacer.");
+
+  if (isMerge) {
+    const existingIds = new Set(books.map(b => b.id || b.titre));
+    let addedCount = 0;
+    
+    data.books.forEach(newBook => {
+      const bookKey = newBook.id || newBook.titre;
+      if (!existingIds.has(bookKey)) {
+        books.unshift(newBook);
+        existingIds.add(bookKey);
+        addedCount++;
+      }
+    });
+
+    if (data.series) {
+      Object.keys(data.series).forEach(sId => {
+        if (!series[sId]) {
+          series[sId] = data.series[sId];
+        }
+      });
+    }
+
+    if (data.depenses && Array.isArray(data.depenses)) {
+      depenses = [...depenses, ...data.depenses];
+    }
+
+    save();
+    saveBudget();
+    renderAccueil();
+    renderPAL();
+    renderBudget();
+    populateSerieDropdown();
+    initStatsYearSelect();
+    alert(`Fusion réussie : ${addedCount} nouveaux livres ajoutés !`);
+    showSection('accueil');
+  } else {
+    if (confirm("Attention : cela va REMPLACER TOUS tes livres actuels. Es-tu sûre ?")) {
+      books = data.books;
+      series = data.series || {};
+      depenses = data.depenses || [];
+      if (data.budgetLimit !== undefined) {
+        budgetLimit = parseFloat(data.budgetLimit) || 75;
+        saveBudgetLimit();
+        const limitInput = document.getElementById('setting-budget-limit');
+        if (limitInput) limitInput.value = budgetLimit;
+      }
+      save();
+      saveBudget();
+      renderAccueil();
+      renderPAL();
+      renderBudget();
+      populateSerieDropdown();
+      initStatsYearSelect();
+      alert("Remplacement réussi !");
+      showSection('accueil');
+    }
+  }
+}
+
 function importDataText() {
   const str = document.getElementById('import-text-val').value.trim();
   if (!str) { alert("Veuillez coller du texte avant d'importer."); return; }
   
   try {
     const data = JSON.parse(str);
-    if (data.books && Array.isArray(data.books)) {
-      if (confirm("Importer ces données écrasera tes données actuelles. Continuer ?")) {
-        books = data.books;
-        series = data.series || {};
-        depenses = data.depenses || [];
-        if (data.budgetLimit !== undefined) {
-          budgetLimit = parseFloat(data.budgetLimit) || 75;
-          saveBudgetLimit();
-          const limitInput = document.getElementById('setting-budget-limit');
-          if (limitInput) limitInput.value = budgetLimit;
-        }
-        save();
-        saveBudget();
-        renderAccueil();
-        renderPAL();
-        renderBudget();
-        populateSerieDropdown();
-        initStatsYearSelect();
-        alert("Importation réussie !");
-        showSection('accueil');
-      }
-    } else {
-      alert("Le texte collé n'est pas au bon format JSON.");
-    }
+    processParsedData(data);
+    document.getElementById('import-text-val').value = '';
   } catch (err) {
     alert("Erreur dans le format du texte collé : " + err.message);
   }
@@ -1960,30 +2004,7 @@ function importData(event) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      if (data.books && Array.isArray(data.books)) {
-        if (confirm("Importer ces données écrasera tes données actuelles. Continuer ?")) {
-          books = data.books;
-          series = data.series || {};
-          depenses = data.depenses || [];
-          if (data.budgetLimit !== undefined) {
-            budgetLimit = parseFloat(data.budgetLimit) || 75;
-            saveBudgetLimit();
-            const limitInput = document.getElementById('setting-budget-limit');
-            if (limitInput) limitInput.value = budgetLimit;
-          }
-          save();
-          saveBudget();
-          renderAccueil();
-          renderPAL();
-          renderBudget();
-          populateSerieDropdown();
-          initStatsYearSelect();
-          alert("Importation réussie !");
-          showSection('accueil');
-        }
-      } else {
-        alert("Le fichier JSON n'est pas au bon format.");
-      }
+      processParsedData(data);
     } catch (err) {
       alert("Erreur lors de la lecture du fichier : " + err.message);
     }
