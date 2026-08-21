@@ -394,6 +394,9 @@ body {
 @media (prefers-color-scheme: dark) { .btn-action-done { color: var(--green-bright); border-color: rgba(4, 191, 51, 0.4); } }
 .btn-action-done:active { background: var(--green-bg); }
 
+.btn-action-read { border-color: rgba(116, 79, 140, 0.3); color: var(--purple-dark); background: var(--surface2); }
+@media (prefers-color-scheme: dark) { .btn-action-read { color: var(--purple-light); } }
+
 .btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
 
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
@@ -567,7 +570,7 @@ body {
       <option value="all">Tous les statuts</option>
       <option value="en_cours">📖 En cours de lecture</option>
       <option value="a_commencer">⏳ À commencer</option>
-      <option value="attente">📦 En attente de publication</option>
+      <option value="attente">📦 En attente de suite</option>
       <option value="a_acheter">🛒 À acheter</option>
       <option value="termine">✓ Terminés / Lus</option>
       <option value="abandonne">🚫 Abandonnés</option>
@@ -635,7 +638,7 @@ body {
   <div class="stat-grid">
     <div class="stat-card" onclick="showStatDetail('series_waiting')">
       <div class="stat-num danger" id="stat-series-waiting">0</div>
-      <div class="stat-label">Séries en attente 🔍</div>
+      <div class="stat-label">Séries en attente de suite 🔍</div>
     </div>
     <div class="stat-card" onclick="showStatDetail('series_done')">
       <div class="stat-num ok" id="stat-series-done">0</div>
@@ -780,8 +783,8 @@ body {
       <label>Statut de lecture</label>
       <select id="new-statut" onchange="handleNewStatutChange(this.value)">
         <option value="a_commencer">À commencer</option>
-        <option value="en_cours">En cours</option>
-        <option value="attente">En attente de publication</option>
+        <option value="en_cours">En cours de lecture</option>
+        <option value="attente">En attente de suite</option>
         <option value="a_acheter">🛒 À acheter</option>
         <option value="termine">Terminé / Lu</option>
         <option value="abandonne">🚫 Abandonné</option>
@@ -1294,8 +1297,10 @@ function addBook() {
   if (type === 'serie' && (statut === 'en_cours' || statut === 'attente' || statut === 'termine')) {
     books.forEach(otherBook => {
       if (otherBook.type === 'serie' && otherBook.serieId === serieId && otherBook.tomeNum < tomeNum) {
-        otherBook.statut = 'termine';
-        if (!otherBook.dateFin) otherBook.dateFin = b.dateFin || new Date().toISOString().slice(0,10);
+        if (otherBook.statut !== 'termine') {
+          otherBook.statut = 'termine';
+          if (!otherBook.dateFin) otherBook.dateFin = b.dateFin || new Date().toISOString().slice(0,10);
+        }
       }
     });
   }
@@ -1468,11 +1473,11 @@ function renderPAL() {
 
     let bClass, bText;
     if (b.statut==='termine') { bClass='badge-termine'; bText='lu / terminé'; }
-    else if (b.statut==='attente') { bClass='badge-attente'; bText='en attente'; }
+    else if (b.statut==='attente') { bClass='badge-attente'; bText='📦 en attente de suite'; }
     else if (b.statut==='a_acheter') { bClass='badge-acheter'; bText='🛒 à acheter'; }
-    else if (b.statut==='en_cours') { bClass='badge-encours'; bText='en cours'; }
+    else if (b.statut==='en_cours') { bClass='badge-encours'; bText='📖 en cours'; }
     else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
-    else { bClass='badge-acommencer'; bText='à commencer'; }
+    else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
 
     const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
     const notePreview = b.notes ? b.notes.substring(0,80)+(b.notes.length>80?'…':'') : '';
@@ -1534,35 +1539,55 @@ function renderPAL() {
       </div>
       ${notePreview ? `<div class="note-preview">${escHtml(notePreview)}</div>` : ''}
       <div class="card-actions">
+        ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer la lecture</button>` : ''}
+        ${b.statut !== 'termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
-        ${b.statut!=='termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
       </div>
 
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier ce livre</p>
+        
+        <div class="form-field">
+          <label>Type de livre</label>
+          <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
+            <option value="one_shot" ${isOne ? 'selected' : ''}>One-shot / Livre unique</option>
+            <option value="serie" ${!isOne ? 'selected' : ''}>Fait partie d'une série</option>
+          </select>
+        </div>
+
         <div class="form-field"><label>Titre du livre / tome</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
-        ${isOne ? `<div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" list="auteurs-list" value="${escHtml(b.auteur)}"></div>` : ''}
-        ${!isOne && s ? `
-          <div style="background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
-            <p style="font-size:11px; font-weight:700; color:var(--purple-dark); margin-bottom:6px;">Série liée (modifie tous les tomes)</p>
-            <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s.nom)}"></div>
-            <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" list="auteurs-list" value="${escHtml(s.auteur)}"></div>
-            <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s.totalTomes}"></div>
-            <div class="form-field" style="margin-top:6px;">
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                <input type="checkbox" id="edit-serie-abandoned-${idx}" ${s.isAbandoned ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
-                <span>🚫 Abandonner cette saga (pas de suite suggérée)</span>
-              </label>
-            </div>
+        
+        <div id="edit-oneshot-author-wrap-${idx}" style="display:${isOne ? 'block' : 'none'};">
+          <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" list="auteurs-list" value="${escHtml(b.auteur)}"></div>
+        </div>
+
+        <div id="edit-serie-wrap-${idx}" style="display:${!isOne ? 'block' : 'none'}; background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
+          <p style="font-size:11px; font-weight:700; color:var(--purple-dark); margin-bottom:6px;">Série liée (modifie tous les tomes)</p>
+          <div class="form-field">
+            <label>Sélectionner la série</label>
+            <select id="edit-serie-id-${idx}" onchange="handleEditSerieSelectChange(${idx}, this.value)">
+              <option value="__NEW__">+ Créer / Rattacher à une nouvelle série</option>
+              ${Object.keys(series).map(sKey => `<option value="${sIdKey = sKey}" ${b.serieId === sKey ? 'selected' : ''}>${escHtml(series[sKey].nom)}</option>`).join('')}
+            </select>
           </div>
-          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum}"></div>
+          <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s ? s.nom : '')}"></div>
+          <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" list="auteurs-list" value="${escHtml(s ? s.auteur : '')}"></div>
+          <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s ? s.totalTomes : 1}"></div>
+          <div class="form-field" style="margin-top:6px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="edit-serie-abandoned-${idx}" ${s && s.isAbandoned ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
+              <span>🚫 Abandonner cette saga (pas de suite suggérée)</span>
+            </label>
+          </div>
+          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum || 1}"></div>
           <div class="form-field">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
               <input type="checkbox" id="edit-is-prequel-${idx}" ${b.isPrequel ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
               <span>C'est un préquel ⏳</span>
             </label>
           </div>
-        ` : ''}
+        </div>
+
         <div style="display:flex; gap:8px;">
           <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
           <div class="form-field" style="flex:1;">
@@ -1581,11 +1606,11 @@ function renderPAL() {
           <div class="form-field" style="flex:1;">
             <label>Statut de ce livre</label>
             <select id="edit-statut-${idx}">
-              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>À commencer</option>
-              <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>En cours</option>
-              <option value="attente" ${b.statut==='attente'?'selected':''}>En attente</option>
+              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer</option>
+              <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours</option>
+              <option value="attente" ${b.statut==='attente'?'selected':''}>📦 En attente de suite</option>
               <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 À acheter</option>
-              <option value="termine" ${b.statut==='termine'?'selected':''}>Terminé / Lu</option>
+              <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
               <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
             </select>
           </div>
@@ -1602,23 +1627,63 @@ function renderPAL() {
   }).join('');
 }
 
+function toggleEditTypeFields(idx) {
+  const isSerie = document.getElementById(`edit-type-${idx}`).value === 'serie';
+  document.getElementById(`edit-oneshot-author-wrap-${idx}`).style.display = isSerie ? 'none' : 'block';
+  document.getElementById(`edit-serie-wrap-${idx}`).style.display = isSerie ? 'block' : 'none';
+}
+
+function handleEditSerieSelectChange(idx, sId) {
+  if (sId !== '__NEW__' && series[sId]) {
+    const s = series[sId];
+    document.getElementById(`edit-serie-nom-${idx}`).value = s.nom;
+    document.getElementById(`edit-serie-auteur-${idx}`).value = s.auteur;
+    document.getElementById(`edit-serie-total-${idx}`).value = s.totalTomes;
+  }
+}
+
 function toggleEditPanel(idx) {
   document.getElementById(`edit-panel-${idx}`).classList.toggle('open');
 }
 
+function startReading(idx) {
+  const b = books[idx];
+  b.statut = 'en_cours';
+  if (!b.dateDebut) b.dateDebut = new Date().toISOString().slice(0,10);
+  save();
+  renderAccueil();
+  renderPAL();
+  showSection('accueil');
+}
+
 function saveEdit(idx) {
   const b = books[idx];
+  const newType = document.getElementById(`edit-type-${idx}`).value;
+  b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
   
-  if (b.type === 'one_shot') {
+  if (newType === 'one_shot') {
     b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
-  } else if (b.serieId && series[b.serieId]) {
-    const s = series[b.serieId];
-    s.nom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
-    s.auteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
-    s.totalTomes = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
-    s.isAbandoned = document.getElementById(`edit-serie-abandoned-${idx}`).checked;
-    
+    b.serieId = null;
+    b.tomeNum = null;
+  } else {
+    let sId = document.getElementById(`edit-serie-id-${idx}`).value;
+    const sNom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
+    const sAuteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
+    const sTotal = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
+    const sAbandoned = document.getElementById(`edit-serie-abandoned-${idx}`).checked;
+
+    if (sId === '__NEW__' || !series[sId]) {
+      sId = 'serie_' + Date.now();
+      series[sId] = { nom: sNom, auteur: sAuteur, totalTomes: sTotal, isAbandoned: sAbandoned };
+    } else {
+      series[sId].nom = sNom;
+      series[sId].auteur = sAuteur;
+      series[sId].totalTomes = sTotal;
+      series[sId].isAbandoned = sAbandoned;
+    }
+
+    b.serieId = sId;
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
     b.isPrequel = document.getElementById(`edit-is-prequel-${idx}`).checked;
   }
@@ -1735,14 +1800,13 @@ function renderStats() {
     
     const isAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
     const allTermines = seriesBooks.length >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine');
-
-    // NOUVELLE RÈGLE : au moins 1 livre commencé ou terminé pour être "en cours"
+    const isWaiting = seriesBooks.some(b => b.statut === 'attente');
     const hasStarted = seriesBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
     if (!isAbandoned) {
       if (allTermines) {
         doneSeries++;
-      } else if (seriesBooks.some(b => b.statut === 'attente')) {
+      } else if (isWaiting) {
         waitingSeries++;
       } else if (hasStarted) {
         activeSeries++;
