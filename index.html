@@ -172,6 +172,7 @@ body {
 .badge-acommencer { background: var(--surface2); color: var(--text2); }
 .badge-termine { background: var(--green-bg); color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
+.badge-abandoned { background: #4a4a4a; color: #ffffff; }
 .badge-favorite { background: #fde8e8; color: #e74c3c; }
 
 .heart-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text3); font-size: 12px; font-weight: 600; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; }
@@ -327,9 +328,14 @@ body {
     <button class="chip" onclick="setFilter('favorite',this)">❤️ Coups de cœur</button>
     <button class="chip" onclick="setFilter('en_cours',this)">En cours</button>
     <button class="chip" onclick="setFilter('a_commencer',this)">À commencer</button>
+    <button class="chip" onclick="setFilter('oneshot_a_lire',this)">One-shots à lire</button>
+    <button class="chip" onclick="setFilter('next_tome_a_lire',this)">Prochain tome à lire</button>
+    <button class="chip" onclick="setFilter('next_tome_a_acheter',this)">🛒 Prochain tome à acheter</button>
+    <button class="chip" onclick="setFilter('series_pas_finies',this)">Séries pas finies</button>
     <button class="chip" onclick="setFilter('attente',this)">En attente</button>
     <button class="chip" onclick="setFilter('a_acheter',this)">🛒 À acheter</button>
     <button class="chip" onclick="setFilter('termine',this)">Terminés</button>
+    <button class="chip" onclick="setFilter('abandonne',this)">🚫 Séries abandonnées</button>
     <button class="chip" onclick="setFilter('one_shot',this)">One-shots</button>
   </div>
   <div id="pal-list"></div>
@@ -501,6 +507,7 @@ body {
         <option value="attente">En attente de publication</option>
         <option value="a_acheter">🛒 À acheter</option>
         <option value="termine">Terminé / Lu</option>
+        <option value="abandonne">🚫 Abandonné</option>
       </select>
     </div>
 
@@ -904,6 +911,8 @@ function addBook() {
 
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
+  
+  // LOGIQUE DES FILTRES
   const filtered = books.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
@@ -911,10 +920,43 @@ function renderPAL() {
     const serieMatch = (s ? s.nom : '').toLowerCase().includes(q);
     
     if (q && !titleMatch && !authorMatch && !serieMatch) return false;
-    if (filter==='all') return true;
-    if (filter==='favorite') return !!b.favorite;
-    if (filter==='one_shot') return b.type==='one_shot';
-    return b.statut===filter;
+    
+    if (filter === 'all') return true;
+    if (filter === 'favorite') return !!b.favorite;
+    if (filter === 'one_shot') return b.type === 'one_shot';
+    
+    // Nouveaux filtres demandés
+    if (filter === 'oneshot_a_lire') return b.type === 'one_shot' && b.statut === 'a_commencer';
+    
+    if (filter === 'series_pas_finies') {
+      if (b.type !== 'serie' || !s) return false;
+      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      const isCompleted = allSeriesBooks.length >= s.totalTomes && allSeriesBooks.every(other => other.statut === 'termine');
+      const isAbandoned = allSeriesBooks.some(other => other.statut === 'abandonne');
+      return !isCompleted && !isAbandoned;
+    }
+    
+    if (filter === 'next_tome_a_lire') {
+      if (b.type !== 'serie' || b.statut !== 'a_commencer') return false;
+      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      const minUnreadTome = allSeriesBooks
+        .filter(other => other.statut === 'a_commencer')
+        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
+      return b.tomeNum === minUnreadTome;
+    }
+    
+    if (filter === 'next_tome_a_acheter') {
+      if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
+      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      const minBuyTome = allSeriesBooks
+        .filter(other => other.statut === 'a_acheter')
+        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
+      return b.tomeNum === minBuyTome;
+    }
+
+    if (filter === 'abandonne') return b.statut === 'abandonne';
+
+    return b.statut === filter;
   });
 
   const total = books.length;
@@ -934,6 +976,7 @@ function renderPAL() {
     else if (b.statut==='attente') { bClass='badge-attente'; bText='en attente'; }
     else if (b.statut==='a_acheter') { bClass='badge-acheter'; bText='🛒 à acheter'; }
     else if (b.statut==='en_cours') { bClass='badge-encours'; bText='en cours'; }
+    else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
     else { bClass='badge-acommencer'; bText='à commencer'; }
 
     const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
@@ -1024,6 +1067,7 @@ function renderPAL() {
               <option value="attente" ${b.statut==='attente'?'selected':''}>En attente</option>
               <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 À acheter</option>
               <option value="termine" ${b.statut==='termine'?'selected':''}>Terminé / Lu</option>
+              <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
             </select>
           </div>
         </div>
@@ -1167,16 +1211,19 @@ function renderStats() {
     
     const hasEnCours = seriesBooks.some(b => b.statut === 'en_cours');
     const hasAttente = seriesBooks.some(b => b.statut === 'attente');
+    const isAbandoned = seriesBooks.some(b => b.statut === 'abandonne');
     const maxTomeInPal = seriesBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
     
-    if (hasEnCours) {
-      activeSeries++;
-    } else if (hasAttente) {
-      waitingSeries++;
-    } else if (maxTomeInPal >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine')) {
-      doneSeries++;
-    } else {
-      activeSeries++;
+    if (!isAbandoned) {
+      if (hasEnCours) {
+        activeSeries++;
+      } else if (hasAttente) {
+        waitingSeries++;
+      } else if (maxTomeInPal >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine')) {
+        doneSeries++;
+      } else {
+        activeSeries++;
+      }
     }
   });
 
