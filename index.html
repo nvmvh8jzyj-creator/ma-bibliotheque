@@ -1734,15 +1734,17 @@ function renderStats() {
     const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
     
     const isAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
-    const maxTomeInPal = seriesBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
     const allTermines = seriesBooks.length >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine');
+
+    // NOUVELLE RÈGLE : au moins 1 livre commencé ou terminé pour être "en cours"
+    const hasStarted = seriesBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
     if (!isAbandoned) {
       if (allTermines) {
         doneSeries++;
       } else if (seriesBooks.some(b => b.statut === 'attente')) {
         waitingSeries++;
-      } else {
+      } else if (hasStarted) {
         activeSeries++;
       }
     }
@@ -1778,8 +1780,9 @@ function showStatDetail(type) {
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
+      const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
-      if (!isAbandoned && !allTermines && !sBooks.some(b => b.statut === 'attente')) {
+      if (!isAbandoned && !allTermines && hasStarted && !sBooks.some(b => b.statut === 'attente')) {
         activeSeriesList.push(s);
       }
     });
