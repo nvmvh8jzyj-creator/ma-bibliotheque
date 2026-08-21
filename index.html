@@ -1079,7 +1079,6 @@ function renderPAL() {
       const s = series[sId];
       const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId);
       
-      // Ne PAS suggérer le tome manquant si la SÉRIE est marquée comme abandonnée
       const isSeriesAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
       
       if (!isSeriesAbandoned && seriesBooks.length > 0) {
@@ -1471,47 +1470,72 @@ function showStatDetail(type) {
   const yearSelect = document.getElementById('stats-year-select');
   const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
 
-  let items = [];
+  let rawItems = [];
 
   if (type === 'read_year') {
     titleEl.textContent = `Livres lus en ${selectedYear}`;
     const readBooks = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
-    items = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
+    
+    // Tri par ordre alphabétique sur le titre
+    readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+    
+    rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
   } else if (type === 'series_active') {
     titleEl.textContent = `Séries en cours`;
+    
+    const activeSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       if (!isAbandoned) {
-        items.push(`<div class="stat-detail-item"><span>📚 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--text2)">${s.auteur}</span></div>`);
+        activeSeriesList.push(s);
       }
     });
+
+    // Tri par ordre alphabétique sur le nom de la série
+    activeSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    
+    rawItems = activeSeriesList.map(s => `<div class="stat-detail-item"><span>📚 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--text2)">${escHtml(s.auteur)}</span></div>`);
   } else if (type === 'series_waiting') {
     titleEl.textContent = `Séries en attente de suite`;
+    
+    const waitingSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
       if (sBooks.some(b => b.statut === 'attente')) {
-        items.push(`<div class="stat-detail-item"><span>📦 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
+        waitingSeriesList.push(s);
       }
     });
+
+    // Tri par ordre alphabétique
+    waitingSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    
+    rawItems = waitingSeriesList.map(s => `<div class="stat-detail-item"><span>📦 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
   } else if (type === 'series_done') {
     titleEl.textContent = `Séries terminées`;
+    
+    const doneSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
       const maxTomeInPal = sBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
       if (maxTomeInPal >= s.totalTomes && sBooks.every(b => b.statut === 'termine')) {
-        items.push(`<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée (${s.totalTomes}/${s.totalTomes})</span></div>`);
+        doneSeriesList.push(s);
       }
     });
+
+    // Tri par ordre alphabétique
+    doneSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    
+    rawItems = doneSeriesList.map(s => `<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée (${s.totalTomes}/${s.totalTomes})</span></div>`);
   }
 
-  if (!items.length) {
+  if (!rawItems.length) {
     listEl.innerHTML = '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun élément dans cette catégorie.</div>';
   } else {
-    listEl.innerHTML = items.join('');
+    listEl.innerHTML = rawItems.join('');
   }
 
   detailBox.style.display = 'block';
