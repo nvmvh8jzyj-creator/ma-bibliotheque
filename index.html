@@ -206,6 +206,7 @@ body {
 .badge-termine { background: var(--green-bg); color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
 .badge-abandoned { background: #4a4a4a; color: #ffffff; }
+.badge-prequel { background: var(--ochre-bg); color: var(--ochre); }
 .badge-favorite { background: #fde8e8; color: #e74c3c; }
 
 .heart-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text3); font-size: 12px; font-weight: 600; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; }
@@ -218,7 +219,6 @@ body {
 .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; transition: all 0.2s; }
 
-/* BOUTON D'ACTION VALIDER LA LECTURE */
 .btn-action-done { 
   border-color: rgba(4, 140, 38, 0.3); 
   color: var(--green-dark); 
@@ -535,7 +535,13 @@ body {
         <div class="form-field"><label>Nombre total de tomes prévus</label><input type="number" id="new-serie-total" placeholder="Ex: 4" min="1" value="4"></div>
       </div>
 
-      <div class="form-field"><label>Numéro de ce tome * (ex: 1, 1.5, 2)</label><input type="number" id="new-tome-num" placeholder="Ex: 1.5" min="0.1" step="0.1" value="1"></div>
+      <div class="form-field"><label>Numéro de ce tome * (ex: 1, 0.5, 2)</label><input type="number" id="new-tome-num" placeholder="Ex: 0.5" min="0" step="0.1" value="1"></div>
+      <div class="form-field">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:4px;">
+          <input type="checkbox" id="new-is-prequel" style="width:auto;-webkit-appearance:checkbox;" onchange="handlePrequelToggle(this.checked)">
+          <span>C'est un préquel (tome zéro / histoire antérieure) ⏳</span>
+        </label>
+      </div>
     </div>
 
     <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre" placeholder="Ex: L'Aîné"></div>
@@ -731,6 +737,12 @@ function toggleSerieFields() {
   document.getElementById('serie-fields').style.display = isSerie ? 'block' : 'none';
   document.getElementById('oneshot-author-wrap').style.display = isSerie ? 'none' : 'block';
   if (isSerie) populateSerieDropdown();
+}
+
+function handlePrequelToggle(isPrequel) {
+  if (isPrequel) {
+    document.getElementById('new-tome-num').value = 0.5;
+  }
 }
 
 function handleNewStatutChange(val) {
@@ -965,6 +977,7 @@ function addBook() {
     }
   }
 
+  const isPrequel = type === 'serie' && document.getElementById('new-is-prequel').checked;
   const tomeNum = type === 'serie' ? (parseFloat(document.getElementById('new-tome-num').value) || 1) : null;
 
   const b = { 
@@ -974,6 +987,7 @@ function addBook() {
     type,
     serieId,
     tomeNum,
+    isPrequel,
     statut, 
     prix,
     rating,
@@ -1003,6 +1017,7 @@ function addBook() {
   });
   document.getElementById('new-rating').value = '0';
   document.getElementById('new-favorite').checked = false;
+  document.getElementById('new-is-prequel').checked = false;
   document.getElementById('isbn-input').value = '';
   document.getElementById('isbn-status').textContent = '';
   document.getElementById('google-search-btn').style.display = 'none';
@@ -1164,7 +1179,7 @@ function renderPAL() {
           <div class="book-top">
             <div style="flex:1">
               <div class="book-title">${escHtml(b.titre)}</div>
-              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · ${b.isPrequel ? 'Préquel' : ''} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
               <div class="book-author">${escHtml(authorDisplay)}</div>
               ${b.prix > 0 ? `<div class="book-price-info">Prix : ${b.prix.toFixed(2)} €</div>` : ''}
               ${stars ? `<div class="book-rating">${stars}</div>` : ''}
@@ -1175,6 +1190,7 @@ function renderPAL() {
           </div>
           <div class="badges">
             <span class="badge ${bClass}">${bText}</span>
+            ${b.isPrequel ? `<span class="badge badge-prequel">⏳ Préquel</span>` : ''}
             ${isFav ? `<span class="badge badge-favorite">❤️ Coup de cœur</span>` : ''}
           </div>
 
@@ -1208,6 +1224,12 @@ function renderPAL() {
             <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s.totalTomes}"></div>
           </div>
           <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum}"></div>
+          <div class="form-field">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="edit-is-prequel-${idx}" ${b.isPrequel ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
+              <span>C'est un préquel ⏳</span>
+            </label>
+          </div>
         ` : ''}
         <div style="display:flex; gap:8px;">
           <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
@@ -1264,6 +1286,7 @@ function saveEdit(idx) {
     s.auteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
     s.totalTomes = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
+    b.isPrequel = document.getElementById(`edit-is-prequel-${idx}`).checked;
   }
 
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
@@ -1426,7 +1449,7 @@ function pioche(mode) {
 
   document.getElementById('pick-book').textContent = pick.titre;
   document.getElementById('pick-info').textContent = [
-    s ? `${s.nom} (Tome ${pick.tomeNum})` : '',
+    s ? `${s.nom} (${pick.isPrequel ? 'Préquel' : 'Tome ' + pick.tomeNum})` : '',
     s ? s.auteur : pick.auteur
   ].filter(Boolean).join(' · ');
 }
