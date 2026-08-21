@@ -98,7 +98,6 @@ body {
 }
 .header p { font-size: 13px; color: var(--text2); margin-top: 2px; font-weight: 500; }
 
-/* NAVIGATION AVEC GROS BOUTON CENTRAL */
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0;
   height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom);
@@ -116,7 +115,6 @@ body {
 .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .nav-btn.active { color: var(--purple-light); }
 
-/* GROS BOUTON CENTRAL AJOUTER */
 .nav-btn-center {
   width: 52px; height: 52px; border-radius: 50%;
   background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
@@ -131,30 +129,37 @@ body {
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-/* DESIGN DU LIVRE EN COURS SUR L'ACCUEIL */
+/* NOUVEAU DESIGN IMMERSIF POUR LE LIVRE EN COURS */
 .hero-reading-card {
-  background: var(--surface); border: 1.5px solid var(--purple-light);
-  border-radius: 20px; padding: 18px; margin-bottom: 20px;
-  box-shadow: var(--shadow);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; padding: 16px; margin-bottom: 20px;
+  box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center;
 }
-.hero-reading-content { display: flex; gap: 16px; align-items: center; }
+.hero-cover-wrap {
+  position: relative; width: 100%; max-width: 260px; height: 370px;
+  border-radius: 18px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  background: var(--surface2); margin: 0 auto;
+}
 .hero-cover {
-  width: 95px; height: 140px; object-fit: cover; border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-shrink: 0; background: var(--surface2);
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 .hero-cover-placeholder {
-  width: 95px; height: 140px; border-radius: 12px;
+  width: 100%; height: 100%;
   background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
   color: #fff; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 8px; text-align: center; flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  justify-content: center; padding: 16px; text-align: center;
 }
-.hero-cover-placeholder .hp-title { font-size: 11px; font-weight: 800; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+.hero-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
+  padding: 20px 16px 14px; color: #ffffff; text-align: left;
+}
+.hero-title { font-size: 20px; font-weight: 800; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.hero-serie-overlay { font-size: 13px; font-weight: 700; color: var(--ochre); margin-top: 4px; }
 
-.hero-info { flex: 1; min-width: 0; }
-.hero-title { font-size: 18px; font-weight: 800; line-height: 1.25; color: var(--text); }
-.hero-author { font-size: 14px; color: var(--text2); margin-top: 4px; font-weight: 500; }
-.hero-badge { display: inline-block; background: var(--purple-bg); color: var(--purple-dark); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 8px; }
+.hero-details-bottom { width: 100%; text-align: center; margin-top: 14px; }
+.hero-author { font-size: 15px; color: var(--text2); font-weight: 600; }
+.hero-badge { display: inline-block; background: var(--purple-bg); color: var(--purple-dark); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px; }
 @media (prefers-color-scheme: dark) { .hero-badge { color: var(--purple-light); } }
 
 .search-bar {
@@ -401,9 +406,10 @@ body {
   <button class="scanner-close" onclick="closeScanner()">Fermer</button>
 </div>
 
-<!-- NOUVELLE PAGE D'ACCUEIL DYNAMIQUE -->
 <div id="accueil" class="section visible">
-  <p class="section-label">En ce moment</p>
+  <div style="text-align:center; margin-bottom:12px;">
+    <span class="hero-badge">📖 En cours de lecture</span>
+  </div>
   <div id="hero-reading-container"></div>
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:12px;">
@@ -421,7 +427,6 @@ body {
   </div>
 </div>
 
-<!-- BIBLIOTHÈQUE / PAL DÉDIÉE -->
 <div id="pal" class="section">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
   
@@ -679,21 +684,32 @@ body {
   <p class="section-label">Sauvegarde et Restauration</p>
   <div class="form-card">
     <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px;">
-      Exporte une copie de tes livres et de ton budget pour ne pas risquer de les perdre.
+      Génère le texte complet de tes données à copier-coller pour ton transfert.
     </p>
-    <button class="btn-full" onclick="exportData()">💾 Exporter mes données (JSON)</button>
+    <button class="btn-full" onclick="exportDataText()">📋 Exporter mes données (Afficher le texte)</button>
+    
+    <div id="export-text-area-wrap" style="display:none; margin-top:12px;">
+      <textarea id="export-text-val" rows="6" readonly style="width:100%; font-size:11px; padding:8px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:monospace;"></textarea>
+      <button class="btn-full btn-accent" onclick="copyExportText()" style="margin-top:8px;">✂️ Copier tout le texte</button>
+    </div>
   </div>
 
   <div class="form-card">
     <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px;">
-      Restaure tes données à partir d'un fichier JSON.
+      Restaure tes données en collant le texte de sauvegarde ou un fichier JSON.
     </p>
+    <div class="form-field">
+      <textarea id="import-text-val" rows="3" placeholder="Colle le texte JSON copié ici..." style="font-size:12px;"></textarea>
+    </div>
+    <button class="btn-full" onclick="importDataText()">📥 Importer le texte collé</button>
+    
+    <hr style="margin:16px 0; border:none; border-top:1px solid var(--border);">
+    
     <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
-    <button class="btn-full btn-secondary-full" onclick="document.getElementById('import-file').click()">📂 Importer un fichier JSON</button>
+    <button class="btn-full btn-secondary-full" onclick="document.getElementById('import-file').click()">📂 Importer via un fichier JSON</button>
   </div>
 </div>
 
-<!-- NOUVELLE BARRE DE NAVIGATION DÉDIÉE -->
 <nav class="nav">
   <button class="nav-btn active" id="nav-accueil" onclick="showSection('accueil')">
     <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -817,9 +833,9 @@ function renderAccueil() {
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
 
   if (!enCoursBooks.length) {
-    container.innerHTML = `<div class="hero-reading-card" style="text-align:center; padding: 2rem 1rem;">
-      <p style="font-size:15px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
-      <p style="font-size:13px; color:var(--text3); margin-bottom:14px;">Va piocher un livre ou choisis-en un dans ta PAL.</p>
+    container.innerHTML = `<div class="hero-reading-card" style="text-align:center; padding: 2.5rem 1rem;">
+      <p style="font-size:16px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
+      <p style="font-size:13px; color:var(--text3); margin-bottom:16px;">Va piocher un livre ou choisis-en un dans ta PAL.</p>
       <button class="btn btn-accent" onclick="showSection('pioche')">🎲 Piocher un livre</button>
     </div>`;
     return;
@@ -832,24 +848,31 @@ function renderAccueil() {
 
     let coverHtml = '';
     if (b.cover) {
-      coverHtml = `<img src="${escHtml(b.cover)}" class="hero-cover" alt="Couverture">`;
+      coverHtml = `<div class="hero-cover-wrap">
+        <img src="${escHtml(b.cover)}" class="hero-cover" alt="Couverture">
+        <div class="hero-overlay">
+          <div class="hero-title">${escHtml(b.titre)}</div>
+          ${!isOne && s ? `<div class="hero-serie-overlay">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+        </div>
+      </div>`;
     } else {
-      coverHtml = `<div class="hero-cover-placeholder">
-        <div class="hp-title">${escHtml(b.titre)}</div>
-        <div style="font-size:20px; margin-top:8px;">📖</div>
+      coverHtml = `<div class="hero-cover-wrap">
+        <div class="hero-cover-placeholder">
+          <div style="font-size:32px; margin-bottom:12px;">📖</div>
+          <div style="font-size:16px; font-weight:800; line-height:1.2;">${escHtml(b.titre)}</div>
+        </div>
+        <div class="hero-overlay">
+          <div class="hero-title">${escHtml(b.titre)}</div>
+          ${!isOne && s ? `<div class="hero-serie-overlay">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+        </div>
       </div>`;
     }
 
     return `<div class="hero-reading-card">
-      <div class="hero-reading-content">
-        ${coverHtml}
-        <div class="hero-info">
-          <span class="hero-badge">📖 En cours de lecture</span>
-          <div class="hero-title" style="margin-top:8px;">${escHtml(b.titre)}</div>
-          ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
-          <div class="hero-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
-          <button class="btn btn-action-done" onclick="markDone(${idx})" style="margin-top:14px; width:100%; padding:10px; font-weight:700;">✓ Marquer comme lu</button>
-        </div>
+      ${coverHtml}
+      <div class="hero-details-bottom">
+        <div class="hero-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+        <button class="btn btn-action-done" onclick="markDone(${idx})" style="margin-top:14px; width:100%; max-width:260px; padding:12px; font-size:14px; font-weight:700;">✓ Marquer comme lu</button>
       </div>
     </div>`;
   }).join('');
@@ -1745,7 +1768,7 @@ function saveBudgetLimitSetting() {
   alert('Budget mis à jour !');
 }
 
-function exportData() {
+function exportDataText() {
   const data = {
     books: books,
     series: series,
@@ -1754,13 +1777,67 @@ function exportData() {
     exportDate: new Date().toISOString()
   };
   
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `ma_bibliotheque_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
+  const str = JSON.stringify(data, null, 2);
+  const wrap = document.getElementById('export-text-area-wrap');
+  const val = document.getElementById('export-text-val');
+  
+  val.value = str;
+  wrap.style.display = 'block';
+  val.focus();
+  val.select();
+}
+
+function copyExportText() {
+  const val = document.getElementById('export-text-val');
+  val.select();
+  val.setSelectionRange(0, 999999);
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val.value).then(() => {
+      alert("Texte copié dans le presse-papier !");
+    }).catch(() => {
+      document.execCommand('copy');
+      alert("Texte copié !");
+    });
+  } else {
+    document.execCommand('copy');
+    alert("Texte copié !");
+  }
+}
+
+function importDataText() {
+  const str = document.getElementById('import-text-val').value.trim();
+  if (!str) { alert("Veuillez coller du texte avant d'importer."); return; }
+  
+  try {
+    const data = JSON.parse(str);
+    if (data.books && Array.isArray(data.books)) {
+      if (confirm("Importer ces données écrasera tes données actuelles. Continuer ?")) {
+        books = data.books;
+        series = data.series || {};
+        depenses = data.depenses || [];
+        if (data.budgetLimit !== undefined) {
+          budgetLimit = parseFloat(data.budgetLimit) || 75;
+          saveBudgetLimit();
+          const limitInput = document.getElementById('setting-budget-limit');
+          if (limitInput) limitInput.value = budgetLimit;
+        }
+        save();
+        saveBudget();
+        renderAccueil();
+        renderPAL();
+        renderBudget();
+        populateSerieDropdown();
+        initStatsYearSelect();
+        alert("Importation réussie !");
+        showSection('accueil');
+      }
+    } else {
+      alert("Le texte collé n'est pas au bon format JSON.");
+    }
+  } catch (err) {
+    alert("Erreur dans le format du texte collé : " + err.message);
+  }
 }
 
 function importData(event) {
