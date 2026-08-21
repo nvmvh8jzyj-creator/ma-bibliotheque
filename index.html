@@ -299,7 +299,6 @@ body {
 }
 @media (prefers-color-scheme: dark) { .segment-btn.active { color: var(--purple-light); } }
 
-/* CORRECTION DE L'AFFICHAGE DES FILTRES ET DU TRI */
 .filter-row-compact { 
   display: flex; 
   flex-direction: column; 
@@ -986,7 +985,7 @@ function renderAccueil() {
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
 
-    const coverUrl = b.cover ? escHtml(b.cover) : '';
+    const coverUrl = (b.cover && b.cover.trim().length > 5) ? escHtml(b.cover) : '';
     let bgStyle = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
 
     let coverImgHtml = coverUrl 
@@ -1490,7 +1489,7 @@ function renderPAL() {
 
     let coverHtml = '';
     if (b.cover && b.cover.trim().length > 5) {
-      coverHtml = `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'book-cover-placeholder\\'><div class=\\'p-title\\'>${escHtml(b.titre).replace(/'/g, "\\'")}</div><div class=\\'p-icon\\'>📖</div></div>';">`;
+      coverHtml = `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`;
     } else {
       coverHtml = `<div class="book-cover-placeholder">
         <div class="p-title">${escHtml(b.titre)}</div>
