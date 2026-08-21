@@ -129,38 +129,133 @@ body {
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-/* NOUVEAU DESIGN IMMERSIF POUR LE LIVRE EN COURS */
+/* DESIGN AVEC FOND EN FLOU ET COUVERTURE SANS CADRE */
 .hero-reading-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 24px; padding: 16px; margin-bottom: 20px;
-  box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center;
+  position: relative;
+  background: var(--surface);
+  border-radius: 24px;
+  overflow: hidden;
+  padding: 24px 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border);
 }
-.hero-cover-wrap {
-  position: relative; width: 100%; max-width: 260px; height: 370px;
-  border-radius: 18px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  background: var(--surface2); margin: 0 auto;
+.hero-bg-blur {
+  position: absolute;
+  inset: -20px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(0.65);
+  opacity: 0.55;
+  z-index: 0;
+  transform: scale(1.1);
 }
-.hero-cover {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+.hero-reading-content-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.hero-cover-placeholder {
-  width: 100%; height: 100%;
+.hero-cover-main {
+  width: 210px;
+  height: 315px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+  margin-bottom: 16px;
+  border: none;
+}
+.hero-cover-placeholder-large {
+  width: 210px;
+  height: 315px;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
-  color: #fff; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 16px; text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+  margin-bottom: 16px;
 }
-.hero-overlay {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
-  padding: 20px 16px 14px; color: #ffffff; text-align: left;
+.hero-text-details {
+  text-align: center;
+  width: 100%;
+  padding: 0 8px;
 }
-.hero-title { font-size: 20px; font-weight: 800; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.hero-serie-overlay { font-size: 13px; font-weight: 700; color: var(--ochre); margin-top: 4px; }
+.hero-title-main {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.hero-serie-main {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--purple-light);
+  margin-bottom: 4px;
+}
+.hero-author-main {
+  font-size: 14px;
+  color: var(--text2);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
 
-.hero-details-bottom { width: 100%; text-align: center; margin-top: 14px; }
-.hero-author { font-size: 15px; color: var(--text2); font-weight: 600; }
-.hero-badge { display: inline-block; background: var(--purple-bg); color: var(--purple-dark); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px; }
-@media (prefers-color-scheme: dark) { .hero-badge { color: var(--purple-light); } }
+/* BOUTON BOUTON CHECKMARK DISCRET */
+.btn-check-done {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2.5px solid var(--green-dark);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  color: var(--green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+@media (prefers-color-scheme: dark) {
+  .btn-check-done {
+    border-color: var(--green-bright);
+    color: var(--green-bright);
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+.btn-check-done:active, .btn-check-done.checked {
+  background: var(--green-dark) !important;
+  border-color: var(--green-dark) !important;
+  color: #ffffff !important;
+  transform: scale(0.92);
+}
+@media (prefers-color-scheme: dark) {
+  .btn-check-done:active, .btn-check-done.checked {
+    background: var(--green-bright) !important;
+    border-color: var(--green-bright) !important;
+  }
+}
+.btn-check-done svg {
+  width: 26px;
+  height: 26px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .search-bar {
   background: var(--surface); border: 1.5px solid var(--border);
@@ -407,9 +502,7 @@ body {
 </div>
 
 <div id="accueil" class="section visible">
-  <div style="text-align:center; margin-bottom:12px;">
-    <span class="hero-badge">📖 En cours de lecture</span>
-  </div>
+  <p class="section-label" style="text-align:center;">En ce moment</p>
   <div id="hero-reading-container"></div>
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:12px;">
@@ -846,33 +939,28 @@ function renderAccueil() {
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
 
-    let coverHtml = '';
-    if (b.cover) {
-      coverHtml = `<div class="hero-cover-wrap">
-        <img src="${escHtml(b.cover)}" class="hero-cover" alt="Couverture">
-        <div class="hero-overlay">
-          <div class="hero-title">${escHtml(b.titre)}</div>
-          ${!isOne && s ? `<div class="hero-serie-overlay">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
-        </div>
-      </div>`;
-    } else {
-      coverHtml = `<div class="hero-cover-wrap">
-        <div class="hero-cover-placeholder">
-          <div style="font-size:32px; margin-bottom:12px;">📖</div>
+    const coverUrl = b.cover ? escHtml(b.cover) : '';
+    let bgStyle = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
+
+    let coverImgHtml = coverUrl 
+      ? `<img src="${coverUrl}" class="hero-cover-main" alt="Couverture">`
+      : `<div class="hero-cover-placeholder-large">
+          <div style="font-size:36px; margin-bottom:12px;">📖</div>
           <div style="font-size:16px; font-weight:800; line-height:1.2;">${escHtml(b.titre)}</div>
-        </div>
-        <div class="hero-overlay">
-          <div class="hero-title">${escHtml(b.titre)}</div>
-          ${!isOne && s ? `<div class="hero-serie-overlay">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
-        </div>
-      </div>`;
-    }
+        </div>`;
 
     return `<div class="hero-reading-card">
-      ${coverHtml}
-      <div class="hero-details-bottom">
-        <div class="hero-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
-        <button class="btn btn-action-done" onclick="markDone(${idx})" style="margin-top:14px; width:100%; max-width:260px; padding:12px; font-size:14px; font-weight:700;">✓ Marquer comme lu</button>
+      ${coverUrl ? `<div class="hero-bg-blur" ${bgStyle}></div>` : ''}
+      <div class="hero-reading-content-inner">
+        ${coverImgHtml}
+        <div class="hero-text-details">
+          <div class="hero-title-main">${escHtml(b.titre)}</div>
+          ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+          <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+          <button class="btn-check-done" onclick="markDone(${idx})" aria-label="Marquer comme lu">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
       </div>
     </div>`;
   }).join('');
