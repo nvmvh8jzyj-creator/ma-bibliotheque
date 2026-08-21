@@ -81,14 +81,17 @@ body {
 .header {
   background: var(--surface);
   border-bottom: 3px solid var(--ochre);
-  padding: 18px 16px 14px;
+  padding: 14px 16px;
   position: sticky;
   top: 0;
   z-index: 10;
   box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .header h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--purple-dark);
   letter-spacing: -0.5px;
@@ -96,7 +99,25 @@ body {
 @media (prefers-color-scheme: dark) {
   .header h1 { color: var(--purple-light); }
 }
-.header p { font-size: 13px; color: var(--text2); margin-top: 2px; font-weight: 500; }
+.header p { font-size: 12px; color: var(--text2); margin-top: 2px; font-weight: 500; }
+
+.settings-icon-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--purple-dark);
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  .settings-icon-btn { color: var(--purple-light); }
+}
+.settings-icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -129,7 +150,6 @@ body {
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-/* DESIGN AVEC FOND EN FLOU ET COUVERTURE SANS CADRE */
 .hero-reading-card {
   position: relative;
   background: var(--surface);
@@ -210,7 +230,6 @@ body {
   margin-bottom: 16px;
 }
 
-/* BOUTON BOUTON CHECKMARK DISCRET */
 .btn-check-done {
   width: 52px;
   height: 52px;
@@ -488,8 +507,13 @@ body {
 <datalist id="auteurs-list"></datalist>
 
 <div class="header">
-  <h1>Ma bibliothèque</h1>
-  <p id="header-count">Chargement...</p>
+  <div>
+    <h1>Ma bibliothèque</h1>
+    <p id="header-count">Chargement...</p>
+  </div>
+  <button class="settings-icon-btn" onclick="showSection('reglages')" aria-label="Réglages">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
 </div>
 
 <div class="scanner-overlay" id="scanner-overlay">
