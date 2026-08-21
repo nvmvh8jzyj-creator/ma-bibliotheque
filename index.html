@@ -1082,21 +1082,25 @@ function renderPAL() {
       const isSeriesAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
       
       if (!isSeriesAbandoned && seriesBooks.length > 0) {
-        const maxOwnedTome = seriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
-        if (maxOwnedTome < s.totalTomes) {
-          const nextTome = Number.isInteger(maxOwnedTome) ? maxOwnedTome + 1 : Math.ceil(maxOwnedTome);
+        const readSeriesBooks = seriesBooks.filter(b => b.statut === 'termine' || b.statut === 'en_cours');
+        if (readSeriesBooks.length > 0) {
+          const maxReadTome = readSeriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
           
-          const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
-          if (!alreadyExists) {
-            virtualBooks.push({
-              isVirtual: true,
-              serieId: sId,
-              tomeNum: nextTome,
-              titre: `${s.nom} - Tome ${nextTome}`,
-              auteur: s.auteur,
-              type: 'serie',
-              statut: 'a_acheter'
-            });
+          if (maxReadTome < s.totalTomes) {
+            const nextTome = Number.isInteger(maxReadTome) ? maxReadTome + 1 : Math.ceil(maxReadTome);
+            
+            const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
+            if (!alreadyExists) {
+              virtualBooks.push({
+                isVirtual: true,
+                serieId: sId,
+                tomeNum: nextTome,
+                titre: `${s.nom} - Tome ${nextTome}`,
+                auteur: s.auteur,
+                type: 'serie',
+                statut: 'a_acheter'
+              });
+            }
           }
         }
       }
@@ -1187,13 +1191,14 @@ function renderPAL() {
     const notePreview = b.notes ? b.notes.substring(0,80)+(b.notes.length>80?'…':'') : '';
     const isFav = !!b.favorite;
 
-    let maxTomeAvancement = b.tomeNum || 1;
+    // CALCUL DE L'AVANCÉE BASÉ UNIQUEMENT SUR LES TOMES LUS/TERMINÉS
+    let maxTomeLu = 0;
     if (!isOne && b.serieId) {
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      maxTomeAvancement = allSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 1), b.tomeNum || 1);
+      const readSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut === 'termine');
+      maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
     }
 
-    const pct = (!isOne && s && s.totalTomes > 0) ? Math.min(Math.round((maxTomeAvancement / s.totalTomes) * 100), 100) : 0;
+    const pct = (!isOne && s && s.totalTomes > 0) ? Math.min(Math.round((maxTomeLu / s.totalTomes) * 100), 100) : 0;
     const stars = getRatingStars(b.rating);
 
     let coverHtml = '';
@@ -1230,7 +1235,7 @@ function renderPAL() {
           </div>
 
           ${!isOne && s ? `
-            <div class="progress-txt">Avancée série : Tome ${maxTomeAvancement} sur ${s.totalTomes} (${pct}%)</div>
+            <div class="progress-txt">Avancée de lecture : Tome ${maxTomeLu} lu sur ${s.totalTomes} (${pct}%)</div>
             <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
           ` : ''}
 
@@ -1440,18 +1445,15 @@ function renderStats() {
     const s = series[id];
     const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
     
-    const hasEnCours = seriesBooks.some(b => b.statut === 'en_cours');
-    const hasAttente = seriesBooks.some(b => b.statut === 'attente');
     const isAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
     const maxTomeInPal = seriesBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
-    
+    const allTermines = seriesBooks.length >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine');
+
     if (!isAbandoned) {
-      if (hasEnCours) {
-        activeSeries++;
-      } else if (hasAttente) {
-        waitingSeries++;
-      } else if (maxTomeInPal >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine')) {
+      if (allTermines) {
         doneSeries++;
+      } else if (seriesBooks.some(b => b.statut === 'attente')) {
+        waitingSeries++;
       } else {
         activeSeries++;
       }
@@ -1476,7 +1478,6 @@ function showStatDetail(type) {
     titleEl.textContent = `Livres lus en ${selectedYear}`;
     const readBooks = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
     
-    // Tri par ordre alphabétique sur le titre
     readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
     
     rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
@@ -1488,12 +1489,13 @@ function showStatDetail(type) {
       const s = series[id];
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
-      if (!isAbandoned) {
+      const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
+
+      if (!isAbandoned && !allTermines && !sBooks.some(b => b.statut === 'attente')) {
         activeSeriesList.push(s);
       }
     });
 
-    // Tri par ordre alphabétique sur le nom de la série
     activeSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     
     rawItems = activeSeriesList.map(s => `<div class="stat-detail-item"><span>📚 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--text2)">${escHtml(s.auteur)}</span></div>`);
@@ -1504,12 +1506,12 @@ function showStatDetail(type) {
     Object.keys(series).forEach(id => {
       const s = series[id];
       const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
-      if (sBooks.some(b => b.statut === 'attente')) {
+      const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
+      if (!isAbandoned && sBooks.some(b => b.statut === 'attente')) {
         waitingSeriesList.push(s);
       }
     });
 
-    // Tri par ordre alphabétique
     waitingSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     
     rawItems = waitingSeriesList.map(s => `<div class="stat-detail-item"><span>📦 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
@@ -1526,7 +1528,6 @@ function showStatDetail(type) {
       }
     });
 
-    // Tri par ordre alphabétique
     doneSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     
     rawItems = doneSeriesList.map(s => `<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée (${s.totalTomes}/${s.totalTomes})</span></div>`);
