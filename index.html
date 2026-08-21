@@ -121,10 +121,21 @@ body {
 .search-bar {
   background: var(--surface); border: 1.5px solid var(--border);
   border-radius: 12px; padding: 12px 14px; font-size: 15px;
-  width: 100%; color: var(--text); margin-bottom: 14px; -webkit-appearance: none;
+  width: 100%; color: var(--text); margin-bottom: 10px; -webkit-appearance: none;
   box-shadow: var(--shadow);
 }
 .search-bar:focus { outline: none; border-color: var(--purple-light); }
+
+.filter-select {
+  width: 100%; font-size: 14px; font-weight: 700; padding: 10px 14px;
+  border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--purple-dark);
+  margin-bottom: 10px; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23744F8C' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  box-shadow: var(--shadow);
+}
+@media (prefers-color-scheme: dark) { .filter-select { color: var(--purple-light); } }
 
 .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
 .filter-row::-webkit-scrollbar { display: none; }
@@ -244,11 +255,12 @@ body {
 
 .pioche-section { display: flex; flex-direction: column; gap: 12px; }
 .pioche-btn { 
-  width: 100%; padding: 20px; font-size: 16px; font-weight: 700; 
+  width: 100%; padding: 18px; font-size: 15px; font-weight: 700; 
   border-radius: var(--radius); border: none; cursor: pointer; 
   display: flex; align-items: center; justify-content: center; gap: 10px; 
 }
 .pioche-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pioche-serie-bought { background: var(--green-dark); color: #fff; box-shadow: 0 4px 12px rgba(4, 140, 38, 0.25); }
 .pioche-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.2); }
 .pioche-oneshot { background: var(--ochre); color: #fff; box-shadow: 0 4px 12px rgba(217, 139, 72, 0.2); }
 .pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 22px; text-align: center; display: none; box-shadow: var(--shadow); }
@@ -323,21 +335,27 @@ body {
 
 <div id="pal" class="section visible">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
+  
+  <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
+    <option value="all">Filtre principal : Tout afficher</option>
+    <option value="favorite">❤️ Coups de cœur</option>
+    <option value="en_cours">📖 En cours de lecture</option>
+    <option value="a_commencer">⏳ À commencer</option>
+    <option value="attente">📦 En attente de publication</option>
+    <option value="a_acheter">🛒 À acheter</option>
+    <option value="termine">✓ Terminés / Lus</option>
+  </select>
+
   <div class="filter-row">
-    <button class="chip active" onclick="setFilter('all',this)">Tout</button>
-    <button class="chip" onclick="setFilter('favorite',this)">❤️ Coups de cœur</button>
-    <button class="chip" onclick="setFilter('en_cours',this)">En cours</button>
-    <button class="chip" onclick="setFilter('a_commencer',this)">À commencer</button>
-    <button class="chip" onclick="setFilter('oneshot_a_lire',this)">One-shots à lire</button>
-    <button class="chip" onclick="setFilter('next_tome_a_lire',this)">Prochain tome à lire</button>
-    <button class="chip" onclick="setFilter('next_tome_a_acheter',this)">🛒 Prochain tome à acheter</button>
-    <button class="chip" onclick="setFilter('series_pas_finies',this)">Séries pas finies</button>
-    <button class="chip" onclick="setFilter('attente',this)">En attente</button>
-    <button class="chip" onclick="setFilter('a_acheter',this)">🛒 À acheter</button>
-    <button class="chip" onclick="setFilter('termine',this)">Terminés</button>
-    <button class="chip" onclick="setFilter('abandonne',this)">🚫 Séries abandonnées</button>
-    <button class="chip" onclick="setFilter('one_shot',this)">One-shots</button>
+    <button class="chip active" id="chip-none" onclick="setChipFilter('none',this)">Vue classique</button>
+    <button class="chip" onclick="setChipFilter('oneshot_a_lire',this)">One-shots à lire</button>
+    <button class="chip" onclick="setChipFilter('next_tome_a_lire',this)">Prochain tome à lire</button>
+    <button class="chip" onclick="setChipFilter('next_tome_a_acheter',this)">🛒 Prochain tome à acheter</button>
+    <button class="chip" onclick="setChipFilter('series_pas_finies',this)">Séries pas finies</button>
+    <button class="chip" onclick="setChipFilter('abandonne',this)">🚫 Séries abandonnées</button>
+    <button class="chip" onclick="setChipFilter('one_shot',this)">Tous One-shots</button>
   </div>
+  
   <div id="pal-list"></div>
 </div>
 
@@ -390,13 +408,17 @@ body {
 <div id="pioche" class="section">
   <p class="section-label">Pioche aléatoire</p>
   <div class="pioche-section">
+    <button class="pioche-btn pioche-serie-bought" onclick="pioche('serie_en_cours_achetee')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      🎲 Série EN COURS (Tome déjà acheté)
+    </button>
     <button class="pioche-btn pioche-serie" onclick="pioche('serie')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/></svg>
-      Piocher une série
+      📚 Toutes les Séries
     </button>
     <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      Piocher un one-shot
+      📖 Piocher un One-Shot
     </button>
     <div class="pioche-result" id="pioche-result">
       <div class="pick-dice">🎲</div>
@@ -478,7 +500,7 @@ body {
         <div class="form-field"><label>Nombre total de tomes prévus</label><input type="number" id="new-serie-total" placeholder="Ex: 4" min="1" value="4"></div>
       </div>
 
-      <div class="form-field"><label>Numéro de ce tome *</label><input type="number" id="new-tome-num" placeholder="Ex: 2" min="1" value="1"></div>
+      <div class="form-field"><label>Numéro de ce tome * (ex: 1, 1.5, 2)</label><input type="number" id="new-tome-num" placeholder="Ex: 1.5" min="0.1" step="0.1" value="1"></div>
     </div>
 
     <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre" placeholder="Ex: L'Aîné"></div>
@@ -583,7 +605,9 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
-let books = [], series = {}, depenses = [], filter = 'all';
+let books = [], series = {}, depenses = [];
+let mainStatusFilter = 'all';
+let chipFilter = 'none';
 let budgetLimit = 75;
 let scannerActive = false;
 
@@ -637,8 +661,13 @@ function showSection(id) {
   }
 }
 
-function setFilter(f, el) {
-  filter = f;
+function setMainStatusFilter(val) {
+  mainStatusFilter = val;
+  renderPAL();
+}
+
+function setChipFilter(f, el) {
+  chipFilter = f;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   renderPAL();
@@ -861,7 +890,7 @@ function addBook() {
     }
   }
 
-  const tomeNum = type === 'serie' ? (parseInt(document.getElementById('new-tome-num').value) || 1) : null;
+  const tomeNum = type === 'serie' ? (parseFloat(document.getElementById('new-tome-num').value) || 1) : null;
 
   const b = { 
     id: 'book_' + Date.now(),
@@ -912,7 +941,6 @@ function addBook() {
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  // LOGIQUE DES FILTRES
   const filtered = books.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
@@ -921,14 +949,14 @@ function renderPAL() {
     
     if (q && !titleMatch && !authorMatch && !serieMatch) return false;
     
-    if (filter === 'all') return true;
-    if (filter === 'favorite') return !!b.favorite;
-    if (filter === 'one_shot') return b.type === 'one_shot';
+    if (mainStatusFilter === 'favorite' && !b.favorite) return false;
+    if (mainStatusFilter !== 'all' && mainStatusFilter !== 'favorite' && b.statut !== mainStatusFilter) return false;
     
-    // Nouveaux filtres demandés
-    if (filter === 'oneshot_a_lire') return b.type === 'one_shot' && b.statut === 'a_commencer';
+    if (chipFilter === 'none') return true;
+    if (chipFilter === 'one_shot') return b.type === 'one_shot';
+    if (chipFilter === 'oneshot_a_lire') return b.type === 'one_shot' && b.statut === 'a_commencer';
     
-    if (filter === 'series_pas_finies') {
+    if (chipFilter === 'series_pas_finies') {
       if (b.type !== 'serie' || !s) return false;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const isCompleted = allSeriesBooks.length >= s.totalTomes && allSeriesBooks.every(other => other.statut === 'termine');
@@ -936,7 +964,7 @@ function renderPAL() {
       return !isCompleted && !isAbandoned;
     }
     
-    if (filter === 'next_tome_a_lire') {
+    if (chipFilter === 'next_tome_a_lire') {
       if (b.type !== 'serie' || b.statut !== 'a_commencer') return false;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minUnreadTome = allSeriesBooks
@@ -945,7 +973,7 @@ function renderPAL() {
       return b.tomeNum === minUnreadTome;
     }
     
-    if (filter === 'next_tome_a_acheter') {
+    if (chipFilter === 'next_tome_a_acheter') {
       if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minBuyTome = allSeriesBooks
@@ -954,9 +982,9 @@ function renderPAL() {
       return b.tomeNum === minBuyTome;
     }
 
-    if (filter === 'abandonne') return b.statut === 'abandonne';
+    if (chipFilter === 'abandonne') return b.statut === 'abandonne';
 
-    return b.statut === filter;
+    return true;
   });
 
   const total = books.length;
@@ -1042,7 +1070,7 @@ function renderPAL() {
             <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" list="auteurs-list" value="${escHtml(s.auteur)}"></div>
             <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s.totalTomes}"></div>
           </div>
-          <div class="form-field"><label>Numéro de ce tome</label><input type="number" id="edit-tome-num-${idx}" value="${b.tomeNum}"></div>
+          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum}"></div>
         ` : ''}
         <div style="display:flex; gap:8px;">
           <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
@@ -1098,7 +1126,7 @@ function saveEdit(idx) {
     s.nom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
     s.auteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
     s.totalTomes = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
-    b.tomeNum = parseInt(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
+    b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
@@ -1233,13 +1261,29 @@ function renderStats() {
 }
 
 function pioche(mode) {
-  let pool = mode==='serie' ? books.filter(b=>b.type==='serie'&&b.statut==='en_cours') : books.filter(b=>b.type==='one_shot'&&b.statut==='a_commencer');
-  const res = document.getElementById('pioche-result');
-  res.style.display='block';
-  if (!pool.length) {
-    document.getElementById('pick-book').textContent = mode==='serie'?'Aucune série en cours !':'Aucun one-shot à commencer !';
-    document.getElementById('pick-info').textContent='Ajoute des livres dans ta PAL.'; return;
+  let pool = [];
+  
+  if (mode === 'serie_en_cours_achetee') {
+    const activeSeriesIds = new Set(
+      books.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
+    );
+    
+    pool = books.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId));
+  } else if (mode === 'serie') {
+    pool = books.filter(b => b.type === 'serie' && (b.statut === 'a_commencer' || b.statut === 'en_cours'));
+  } else {
+    pool = books.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
   }
+
+  const res = document.getElementById('pioche-result');
+  res.style.display = 'block';
+  
+  if (!pool.length) {
+    document.getElementById('pick-book').textContent = mode === 'serie_en_cours_achetee' ? 'Aucune suite achetée à commencer !' : 'Aucun livre disponible !';
+    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux tomes dans ta PAL.'; 
+    return;
+  }
+  
   const pick = pool[Math.floor(Math.random()*pool.length)];
   const s = pick.serieId ? series[pick.serieId] : null;
 
