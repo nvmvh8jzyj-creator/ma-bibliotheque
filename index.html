@@ -152,6 +152,10 @@ body {
   border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
   box-shadow: var(--shadow);
 }
+.book-card.virtual {
+  border: 2px dashed var(--ochre);
+  background: var(--ochre-bg);
+}
 .book-card-content { display: flex; gap: 14px; }
 .book-cover { 
   width: 58px; height: 86px; object-fit: cover; 
@@ -506,6 +510,11 @@ body {
     <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre" placeholder="Ex: L'Aîné"></div>
     <div class="form-field" id="oneshot-author-wrap"><label>Auteur·rice</label><input type="text" id="new-auteur" list="auteurs-list" placeholder="Ex: Christopher Paolini"></div>
 
+    <button type="button" class="btn-full btn-secondary-full" onclick="searchWikidataInfo()" style="margin-bottom:12px;">
+      ℹ️ Chercher fiche Auteur / Série sur Wikidata
+    </button>
+    <div id="wikidata-info" style="font-size:12px; color:var(--text2); margin-bottom:10px; font-style:italic;"></div>
+
     <div style="display:flex; gap:8px;">
       <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" id="new-prix" placeholder="Ex: 10.50" step="0.01" min="0"></div>
       <div class="form-field" style="flex:1;">
@@ -777,6 +786,28 @@ async function lookupISBN(isbnOverride) {
   }
 }
 
+async function searchWikidataInfo() {
+  const isSerie = document.getElementById('new-type').value === 'serie';
+  const query = isSerie ? document.getElementById('new-serie-nom').value.trim() : document.getElementById('new-auteur').value.trim();
+  const infoEl = document.getElementById('wikidata-info');
+  
+  if (!query) { alert('Saisis au moins un nom d\'auteur ou de série.'); return; }
+  
+  infoEl.textContent = 'Recherche sur Wikidata...';
+  try {
+    const res = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=fr&format=json&origin=*`);
+    const data = await res.json();
+    if (data && data.search && data.search.length > 0) {
+      const item = data.search[0];
+      infoEl.textContent = `💡 Trouvé : ${item.label} (${item.description || 'Pas de description'})`;
+    } else {
+      infoEl.textContent = 'Aucune fiche Wikidata trouvée pour cette recherche.';
+    }
+  } catch(e) {
+    infoEl.textContent = 'Erreur lors de la recherche Wikidata.';
+  }
+}
+
 function searchOnGoogle() {
   const isbn = document.getElementById('isbn-input').value.trim().replace(/\D/g,'');
   if (isbn) {
@@ -938,10 +969,62 @@ function addBook() {
   renderPAL();
 }
 
+function quickAddVirtualBook(serieId, tomeNum) {
+  const s = series[serieId];
+  if (!s) return;
+  
+  showSection('ajouter');
+  document.getElementById('new-type').value = 'serie';
+  toggleSerieFields();
+  
+  const select = document.getElementById('select-serie-id');
+  if (select) {
+    select.value = serieId;
+    handleSerieSelectChange(serieId);
+  }
+  
+  document.getElementById('new-tome-num').value = tomeNum;
+  document.getElementById('new-titre').value = `${s.nom} - Tome ${tomeNum}`;
+  document.getElementById('new-statut').value = 'a_commencer';
+}
+
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  const filtered = books.filter(b => {
+  // CALCUL DES TOMES VIRTUELS MANQUANTS À ACHETER
+  let virtualBooks = [];
+  if (chipFilter === 'next_tome_a_acheter' || chipFilter === 'none') {
+    Object.keys(series).forEach(sId => {
+      const s = series[sId];
+      const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId);
+      const isAbandoned = seriesBooks.some(b => b.statut === 'abandonne');
+      
+      if (!isAbandoned && seriesBooks.length > 0) {
+        const maxOwnedTome = seriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
+        if (maxOwnedTome < s.totalTomes) {
+          const nextTome = Number.isInteger(maxOwnedTome) ? maxOwnedTome + 1 : Math.ceil(maxOwnedTome);
+          
+          // Vérifier que ce tome n'existe pas déjà sous statut 'a_acheter'
+          const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
+          if (!alreadyExists) {
+            virtualBooks.push({
+              isVirtual: true,
+              serieId: sId,
+              tomeNum: nextTome,
+              titre: `${s.nom} - Tome ${nextTome}`,
+              auteur: s.auteur,
+              type: 'serie',
+              statut: 'a_acheter'
+            });
+          }
+        }
+      }
+    });
+  }
+
+  const allItems = [...books, ...virtualBooks];
+
+  const filtered = allItems.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
     const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
@@ -952,12 +1035,12 @@ function renderPAL() {
     if (mainStatusFilter === 'favorite' && !b.favorite) return false;
     if (mainStatusFilter !== 'all' && mainStatusFilter !== 'favorite' && b.statut !== mainStatusFilter) return false;
     
-    if (chipFilter === 'none') return true;
+    if (chipFilter === 'none') return !b.isVirtual;
     if (chipFilter === 'one_shot') return b.type === 'one_shot';
     if (chipFilter === 'oneshot_a_lire') return b.type === 'one_shot' && b.statut === 'a_commencer';
     
     if (chipFilter === 'series_pas_finies') {
-      if (b.type !== 'serie' || !s) return false;
+      if (b.type !== 'serie' || !s || b.isVirtual) return false;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const isCompleted = allSeriesBooks.length >= s.totalTomes && allSeriesBooks.every(other => other.statut === 'termine');
       const isAbandoned = allSeriesBooks.some(other => other.statut === 'abandonne');
@@ -965,7 +1048,7 @@ function renderPAL() {
     }
     
     if (chipFilter === 'next_tome_a_lire') {
-      if (b.type !== 'serie' || b.statut !== 'a_commencer') return false;
+      if (b.type !== 'serie' || b.statut !== 'a_commencer' || b.isVirtual) return false;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minUnreadTome = allSeriesBooks
         .filter(other => other.statut === 'a_commencer')
@@ -975,6 +1058,7 @@ function renderPAL() {
     
     if (chipFilter === 'next_tome_a_acheter') {
       if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
+      if (b.isVirtual) return true;
       const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minBuyTome = allSeriesBooks
         .filter(other => other.statut === 'a_acheter')
@@ -984,7 +1068,7 @@ function renderPAL() {
 
     if (chipFilter === 'abandonne') return b.statut === 'abandonne';
 
-    return true;
+    return !b.isVirtual;
   });
 
   const total = books.length;
@@ -995,6 +1079,26 @@ function renderPAL() {
   if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre ici pour l\'instant</div>'; return; }
 
   list.innerHTML = filtered.map(b => {
+    if (b.isVirtual) {
+      const s = series[b.serieId];
+      return `<div class="book-card virtual">
+        <div class="book-card-content">
+          <div class="book-info-main">
+            <div class="book-title">${escHtml(b.titre)}</div>
+            <div class="book-serie-info">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>
+            <div class="book-author">${escHtml(s.auteur)}</div>
+            <div class="badges" style="margin-top:8px;">
+              <span class="badge badge-acheter">🛒 Tome manquant à acheter</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
+          <button class="btn btn-success" onclick="quickAddVirtualBook('${b.serieId}', ${b.tomeNum})">➕ Ajouter à ma PAL</button>
+        </div>
+      </div>`;
+    }
+
     const idx = books.indexOf(b);
     const isOne = b.type==='one_shot';
     const s = b.serieId ? series[b.serieId] : null;
