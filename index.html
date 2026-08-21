@@ -299,15 +299,25 @@ body {
 }
 @media (prefers-color-scheme: dark) { .segment-btn.active { color: var(--purple-light); } }
 
-.filter-row-compact { display: flex; gap: 8px; margin-bottom: 12px; }
+/* CORRECTION DE L'AFFICHAGE DES FILTRES ET DU TRI */
+.filter-row-compact { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  margin-bottom: 12px; 
+}
+
 .filter-select {
-  flex: 1; font-size: 13px; font-weight: 700; padding: 9px 12px;
+  width: 100%; font-size: 13px; font-weight: 700; padding: 9px 12px;
   border-radius: 12px; border: 1.5px solid var(--border);
   background: var(--surface); color: var(--purple-dark);
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23744F8C' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
   box-shadow: var(--shadow);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 @media (prefers-color-scheme: dark) { .filter-select { color: var(--purple-light); } }
 
@@ -1407,7 +1417,6 @@ function renderPAL() {
     return !b.isVirtual;
   });
 
-  // LOGIQUE DE TRI
   filtered.sort((a, b) => {
     if (sortOrder === 'title_asc') {
       return a.titre.localeCompare(b.titre, 'fr');
@@ -1420,7 +1429,6 @@ function renderPAL() {
       const serieB = b.serieId && series[b.serieId] ? series[b.serieId].nom : b.titre;
       return serieA.localeCompare(serieB, 'fr');
     } else {
-      // Date d'ajout / par défaut
       const dateA = a.dateAjout || a.dateFin || '2000-01-01';
       const dateB = b.dateAjout || b.dateFin || '2000-01-01';
       return dateB.localeCompare(dateA);
@@ -1481,8 +1489,8 @@ function renderPAL() {
     const stars = getRatingStars(b.rating);
 
     let coverHtml = '';
-    if (b.cover) {
-      coverHtml = `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`;
+    if (b.cover && b.cover.trim().length > 5) {
+      coverHtml = `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'book-cover-placeholder\\'><div class=\\'p-title\\'>${escHtml(b.titre).replace(/'/g, "\\'")}</div><div class=\\'p-icon\\'>📖</div></div>';">`;
     } else {
       coverHtml = `<div class="book-cover-placeholder">
         <div class="p-title">${escHtml(b.titre)}</div>
