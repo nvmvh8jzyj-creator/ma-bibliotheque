@@ -150,13 +150,14 @@ body {
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-/* LAYOUT ACCUEIL SUR-MESURE ZERO SCROLL */
+/* LAYOUT ACCUEIL SUR-MESURE ZERO SCROLL AVEC CARROUSEL */
 #accueil.section.visible {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom));
   padding: 0 16px 12px 16px;
   overflow: hidden;
+  position: relative;
 }
 
 .hero-full-container {
@@ -168,7 +169,6 @@ body {
   justify-content: center;
   margin-left: -16px;
   margin-right: -16px;
-  padding: 12px 16px;
   overflow: hidden;
 }
 
@@ -181,21 +181,42 @@ body {
   opacity: 0.5;
   z-index: 0;
   transform: scale(1.15);
+  transition: background-image 0.4s ease;
 }
 
-.hero-reading-content-inner {
+.carousel-wrap {
   position: relative;
   z-index: 1;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-slides-container {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.carousel-slides-container::-webkit-scrollbar { display: none; }
+
+.carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  padding: 12px 16px;
 }
 
 .hero-cover-main {
-  max-height: 42vh;
+  max-height: 38vh;
   width: auto;
   aspect-ratio: 2 / 3;
   object-fit: cover;
@@ -206,7 +227,7 @@ body {
 }
 
 .hero-cover-placeholder-large {
-  height: 40vh;
+  height: 38vh;
   width: auto;
   aspect-ratio: 2 / 3;
   border-radius: 14px;
@@ -254,9 +275,28 @@ body {
   margin-bottom: 10px;
 }
 
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  z-index: 2;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.2s;
+}
+.dot.active {
+  width: 20px;
+  border-radius: 10px;
+  background: var(--purple-light);
+}
+
 .btn-check-done {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: 2.5px solid var(--green-dark);
   background: rgba(255, 255, 255, 0.3);
@@ -568,7 +608,7 @@ body {
 </div>
 
 <div id="accueil" class="section visible">
-  <div id="hero-reading-container" style="flex:1; display:flex; flex-direction:column; justify-content:center;"></div>
+  <div id="hero-reading-container" class="hero-full-container"></div>
 
   <div class="bottom-shortcuts-area">
     <p class="section-label" style="margin-bottom:6px;">Raccourcis rapides</p>
@@ -1004,7 +1044,7 @@ function renderAccueil() {
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
 
   if (!enCoursBooks.length) {
-    container.innerHTML = `<div class="hero-full-container" style="text-align:center; padding: 2rem 1rem;">
+    container.innerHTML = `<div style="text-align:center; padding: 2rem 1rem;">
       <p style="font-size:16px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
       <p style="font-size:13px; color:var(--text3); margin-bottom:16px;">Va piocher un livre ou choisis-en un dans ta PAL.</p>
       <button class="btn btn-accent" onclick="showSection('pioche')">🎲 Piocher un livre</button>
@@ -1012,13 +1052,17 @@ function renderAccueil() {
     return;
   }
 
-  container.innerHTML = enCoursBooks.map(b => {
+  const initialBg = (enCoursBooks[0].cover && enCoursBooks[0].cover.trim().length > 5) ? `style="background-image: url('${escHtml(enCoursBooks[0].cover)}');"` : '';
+
+  let html = `<div class="hero-bg-blur-full" id="hero-bg-blur" ${initialBg}></div>
+  <div class="carousel-wrap">
+    <div class="carousel-slides-container" id="carousel-slides" onscroll="handleCarouselScroll()">`;
+
+  html += enCoursBooks.map((b, i) => {
     const idx = books.indexOf(b);
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
-
     const coverUrl = (b.cover && b.cover.trim().length > 5) ? escHtml(b.cover) : '';
-    let bgStyle = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
 
     let coverImgHtml = coverUrl 
       ? `<img src="${coverUrl}" class="hero-cover-main" alt="Couverture">`
@@ -1027,8 +1071,7 @@ function renderAccueil() {
           <div style="font-size:15px; font-weight:800; line-height:1.2;">${escHtml(b.titre)}</div>
         </div>`;
 
-    return `<div class="hero-full-container">
-      ${coverUrl ? `<div class="hero-bg-blur-full" ${bgStyle}></div>` : ''}
+    return `<div class="carousel-slide" data-cover="${coverUrl}">
       <div class="hero-reading-content-inner">
         ${coverImgHtml}
         <div class="hero-text-details">
@@ -1042,6 +1085,46 @@ function renderAccueil() {
       </div>
     </div>`;
   }).join('');
+
+  html += `</div>`;
+
+  if (enCoursBooks.length > 1) {
+    html += `<div class="carousel-dots" id="carousel-dots">`;
+    enCoursBooks.forEach((_, i) => {
+      html += `<div class="dot ${i === 0 ? 'active' : ''}"></div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function handleCarouselScroll() {
+  const slidesContainer = document.getElementById('carousel-slides');
+  if (!slidesContainer) return;
+
+  const slides = slidesContainer.querySelectorAll('.carousel-slide');
+  const dots = document.querySelectorAll('.carousel-dots .dot');
+  const bgBlur = document.getElementById('hero-bg-blur');
+
+  const scrollLeft = slidesContainer.scrollLeft;
+  const width = slidesContainer.offsetWidth;
+  const activeIndex = Math.round(scrollLeft / width);
+
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', i === activeIndex);
+  });
+
+  if (slides[activeIndex]) {
+    const coverUrl = slides[activeIndex].getAttribute('data-cover');
+    if (coverUrl) {
+      bgBlur.style.backgroundImage = `url('${coverUrl}')`;
+    } else {
+      bgBlur.style.backgroundImage = 'none';
+    }
+  }
 }
 
 function toggleSerieFields() {
