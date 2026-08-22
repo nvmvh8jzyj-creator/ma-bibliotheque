@@ -1701,31 +1701,73 @@ function closeHeroNotesModal() {
   editingFicheItemIdx = null;
 }
 
-/* VERIFICATION STRICTEMENT BASÉE SUR DES NUMÉROS DE TOMES ENTIERS (IGNORANT LES DÉCIMAUX COMME 1.5) */
-function checkMissingSuites() {
-  syncQueue = [];
+/* VERIFICATION HYBRIDE : ANILIST (MANGAS) + OPENLIBRARY (ROMANS) + POPUP DE PROPOSITION */
+async function fetchOnlineSeriesVolumes(serieNom) {
+  // 1. Essai sur l'API GraphQL AniList (Manga / Manhwa)
+  try {
+    const query = `query ($search: String) { Media (search: $search, type: MANGA) { volumes } }`;
+    const res = await fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ query, variables: { search: serieNom } })
+    });
+    const data = await res.json();
+    if (data && data.data && data.data.Media && data.data.Media.volumes) {
+      return parseInt(data.data.Media.volumes);
+    }
+  } catch(e) {}
 
-  Object.keys(series).forEach(sId => {
+  // 2. Essai sur l'API OpenLibrary (Romans / Littérature générale)
+  try {
+    const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(serieNom)}&limit=5`);
+    const data = await res.json();
+    if (data && data.docs && data.data.docs.length > 0) {
+      const doc = data.docs[0];
+      if (doc.work_count && doc.work_count > 1) {
+        return parseInt(doc.work_count);
+      }
+    }
+  } catch(e) {}
+
+  return null;
+}
+
+async function checkMissingSuites() {
+  syncQueue = [];
+  const statusEl = document.getElementById('search-wish');
+  const origPlaceholder = statusEl.placeholder;
+  statusEl.placeholder = "Recherche en ligne des tomes...";
+
+  const sIds = Object.keys(series);
+  for (let sId of sIds) {
     const s = series[sId];
-    if (!s || s.isAbandoned) return;
+    if (!s || s.isAbandoned) continue;
 
     const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine' && (b.tomeNum % 1 === 0));
-    if (!readSeriesBooks.length) return;
+    if (!readSeriesBooks.length) continue;
 
     const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
-    const nextTomeNum = maxTomeLu + 1;
 
+    // Vérification en ligne
+    const onlineTotal = await fetchOnlineSeriesVolumes(s.nom);
+    if (onlineTotal && onlineTotal > s.totalTomes) {
+      s.totalTomes = onlineTotal;
+      save();
+    }
+
+    const nextTomeNum = maxTomeLu + 1;
     if (nextTomeNum <= s.totalTomes) {
       const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
-      
       if (!existsInPalOrWish) {
         syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
       }
     }
-  });
+  }
+
+  statusEl.placeholder = origPlaceholder;
 
   if (!syncQueue.length) {
-    alert("✓ Toutes vos séries à jour ! Aucun tome suivant manquant pour vos tomes lus.");
+    alert("✓ Tout est bon ! Toutes tes séries ont déjà leur bon nombre de tomes à jour.");
     return;
   }
 
@@ -1746,7 +1788,7 @@ function processSyncQueue() {
   const current = syncQueue[0];
   content.innerHTML = `
     <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
-    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
+    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Il a été détecté que cette série contient au moins <strong>${current.totalTomes} tomes</strong>. Tu as lu le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter à la Wishlist (À acheter)</button>
       <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('publi')">📦 Ajouter en "En attente de suite / publication"</button>
@@ -2796,7 +2838,9 @@ function closeStatDetail() {
   document.getElementById('stat-detail-box').style.display = 'none';
 }
 
+/* PIOCHE AVEC POPUP IMMERSIVE */
 function pioche(mode) {
+  lastPiocheMode = mode;
   let pool = [];
   const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
   const wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -2819,12 +2863,8 @@ function pioche(mode) {
     pool = wishBooks.filter(b => b.type === 'one_shot');
   }
 
-  const res = document.getElementById('pioche-result');
-  res.style.display = 'block';
-  
   if (!pool.length) {
-    document.getElementById('pick-book').textContent = 'Aucun livre disponible pour ce choix !';
-    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux livres ou envies.'; 
+    alert("Aucun livre disponible pour ce tirage ! Ajoutes-en de nouveaux.");
     return;
   }
   
