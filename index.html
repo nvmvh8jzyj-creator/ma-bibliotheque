@@ -215,18 +215,18 @@ body {
 }
 
 .hero-cover-main {
-  max-height: 38vh;
+  max-height: 36vh;
   width: auto;
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   border: none;
 }
 
 .hero-cover-placeholder-large {
-  height: 38vh;
+  height: 36vh;
   width: auto;
   aspect-ratio: 2 / 3;
   border-radius: 14px;
@@ -239,7 +239,7 @@ body {
   padding: 12px;
   text-align: center;
   box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .hero-text-details {
@@ -249,7 +249,7 @@ body {
 }
 
 .hero-title-main {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 2px;
@@ -271,7 +271,23 @@ body {
   font-size: 13px;
   color: var(--text2);
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+}
+
+.btn-hero-notes {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  cursor: pointer;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .carousel-dots {
@@ -294,8 +310,8 @@ body {
 }
 
 .btn-check-done {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2.5px solid var(--green-dark);
   background: rgba(255, 255, 255, 0.3);
@@ -330,8 +346,8 @@ body {
   }
 }
 .btn-check-done svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   stroke: currentColor;
   fill: none;
   stroke-width: 3;
@@ -527,6 +543,10 @@ body {
 .btn-danger-full { background: var(--danger-bg); color: var(--danger); border: none; font-size: 13px; font-weight: 600; box-shadow: none; }
 .btn-scan { background: var(--ochre); color: #fff; box-shadow: 0 4px 10px rgba(217, 139, 72, 0.3); }
 
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.open { display: flex; }
+.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 400px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+
 .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .expense-row:last-child { border-bottom: none; }
 
@@ -593,6 +613,20 @@ body {
   <button class="settings-icon-btn" onclick="showSection('reglages')" aria-label="Réglages">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
+</div>
+
+<!-- Modal Notes Rapides Accueil -->
+<div class="modal-overlay" id="hero-notes-modal">
+  <div class="modal-card">
+    <p class="section-label" id="modal-notes-title">Notes du livre</p>
+    <div class="form-field">
+      <textarea id="modal-notes-text" rows="6" placeholder="Saisis tes remarques, citations ou notes de lecture ici..."></textarea>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-full" onclick="saveHeroNotes()">Enregistrer</button>
+      <button class="btn-full btn-secondary-full" onclick="closeHeroNotesModal()">Fermer</button>
+    </div>
+  </div>
 </div>
 
 <div class="scanner-overlay" id="scanner-overlay">
@@ -963,6 +997,7 @@ let sortOrder = 'date_desc';
 let activeQuickChip = 'none'; 
 let budgetLimit = 75;
 let scannerActive = false;
+let currentHeroBookIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1101,6 +1136,7 @@ function renderAccueil() {
           <div class="hero-title-main">${escHtml(b.titre)}</div>
           ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
           <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+          <button class="btn-hero-notes" onclick="openHeroNotesModal(${idx})">📝 Notes / Fiche</button>
           <button class="btn-check-done" onclick="markDone(${idx})" aria-label="Marquer comme lu">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
@@ -1122,6 +1158,29 @@ function renderAccueil() {
   html += `</div>`;
 
   container.innerHTML = html;
+}
+
+function openHeroNotesModal(idx) {
+  currentHeroBookIdx = idx;
+  const b = books[idx];
+  document.getElementById('modal-notes-title').textContent = `Notes : ${b.titre}`;
+  document.getElementById('modal-notes-text').value = b.notes || '';
+  document.getElementById('hero-notes-modal').classList.add('open');
+}
+
+function closeHeroNotesModal() {
+  document.getElementById('hero-notes-modal').classList.remove('open');
+  currentHeroBookIdx = null;
+}
+
+function saveHeroNotes() {
+  if (currentHeroBookIdx !== null && books[currentHeroBookIdx]) {
+    books[currentHeroBookIdx].notes = document.getElementById('modal-notes-text').value.trim();
+    save();
+    renderPAL();
+    closeHeroNotesModal();
+    alert('Notes enregistrées !');
+  }
 }
 
 function handleCarouselScroll() {
@@ -1468,7 +1527,6 @@ function addBook() {
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  // Exclure TOUS les livres wishlist (a_acheter) de Ma PAL
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter');
 
   let filtered = ownedBooks.filter(b => {
@@ -1517,7 +1575,6 @@ function renderPAL() {
     }
   });
 
-  // Compteur haut : ne prend en compte QUE les livres possédés
   const totalOwned = ownedBooks.length;
   const enCours = ownedBooks.filter(b=>b.statut==='en_cours').length;
   document.getElementById('header-count').textContent = `${totalOwned} livres possédés · ${enCours} en cours`;
@@ -1704,14 +1761,12 @@ function renderWishlist() {
 
     if (wishSegment === 'start') {
       if (b.type !== 'serie') return false;
-      // Séries à commencer = le tome à acheter est le tome 1 (ou préquel) et aucun tome de la série n'a été lu/commencé
       const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
       return ownedSeriesBooks.length === 0;
     }
 
     if (wishSegment === 'continue') {
       if (b.type !== 'serie') return false;
-      // Séries à continuer = il existe déjà au moins un tome lu/commencé/possédé de cette série
       const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
       return ownedSeriesBooks.length > 0;
     }
@@ -1934,7 +1989,6 @@ function renderStats() {
   const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
   document.getElementById('stat-read-year').textContent = readBooksYear.length;
 
-  // Calcul dépenses : NE prend en compte que les livres possédés (exclut a_acheter)
   const bookSpendYear = books.filter(b => b.statut !== 'a_acheter').reduce((s, b) => {
     const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
     return (y === selectedYear && b.prix) ? s + b.prix : s;
@@ -1987,7 +2041,6 @@ function renderStats() {
   let waitingSeries = 0;
   let doneSeries = 0;
 
-  // Calcul des séries basé uniquement sur les livres possédés
   const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
 
   Object.keys(series).forEach(id => {
