@@ -423,11 +423,13 @@ body {
 .segmented-control {
   display: flex; background: var(--surface2); border-radius: 12px;
   padding: 3px; margin-bottom: 10px; border: 1px solid var(--border);
+  overflow-x: auto;
 }
 .segment-btn {
-  flex: 1; text-align: center; padding: 8px 0; font-size: 12px; font-weight: 700;
+  flex: 1; text-align: center; padding: 8px 6px; font-size: 11px; font-weight: 700;
   border: none; background: none; color: var(--text2); border-radius: 10px;
   cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
 }
 .segment-btn.active {
   background: var(--surface); color: var(--purple-dark);
@@ -506,6 +508,8 @@ body {
 .badge-oneshot { background: var(--ochre-bg); color: var(--ochre); }
 .badge-attente { background: var(--warning-bg); color: var(--warning); }
 .badge-acheter { background: var(--danger-bg); color: var(--danger); }
+.badge-publi { background: var(--purple-bg); color: var(--purple-dark); border: 1px solid rgba(116, 79, 140, 0.3); }
+@media (prefers-color-scheme: dark) { .badge-publi { color: var(--purple-light); } }
 .badge-encours { background: var(--purple-bg); color: var(--purple-dark); }
 @media (prefers-color-scheme: dark) { .badge-encours { color: var(--purple-light); } }
 .badge-acommencer { background: var(--surface2); color: var(--text2); }
@@ -891,6 +895,7 @@ body {
     <button class="segment-btn active" id="wish-seg-continue" onclick="setWishSegment('continue', this)">🔄 Séries à continuer</button>
     <button class="segment-btn" id="wish-seg-start" onclick="setWishSegment('start', this)">📚 Séries à commencer</button>
     <button class="segment-btn" id="wish-seg-oneshot" onclick="setWishSegment('oneshot', this)">📖 One-shots</button>
+    <button class="segment-btn" id="wish-seg-publi" onclick="setWishSegment('publi', this)">⏳ À paraître</button>
   </div>
 
   <div id="wishlist-list"></div>
@@ -1097,7 +1102,8 @@ body {
         <option value="a_commencer">À commencer (Possédé)</option>
         <option value="en_cours">En cours de lecture</option>
         <option value="attente">En attente de suite</option>
-        <option value="a_acheter">🛒 En Wishlist (Non possédé)</option>
+        <option value="a_acheter">🛒 En Wishlist (À acheter)</option>
+        <option value="en_attente_publi">📅 En attente de publication</option>
         <option value="termine">Terminé / Lu</option>
         <option value="abandonne">🚫 Abandonné</option>
       </select>
@@ -1644,9 +1650,10 @@ function processSyncQueue() {
     <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
     <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
-      <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter le Tome ${current.nextTomeNum} à la Wishlist</button>
+      <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter à la Wishlist (À acheter)</button>
+      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('publi')">📅 Ajouter en "Attente de publication"</button>
       <button class="btn-full btn-danger-full" onclick="handleSyncChoice('abandon')">🚫 Abandonner la saga</button>
-      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('skip')">Passer pour le moment</button>
+      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('skip')" style="opacity:0.7;">Passer pour le moment</button>
     </div>
   `;
 
@@ -1657,7 +1664,7 @@ function handleSyncChoice(choice) {
   if (!syncQueue.length) return;
   const current = syncQueue.shift();
 
-  if (choice === 'add') {
+  if (choice === 'add' || choice === 'publi') {
     const newWishBook = {
       id: 'wish_auto_' + Date.now(),
       titre: `${current.nom}, Tome ${current.nextTomeNum}`,
@@ -1666,7 +1673,7 @@ function handleSyncChoice(choice) {
       serieId: current.serieId,
       tomeNum: current.nextTomeNum,
       isPrequel: false,
-      statut: 'a_acheter',
+      statut: choice === 'publi' ? 'en_attente_publi' : 'a_acheter',
       prix: 0,
       rating: 0,
       dateDebut: null,
@@ -2020,7 +2027,7 @@ function addBook() {
   if(document.getElementById('cover-field')) document.getElementById('cover-field').style.display = 'none';
   if(document.getElementById('cover-preview-img')) document.getElementById('cover-preview-img').style.display = 'none';
 
-  if (statut === 'a_acheter') {
+  if (statut === 'a_acheter' || statut === 'en_attente_publi') {
     showSection('wishlist');
     renderWishlist();
   } else {
@@ -2032,7 +2039,7 @@ function addBook() {
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  let ownedBooks = books.filter(b => b.statut !== 'a_acheter');
+  let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
 
   let filtered = ownedBooks.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
@@ -2229,6 +2236,7 @@ function renderPAL() {
               <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours</option>
               <option value="attente" ${b.statut==='attente'?'selected':''}>📦 En attente de suite</option>
               <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (Non possédé)</option>
+              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📅 En attente de publication</option>
               <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
               <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
             </select>
@@ -2248,7 +2256,7 @@ function renderPAL() {
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   
-  let wishBooks = books.filter(b => b.statut === 'a_acheter');
+  let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
 
   let filtered = wishBooks.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
@@ -2258,19 +2266,23 @@ function renderWishlist() {
     
     if (q && !titleMatch && !authorMatch && !serieMatch) return false;
 
+    if (wishSegment === 'publi') {
+      return b.statut === 'en_attente_publi';
+    }
+
     if (wishSegment === 'oneshot') {
       return b.type === 'one_shot';
     }
 
     if (wishSegment === 'start') {
       if (b.type !== 'serie') return false;
-      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
+      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
       return ownedSeriesBooks.length === 0;
     }
 
     if (wishSegment === 'continue') {
       if (b.type !== 'serie') return false;
-      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
+      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
       return ownedSeriesBooks.length > 0;
     }
 
@@ -2318,7 +2330,7 @@ function renderWishlist() {
             </button>
           </div>
           <div class="badges" style="margin-top:8px;">
-            <span class="badge badge-acheter">🛒 À acheter</span>
+            ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📅 En attente de publication</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
           </div>
         </div>
       </div>
@@ -2372,7 +2384,8 @@ function renderWishlist() {
           <div class="form-field" style="flex:1;">
             <label>Statut</label>
             <select id="edit-statut-${idx}">
-              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist</option>
+              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
+              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📅 En attente de publication</option>
               <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
             </select>
           </div>
@@ -2529,7 +2542,7 @@ function renderStats() {
   const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
   document.getElementById('stat-read-year').textContent = readBooksYear.length;
 
-  const bookSpendYear = books.filter(b => b.statut !== 'a_acheter').reduce((s, b) => {
+  const bookSpendYear = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi').reduce((s, b) => {
     const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
     return (y === selectedYear && b.prix) ? s + b.prix : s;
   }, 0);
@@ -2581,7 +2594,7 @@ function renderStats() {
   let waitingSeries = 0;
   let doneSeries = 0;
 
-  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
 
   Object.keys(series).forEach(id => {
     const s = series[id];
@@ -2616,7 +2629,7 @@ function showStatDetail(type) {
   const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
 
   let rawItems = [];
-  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
 
   if (type === 'read_year') {
     titleEl.textContent = `Livres lus en ${selectedYear}`;
@@ -2686,8 +2699,8 @@ function closeStatDetail() {
 
 function pioche(mode) {
   let pool = [];
-  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
-  const wishBooks = books.filter(b => b.statut === 'a_acheter');
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+  const wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
   
   if (mode === 'suite_serie_possedee') {
     const activeSeriesIds = new Set(
