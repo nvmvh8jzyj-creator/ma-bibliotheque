@@ -512,6 +512,74 @@ body {
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
 
+/* STYLE FICHE DE LECTURE STRUCTURÉE */
+.fiche-box {
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+.fiche-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.fiche-tab-btn {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.fiche-tab-btn.active {
+  background: var(--purple-dark);
+  color: #fff;
+  border-color: var(--purple-dark);
+}
+.fiche-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+.fiche-item-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.fiche-item-title {
+  font-weight: 800;
+  color: var(--purple-dark);
+  margin-bottom: 2px;
+}
+@media (prefers-color-scheme: dark) { .fiche-item-title { color: var(--purple-light); } }
+.fiche-item-desc {
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.25;
+}
+.fiche-tag-tome {
+  font-size: 9px;
+  font-weight: 800;
+  background: var(--ochre-bg);
+  color: var(--ochre);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
 .note-preview { font-size: 12px; color: var(--text2); margin-top: 8px; font-style: italic; background: var(--surface2); padding: 8px 12px; border-radius: 8px; }
 .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; font-weight: 500; }
 .section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
@@ -572,7 +640,7 @@ body {
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
-.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 400px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
 .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .expense-row:last-child { border-bottom: none; }
@@ -591,7 +659,7 @@ body {
 .pioche-wish-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.2); }
 .pioche-wish-oneshot { background: var(--purple-light); color: #fff; box-shadow: 0 4px 10px rgba(135, 88, 166, 0.25); }
 
-.pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 20px; text-align: center; display: none; box-shadow: var(--shadow); margin-top: 6px; }
+.pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 22px; text-align: center; display: none; box-shadow: var(--shadow); margin-top: 6px; }
 .pioche-result .pick-book { font-size: 18px; font-weight: 800; color: var(--purple-dark); margin-bottom: 4px; }
 @media (prefers-color-scheme: dark) { .pioche-result .pick-book { color: var(--purple-light); } }
 .pioche-result .pick-info { font-size: 13px; color: var(--text2); font-weight: 500; }
@@ -651,17 +719,32 @@ body {
   </button>
 </div>
 
-<!-- Modal Notes Rapides Accueil -->
+<!-- Modal Notes / Fiche Structurée -->
 <div class="modal-overlay" id="hero-notes-modal">
   <div class="modal-card">
-    <p class="section-label" id="modal-notes-title">Notes du livre</p>
-    <div class="form-field">
-      <textarea id="modal-notes-text" rows="6" placeholder="Saisis tes remarques, citations ou notes de lecture ici..."></textarea>
+    <p class="section-label" id="modal-notes-title">Fiche de rappel</p>
+    
+    <div class="fiche-box">
+      <div class="fiche-tabs">
+        <button class="fiche-tab-btn active" id="modal-tab-perso" onclick="setModalFicheTab('perso')">👤 Persos</button>
+        <button class="fiche-tab-btn" id="modal-tab-lieu" onclick="setModalFicheTab('lieu')">🗺️ Lieux</button>
+        <button class="fiche-tab-btn" id="modal-tab-event" onclick="setModalFicheTab('event')">⚡ Événements</button>
+      </div>
+
+      <div class="fiche-items-list" id="modal-fiche-items-list"></div>
+
+      <div style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+        <div class="form-field" style="margin-bottom:6px;">
+          <input type="text" id="modal-new-item-title" placeholder="Nom (ex: Eragon, Alagaësia...)" style="font-size:13px; padding:6px 10px;">
+        </div>
+        <div class="form-field" style="margin-bottom:8px;">
+          <input type="text" id="modal-new-item-desc" placeholder="Détail (ex: Élevé par Garrow, bras-droit...)" style="font-size:12px; padding:6px 10px;">
+        </div>
+        <button class="btn-full btn-secondary-full" onclick="addModalFicheItem()" style="padding:6px; font-size:12px; margin-bottom:0;">➕ Ajouter à la fiche</button>
+      </div>
     </div>
-    <div style="display:flex; gap:8px;">
-      <button class="btn-full" onclick="saveHeroNotes()">Enregistrer</button>
-      <button class="btn-full btn-secondary-full" onclick="closeHeroNotesModal()">Fermer</button>
-    </div>
+
+    <button class="btn-full" onclick="closeHeroNotesModal()">Fermer</button>
   </div>
 </div>
 
@@ -957,7 +1040,6 @@ body {
         <span>Marquer comme Coup de cœur ❤️</span>
       </label>
     </div>
-    <div class="form-field"><label>Notes (optionnel)</label><textarea id="new-notes" placeholder="Résumé, avis, personnages..." rows="3"></textarea></div>
     <button class="btn-full" onclick="addBook()">Ajouter à ma bibliothèque</button>
   </div>
 </div>
@@ -1001,7 +1083,6 @@ body {
   </div>
 </div>
 
-<!-- BARRE DE NAVIGATION CENTRÉE PARFAITEMENT -->
 <nav class="nav">
   <button class="nav-btn" id="nav-pal" onclick="showSection('pal')">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -1039,6 +1120,7 @@ let activeQuickChip = 'none';
 let budgetLimit = 75;
 let scannerActive = false;
 let currentHeroBookIdx = null;
+let currentModalFicheTab = 'perso';
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1177,7 +1259,7 @@ function renderAccueil() {
           <div class="hero-title-main">${escHtml(b.titre)}</div>
           ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
           <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
-          <button class="btn-hero-notes" onclick="openHeroNotesModal(${idx})">📝 Notes / Fiche</button>
+          <button class="btn-hero-notes" onclick="openHeroNotesModal(${idx})">📝 Fiche de rappel</button>
           <button class="btn-check-done" onclick="markDone(${idx})" aria-label="Marquer comme lu">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
@@ -1201,27 +1283,139 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
+/* FONCTIONS FICHE STRUCTURÉE (PERSONNAGES, LIEUX, ÉVÉNEMENTS) */
+function parseBookFiche(notesRaw) {
+  try {
+    const parsed = JSON.parse(notesRaw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.perso || parsed.lieu || parsed.event)) {
+      return {
+        perso: Array.isArray(parsed.perso) ? parsed.perso : [],
+        lieu: Array.isArray(parsed.lieu) ? parsed.lieu : [],
+        event: Array.isArray(parsed.event) ? parsed.event : []
+      };
+    }
+  } catch(e) {}
+  
+  if (notesRaw && notesRaw.trim()) {
+    return { perso: [{ title: 'Notes générales', desc: notesRaw.trim(), tome: null }], lieu: [], event: [] };
+  }
+  return { perso: [], lieu: [], event: [] };
+}
+
+function stringifyBookFiche(ficheObj) {
+  return JSON.stringify(ficheObj);
+}
+
+function getFicheForBook(b) {
+  if (b.type === 'serie' && b.serieId) {
+    const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+    let combined = { perso: [], lieu: [], event: [] };
+    sBooks.forEach(sb => {
+      const f = parseBookFiche(sb.notes);
+      combined.perso = combined.perso.concat(f.perso);
+      combined.lieu = combined.lieu.concat(f.lieu);
+      combined.event = combined.event.concat(f.event);
+    });
+    return combined;
+  }
+  return parseBookFiche(b.notes);
+}
+
 function openHeroNotesModal(idx) {
   currentHeroBookIdx = idx;
   const b = books[idx];
-  document.getElementById('modal-notes-title').textContent = `Notes : ${b.titre}`;
-  document.getElementById('modal-notes-text').value = b.notes || '';
+  const s = b.serieId ? series[b.serieId] : null;
+  document.getElementById('modal-notes-title').textContent = s ? `Fiche Saga : ${s.nom}` : `Fiche : ${b.titre}`;
+  currentModalFicheTab = 'perso';
+  renderModalFiche();
   document.getElementById('hero-notes-modal').classList.add('open');
+}
+
+function setModalFicheTab(tab) {
+  currentModalFicheTab = tab;
+  ['perso','lieu','event'].forEach(t => {
+    const btn = document.getElementById(`modal-tab-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  renderModalFiche();
+}
+
+function renderModalFiche() {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  const fiche = getFicheForBook(b);
+  const items = fiche[currentModalFicheTab] || [];
+  const listEl = document.getElementById('modal-fiche-items-list');
+
+  if (!items.length) {
+    listEl.innerHTML = '<div style="font-size:12px; color:var(--text3); font-style:italic; text-align:center; padding:12px;">Aucun élément dans cette catégorie.</div>';
+    return;
+  }
+
+  listEl.innerHTML = items.map((item, i) => {
+    const tomeBadge = item.tome ? `<span class="fiche-tag-tome">T.${item.tome}</span>` : '';
+    return `<div class="fiche-item-card">
+      <div>
+        <div class="fiche-item-title">${tomeBadge}${escHtml(item.title)}</div>
+        <div class="fiche-item-desc">${escHtml(item.desc)}</div>
+      </div>
+      <button class="del-btn" onclick="deleteModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Supprimer">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addModalFicheItem() {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  const title = document.getElementById('modal-new-item-title').value.trim();
+  const desc = document.getElementById('modal-new-item-desc').value.trim();
+
+  if (!title) { alert('Merci de saisir un nom.'); return; }
+
+  const currentFiche = parseBookFiche(b.notes);
+  const newItem = { title, desc, tome: b.tomeNum || null };
+  currentFiche[currentModalFicheTab].push(newItem);
+
+  b.notes = stringifyBookFiche(currentFiche);
+  save();
+
+  document.getElementById('modal-new-item-title').value = '';
+  document.getElementById('modal-new-item-desc').value = '';
+  renderModalFiche();
+  renderPAL();
+}
+
+function deleteModalFicheItem(tab, itemIndex) {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  
+  if (b.type === 'serie' && b.serieId) {
+    const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+    let count = 0;
+    for (let sb of sBooks) {
+      const f = parseBookFiche(sb.notes);
+      if (count + f[tab].length > itemIndex) {
+        const internalIdx = itemIndex - count;
+        f[tab].splice(internalIdx, 1);
+        sb.notes = stringifyBookFiche(f);
+        break;
+      }
+      count += f[tab].length;
+    }
+  } else {
+    const f = parseBookFiche(b.notes);
+    f[tab].splice(itemIndex, 1);
+    b.notes = stringifyBookFiche(f);
+  }
+
+  save();
+  renderModalFiche();
+  renderPAL();
 }
 
 function closeHeroNotesModal() {
   document.getElementById('hero-notes-modal').classList.remove('open');
   currentHeroBookIdx = null;
-}
-
-function saveHeroNotes() {
-  if (currentHeroBookIdx !== null && books[currentHeroBookIdx]) {
-    books[currentHeroBookIdx].notes = document.getElementById('modal-notes-text').value.trim();
-    save();
-    renderPAL();
-    closeHeroNotesModal();
-    alert('Notes enregistrées !');
-  }
 }
 
 function handleCarouselScroll() {
@@ -1523,7 +1717,7 @@ function addBook() {
     rating,
     dateDebut,
     dateFin,
-    notes: document.getElementById('new-notes').value.trim(),
+    notes: '',
     cover: document.getElementById('new-cover') ? document.getElementById('new-cover').value.trim() : '',
     favorite: document.getElementById('new-favorite').checked,
     dateAjout: new Date().toISOString().slice(0,10)
@@ -1543,7 +1737,7 @@ function addBook() {
   books.unshift(b); 
   save();
 
-  ['new-titre','new-auteur','new-notes','new-cover','new-serie-nom','new-serie-auteur','new-prix','new-date-debut','new-date-fin'].forEach(id => {
+  ['new-titre','new-auteur','new-cover','new-serie-nom','new-serie-auteur','new-prix','new-date-debut','new-date-fin'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
@@ -1636,7 +1830,6 @@ function renderPAL() {
     else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
 
     const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
-    const notePreview = b.notes ? b.notes.substring(0,80)+(b.notes.length>80?'…':'') : '';
     const isFav = !!b.favorite;
 
     let maxTomeLu = 0;
@@ -1693,10 +1886,10 @@ function renderPAL() {
           </div>
         </div>
       </div>
-      ${notePreview ? `<div class="note-preview">${escHtml(notePreview)}</div>` : ''}
       <div class="card-actions">
         ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer la lecture</button>` : ''}
         ${b.statut !== 'termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
+        <button class="btn btn-accent" onclick="openHeroNotesModal(${idx})">📝 Fiche / Notes</button>
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
       </div>
 
@@ -1776,7 +1969,6 @@ function renderPAL() {
           <div class="form-field" style="flex:1;"><label>Date fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin || ''}"></div>
         </div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover)}"></div>
-        <div class="form-field"><label>Notes</label><textarea id="edit-notes-${idx}" rows="3">${escHtml(b.notes)}</textarea></div>
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
@@ -1973,9 +2165,6 @@ function saveEdit(idx) {
   
   const covEl = document.getElementById(`edit-cover-${idx}`);
   if (covEl) b.cover = covEl.value.trim();
-  
-  const notEl = document.getElementById(`edit-notes-${idx}`);
-  if (notEl) b.notes = notEl.value.trim();
 
   save();
   renderAccueil();
