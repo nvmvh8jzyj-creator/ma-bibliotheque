@@ -129,28 +129,27 @@ body {
 .nav-btn {
   flex: 1; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 2px; border: none; background: none;
-  cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 600;
-  padding: 6px 0; -webkit-tap-highlight-color: transparent;
+  cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600;
+  padding: 4px 0; -webkit-tap-highlight-color: transparent;
   transition: color 0.2s;
 }
-.nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .nav-btn.active { color: var(--purple-light); }
 
 .nav-btn-center {
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 48px; height: 48px; border-radius: 50%;
   background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
   color: #ffffff; border: none; display: flex; align-items: center;
   justify-content: center; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.4);
-  cursor: pointer; margin-top: -24px; -webkit-tap-highlight-color: transparent;
+  cursor: pointer; margin-top: -20px; -webkit-tap-highlight-color: transparent;
   transition: transform 0.15s ease;
 }
 .nav-btn-center:active { transform: scale(0.92); }
-.nav-btn-center svg { width: 26px; height: 26px; stroke: #ffffff; stroke-width: 2.5; }
+.nav-btn-center svg { width: 24px; height: 24px; stroke: #ffffff; stroke-width: 2.5; }
 
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-/* LAYOUT ACCUEIL SUR-MESURE ZERO SCROLL AVEC CARROUSEL */
 #accueil.section.visible {
   display: flex;
   flex-direction: column;
@@ -359,7 +358,7 @@ body {
   padding: 3px; margin-bottom: 10px; border: 1px solid var(--border);
 }
 .segment-btn {
-  flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 700;
+  flex: 1; text-align: center; padding: 8px 0; font-size: 12px; font-weight: 700;
   border: none; background: none; color: var(--text2); border-radius: 10px;
   cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
 }
@@ -405,7 +404,6 @@ body {
   border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
   box-shadow: var(--shadow);
 }
-.book-card.virtual { border: 2px dashed var(--ochre); background: var(--ochre-bg); }
 .book-card-content { display: flex; gap: 14px; }
 .book-cover { 
   width: 58px; height: 86px; object-fit: cover; 
@@ -462,7 +460,6 @@ body {
 
 .btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); background: var(--surface); }
 @media (prefers-color-scheme: dark) { .btn-action-done { color: var(--green-bright); border-color: rgba(4, 191, 51, 0.4); } }
-.btn-action-done:active { background: var(--green-bg); }
 
 .btn-action-read { border-color: rgba(116, 79, 140, 0.3); color: var(--purple-dark); background: var(--surface2); }
 @media (prefers-color-scheme: dark) { .btn-action-read { color: var(--purple-light); } }
@@ -617,9 +614,9 @@ body {
         <div class="stat-num purple">⚡</div>
         <div class="stat-label">Prochain tome à lire</div>
       </div>
-      <div class="stat-card" onclick="goToPalWithChip('next_buy')">
+      <div class="stat-card" onclick="showSection('wishlist')">
         <div class="stat-num accent">🛒</div>
-        <div class="stat-label">Prochain à acheter</div>
+        <div class="stat-label">Ma Wishlist</div>
       </div>
     </div>
   </div>
@@ -636,11 +633,10 @@ body {
 
   <div class="filter-row-compact">
     <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
-      <option value="all">Tous les statuts</option>
+      <option value="all">Tous les statuts de ma PAL</option>
       <option value="en_cours">📖 En cours de lecture</option>
       <option value="a_commencer">⏳ À commencer</option>
       <option value="attente">📦 En attente de suite</option>
-      <option value="a_acheter">🛒 À acheter</option>
       <option value="termine">✓ Terminés / Lus</option>
       <option value="abandonne">🚫 Abandonnés</option>
     </select>
@@ -656,10 +652,21 @@ body {
   <div class="quick-chips" style="margin-bottom: 16px;">
     <button class="chip" id="chip-fav" onclick="toggleQuickChip('favorite', this)">❤️ Coups de cœur</button>
     <button class="chip" id="chip-next-read" onclick="toggleQuickChip('next_read', this)">⚡ Prochain à lire</button>
-    <button class="chip" id="chip-next-buy" onclick="toggleQuickChip('next_buy', this)">🛒 Prochain à acheter</button>
   </div>
   
   <div id="pal-list"></div>
+</div>
+
+<div id="wishlist" class="section">
+  <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()">
+
+  <div class="segmented-control">
+    <button class="segment-btn active" id="wish-seg-continue" onclick="setWishSegment('continue', this)">🔄 Séries à continuer</button>
+    <button class="segment-btn" id="wish-seg-start" onclick="setWishSegment('start', this)">📚 Séries à commencer</button>
+    <button class="segment-btn" id="wish-seg-oneshot" onclick="setWishSegment('oneshot', this)">📖 One-shots</button>
+  </div>
+
+  <div id="wishlist-list"></div>
 </div>
 
 <div id="stats" class="section">
@@ -725,7 +732,7 @@ body {
     </button>
     <button class="pioche-btn pioche-serie" onclick="pioche('serie')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      📚 Toutes les Séries
+      📚 Toutes les Séries possédées
     </button>
     <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
@@ -851,10 +858,10 @@ body {
     <div class="form-field">
       <label>Statut de lecture</label>
       <select id="new-statut" onchange="handleNewStatutChange(this.value)">
-        <option value="a_commencer">À commencer</option>
+        <option value="a_commencer">À commencer (Possédé)</option>
         <option value="en_cours">En cours de lecture</option>
         <option value="attente">En attente de suite</option>
-        <option value="a_acheter">🛒 À acheter</option>
+        <option value="a_acheter">🛒 En Wishlist (Non possédé)</option>
         <option value="termine">Terminé / Lu</option>
         <option value="abandonne">🚫 Abandonné</option>
       </select>
@@ -872,7 +879,7 @@ body {
       </label>
     </div>
     <div class="form-field"><label>Notes (optionnel)</label><textarea id="new-notes" placeholder="Résumé, avis, personnages..." rows="3"></textarea></div>
-    <button class="btn-full" onclick="addBook()">Ajouter à ma PAL</button>
+    <button class="btn-full" onclick="addBook()">Ajouter à ma bibliothèque</button>
   </div>
 </div>
 
@@ -925,6 +932,11 @@ body {
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
     Ma PAL
   </button>
+
+  <button class="nav-btn" id="nav-wishlist" onclick="showSection('wishlist')">
+    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Wishlist
+  </button>
   
   <button class="nav-btn-center" onclick="showSection('ajouter')" aria-label="Ajouter un livre">
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -945,6 +957,7 @@ body {
 <script>
 let books = [], series = {}, depenses = [];
 let segmentType = 'all'; 
+let wishSegment = 'continue';
 let mainStatusFilter = 'all';
 let sortOrder = 'date_desc';
 let activeQuickChip = 'none'; 
@@ -962,6 +975,7 @@ function load() {
 
   renderAccueil();
   renderPAL(); 
+  renderWishlist();
   renderBudget();
   updateAuteursDataList();
   initStatsYearSelect();
@@ -990,12 +1004,14 @@ function updateAuteursDataList() {
 function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
   document.getElementById(id).classList.add('visible');
-  ['accueil','pal','stats','pioche','budget','ajouter','reglages'].forEach(s => {
+  ['accueil','pal','wishlist','stats','pioche','budget','ajouter','reglages'].forEach(s => {
     const navBtn = document.getElementById('nav-'+s);
     if (navBtn) navBtn.classList.toggle('active', s===id);
   });
   if (id === 'accueil') {
     renderAccueil();
+  } else if (id === 'wishlist') {
+    renderWishlist();
   } else if (id === 'ajouter') {
     populateSerieDropdown();
     updateAuteursDataList();
@@ -1009,6 +1025,13 @@ function setSegmentType(type, el) {
   document.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   renderPAL();
+}
+
+function setWishSegment(type, el) {
+  wishSegment = type;
+  document.querySelectorAll('#wishlist .segment-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderWishlist();
 }
 
 function setMainStatusFilter(val) {
@@ -1035,7 +1058,7 @@ function toggleQuickChip(chip, el) {
 
 function goToPalWithChip(chip) {
   showSection('pal');
-  const chipBtn = document.getElementById(chip === 'next_read' ? 'chip-next-read' : 'chip-next-buy');
+  const chipBtn = document.getElementById('chip-next-read');
   if (chipBtn) toggleQuickChip(chip, chipBtn);
 }
 
@@ -1433,69 +1456,22 @@ function addBook() {
   if(document.getElementById('cover-field')) document.getElementById('cover-field').style.display = 'none';
   if(document.getElementById('cover-preview-img')) document.getElementById('cover-preview-img').style.display = 'none';
 
-  showSection('pal'); 
-  renderPAL();
-}
-
-function quickAddVirtualBook(serieId, tomeNum) {
-  const s = series[serieId];
-  if (!s) return;
-  
-  showSection('ajouter');
-  document.getElementById('new-type').value = 'serie';
-  toggleSerieFields();
-  
-  const select = document.getElementById('select-serie-id');
-  if (select) {
-    select.value = serieId;
-    handleSerieSelectChange(serieId);
+  if (statut === 'a_acheter') {
+    showSection('wishlist');
+    renderWishlist();
+  } else {
+    showSection('pal'); 
+    renderPAL();
   }
-  
-  document.getElementById('new-tome-num').value = tomeNum;
-  document.getElementById('new-titre').value = `${s.nom} - Tome ${tomeNum}`;
-  document.getElementById('new-statut').value = 'a_commencer';
 }
 
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   
-  let virtualBooks = [];
-  if (activeQuickChip === 'next_buy' || activeQuickChip === 'none') {
-    Object.keys(series).forEach(sId => {
-      const s = series[sId];
-      const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId);
-      
-      const isSeriesAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
-      
-      if (!isSeriesAbandoned && seriesBooks.length > 0) {
-        const readSeriesBooks = seriesBooks.filter(b => b.statut === 'termine' || b.statut === 'en_cours');
-        if (readSeriesBooks.length > 0) {
-          const maxReadTome = readSeriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
-          
-          if (maxReadTome < s.totalTomes) {
-            const nextTome = Number.isInteger(maxReadTome) ? maxReadTome + 1 : Math.ceil(maxReadTome);
-            
-            const alreadyExists = seriesBooks.some(b => b.tomeNum === nextTome);
-            if (!alreadyExists) {
-              virtualBooks.push({
-                isVirtual: true,
-                serieId: sId,
-                tomeNum: nextTome,
-                titre: `${s.nom} - Tome ${nextTome}`,
-                auteur: s.auteur,
-                type: 'serie',
-                statut: 'a_acheter'
-              });
-            }
-          }
-        }
-      }
-    });
-  }
+  // Exclure TOUS les livres wishlist (a_acheter) de Ma PAL
+  let ownedBooks = books.filter(b => b.statut !== 'a_acheter');
 
-  const allItems = [...books, ...virtualBooks];
-
-  let filtered = allItems.filter(b => {
+  let filtered = ownedBooks.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
     const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
@@ -1511,26 +1487,16 @@ function renderPAL() {
     if (activeQuickChip === 'favorite' && !b.favorite) return false;
 
     if (activeQuickChip === 'next_read') {
-      if (b.isVirtual || b.statut !== 'a_commencer') return false;
+      if (b.statut !== 'a_commencer') return false;
       if (b.type === 'one_shot') return true;
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      const allSeriesBooks = ownedBooks.filter(other => other.type === 'serie' && other.serieId === b.serieId);
       const minUnreadTome = allSeriesBooks
         .filter(other => other.statut === 'a_commencer')
         .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
       return b.tomeNum === minUnreadTome;
     }
 
-    if (activeQuickChip === 'next_buy') {
-      if (b.type !== 'serie' || b.statut !== 'a_acheter') return false;
-      if (b.isVirtual) return true;
-      const allSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
-      const minBuyTome = allSeriesBooks
-        .filter(other => other.statut === 'a_acheter')
-        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
-      return b.tomeNum === minBuyTome;
-    }
-
-    return !b.isVirtual;
+    return true;
   });
 
   filtered.sort((a, b) => {
@@ -1551,34 +1517,15 @@ function renderPAL() {
     }
   });
 
-  const total = books.length;
-  const enCours = books.filter(b=>b.statut==='en_cours').length;
-  document.getElementById('header-count').textContent = `${total} livres · ${enCours} en cours`;
+  // Compteur haut : ne prend en compte QUE les livres possédés
+  const totalOwned = ownedBooks.length;
+  const enCours = ownedBooks.filter(b=>b.statut==='en_cours').length;
+  document.getElementById('header-count').textContent = `${totalOwned} livres possédés · ${enCours} en cours`;
 
   const list = document.getElementById('pal-list');
-  if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre ici pour l\'instant</div>'; return; }
+  if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre possédé ici pour l\'instant</div>'; return; }
 
   list.innerHTML = filtered.map(b => {
-    if (b.isVirtual) {
-      const s = series[b.serieId];
-      return `<div class="book-card virtual">
-        <div class="book-card-content">
-          <div class="book-info-main">
-            <div class="book-title">${escHtml(b.titre)}</div>
-            <div class="book-serie-info">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>
-            <div class="book-author">${escHtml(s.auteur)}</div>
-            <div class="badges" style="margin-top:8px;">
-              <span class="badge badge-acheter">🛒 Tome manquant à acheter</span>
-            </div>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
-          <button class="btn btn-action-done" onclick="quickAddVirtualBook('${b.serieId}', ${b.tomeNum})">➕ Ajouter à ma PAL</button>
-        </div>
-      </div>`;
-    }
-
     const idx = books.indexOf(b);
     const isOne = b.type==='one_shot';
     const s = b.serieId ? series[b.serieId] : null;
@@ -1586,7 +1533,6 @@ function renderPAL() {
     let bClass, bText;
     if (b.statut==='termine') { bClass='badge-termine'; bText='lu / terminé'; }
     else if (b.statut==='attente') { bClass='badge-attente'; bText='📦 en attente de suite'; }
-    else if (b.statut==='a_acheter') { bClass='badge-acheter'; bText='🛒 à acheter'; }
     else if (b.statut==='en_cours') { bClass='badge-encours'; bText='📖 en cours'; }
     else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
     else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
@@ -1597,7 +1543,7 @@ function renderPAL() {
 
     let maxTomeLu = 0;
     if (!isOne && b.serieId) {
-      const readSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut === 'termine');
+      const readSeriesBooks = ownedBooks.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut === 'termine');
       maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
     }
 
@@ -1718,10 +1664,10 @@ function renderPAL() {
           <div class="form-field" style="flex:1;">
             <label>Statut de ce livre</label>
             <select id="edit-statut-${idx}">
-              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer</option>
+              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
               <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours</option>
               <option value="attente" ${b.statut==='attente'?'selected':''}>📦 En attente de suite</option>
-              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 À acheter</option>
+              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (Non possédé)</option>
               <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
               <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
             </select>
@@ -1737,6 +1683,120 @@ function renderPAL() {
       </div>
     </div>`;
   }).join('');
+}
+
+function renderWishlist() {
+  const q = (document.getElementById('search-wish').value||'').toLowerCase();
+  
+  let wishBooks = books.filter(b => b.statut === 'a_acheter');
+
+  let filtered = wishBooks.filter(b => {
+    const s = b.serieId ? series[b.serieId] : null;
+    const titleMatch = b.titre.toLowerCase().includes(q);
+    const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
+    const serieMatch = (s ? s.nom : '').toLowerCase().includes(q);
+    
+    if (q && !titleMatch && !authorMatch && !serieMatch) return false;
+
+    if (wishSegment === 'oneshot') {
+      return b.type === 'one_shot';
+    }
+
+    if (wishSegment === 'start') {
+      if (b.type !== 'serie') return false;
+      // Séries à commencer = le tome à acheter est le tome 1 (ou préquel) et aucun tome de la série n'a été lu/commencé
+      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
+      return ownedSeriesBooks.length === 0;
+    }
+
+    if (wishSegment === 'continue') {
+      if (b.type !== 'serie') return false;
+      // Séries à continuer = il existe déjà au moins un tome lu/commencé/possédé de cette série
+      const ownedSeriesBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter');
+      return ownedSeriesBooks.length > 0;
+    }
+
+    return true;
+  });
+
+  filtered.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+
+  const list = document.getElementById('wishlist-list');
+  if (!filtered.length) { 
+    list.innerHTML = '<div class="empty-state">Aucun livre dans cette catégorie de ta wishlist.</div>'; 
+    return; 
+  }
+
+  list.innerHTML = filtered.map(b => {
+    const idx = books.indexOf(b);
+    const isOne = b.type === 'one_shot';
+    const s = b.serieId ? series[b.serieId] : null;
+
+    const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
+
+    let coverHtml = '';
+    if (b.cover && b.cover.trim().length > 5) {
+      coverHtml = `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`;
+    } else {
+      coverHtml = `<div class="book-cover-placeholder">
+        <div class="p-title">${escHtml(b.titre)}</div>
+        <div class="p-icon">🛒</div>
+      </div>`;
+    }
+
+    return `<div class="book-card">
+      <div class="book-card-content">
+        ${coverHtml}
+        <div class="book-info-main">
+          <div class="book-top">
+            <div style="flex:1">
+              <div class="book-title">${escHtml(b.titre)}</div>
+              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · ${b.isPrequel ? 'Préquel' : ''} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
+              <div class="book-author">${escHtml(authorDisplay)}</div>
+              ${b.prix > 0 ? `<div class="book-price-info">Prix indicatif : ${b.prix.toFixed(2)} €</div>` : ''}
+            </div>
+            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+          <div class="badges" style="margin-top:8px;">
+            <span class="badge badge-acheter">🛒 À acheter</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Ajouter à ma PAL)</button>
+        <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
+        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
+      </div>
+
+      <div class="edit-panel" id="edit-panel-${idx}">
+        <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
+        <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+        <div style="display:flex; gap:8px;">
+          <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
+          <div class="form-field" style="flex:1;">
+            <label>Statut</label>
+            <select id="edit-statut-${idx}">
+              <option value="a_acheter" selected>🛒 En Wishlist</option>
+              <option value="a_commencer">⏳ À commencer (Possédé)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markBought(idx) {
+  const b = books[idx];
+  b.statut = 'a_commencer';
+  save();
+  renderAccueil();
+  renderPAL();
+  renderWishlist();
+  alert(`"${b.titre}" a été déplacé dans Ma PAL !`);
 }
 
 function toggleEditTypeFields(idx) {
@@ -1770,15 +1830,17 @@ function startReading(idx) {
 
 function saveEdit(idx) {
   const b = books[idx];
-  const newType = document.getElementById(`edit-type-${idx}`).value;
+  const typeEl = document.getElementById(`edit-type-${idx}`);
+  const newType = typeEl ? typeEl.value : b.type;
   b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
   
   if (newType === 'one_shot') {
-    b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
+    const autEl = document.getElementById(`edit-auteur-${idx}`);
+    if (autEl) b.auteur = autEl.value.trim();
     b.serieId = null;
     b.tomeNum = null;
-  } else {
+  } else if (document.getElementById(`edit-serie-id-${idx}`)) {
     let sId = document.getElementById(`edit-serie-id-${idx}`).value;
     const sNom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
     const sAuteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
@@ -1801,16 +1863,28 @@ function saveEdit(idx) {
   }
 
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
-  b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
+  
+  const ratEl = document.getElementById(`edit-rating-${idx}`);
+  if (ratEl) b.rating = parseInt(ratEl.value) || 0;
+  
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
-  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
-  b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
-  b.notes = document.getElementById(`edit-notes-${idx}`).value.trim();
+  
+  const debEl = document.getElementById(`edit-date-debut-${idx}`);
+  if (debEl) b.dateDebut = debEl.value || null;
+  
+  const finEl = document.getElementById(`edit-date-fin-${idx}`);
+  if (finEl) b.dateFin = finEl.value || null;
+  
+  const covEl = document.getElementById(`edit-cover-${idx}`);
+  if (covEl) b.cover = covEl.value.trim();
+  
+  const notEl = document.getElementById(`edit-notes-${idx}`);
+  if (notEl) b.notes = notEl.value.trim();
 
   save();
   renderAccueil();
   renderPAL();
+  renderWishlist();
 }
 
 function markDone(idx) { 
@@ -1825,7 +1899,13 @@ function markDone(idx) {
 }
 
 function removeBook(idx) {
-  if (confirm(`Supprimer "${books[idx].titre}" ?`)) { books.splice(idx,1); save(); renderAccueil(); renderPAL(); }
+  if (confirm(`Supprimer "${books[idx].titre}" ?`)) { 
+    books.splice(idx,1); 
+    save(); 
+    renderAccueil(); 
+    renderPAL(); 
+    renderWishlist();
+  }
 }
 
 function initStatsYearSelect() {
@@ -1854,7 +1934,8 @@ function renderStats() {
   const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
   document.getElementById('stat-read-year').textContent = readBooksYear.length;
 
-  const bookSpendYear = books.reduce((s, b) => {
+  // Calcul dépenses : NE prend en compte que les livres possédés (exclut a_acheter)
+  const bookSpendYear = books.filter(b => b.statut !== 'a_acheter').reduce((s, b) => {
     const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
     return (y === selectedYear && b.prix) ? s + b.prix : s;
   }, 0);
@@ -1906,9 +1987,12 @@ function renderStats() {
   let waitingSeries = 0;
   let doneSeries = 0;
 
+  // Calcul des séries basé uniquement sur les livres possédés
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
+
   Object.keys(series).forEach(id => {
     const s = series[id];
-    const seriesBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
+    const seriesBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
     
     const isAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
     const allTermines = seriesBooks.length >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine');
@@ -1939,21 +2023,19 @@ function showStatDetail(type) {
   const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
 
   let rawItems = [];
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
 
   if (type === 'read_year') {
     titleEl.textContent = `Livres lus en ${selectedYear}`;
-    const readBooks = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
-    
+    const readBooks = ownedBooks.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
     readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
-    
     rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
   } else if (type === 'series_active') {
     titleEl.textContent = `Séries en cours`;
-    
     const activeSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
       const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
@@ -1962,41 +2044,33 @@ function showStatDetail(type) {
         activeSeriesList.push(s);
       }
     });
-
     activeSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
-    
     rawItems = activeSeriesList.map(s => `<div class="stat-detail-item"><span>📚 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--text2)">${escHtml(s.auteur)}</span></div>`);
   } else if (type === 'series_waiting') {
     titleEl.textContent = `Séries en attente de suite`;
-    
     const waitingSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       if (!isAbandoned && sBooks.some(b => b.statut === 'attente')) {
         waitingSeriesList.push(s);
       }
     });
-
     waitingSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
-    
     rawItems = waitingSeriesList.map(s => `<div class="stat-detail-item"><span>📦 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
   } else if (type === 'series_done') {
     titleEl.textContent = `Séries terminées`;
-    
     const doneSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = books.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
       const maxTomeInPal = sBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
       if (maxTomeInPal >= s.totalTomes && sBooks.every(b => b.statut === 'termine')) {
         doneSeriesList.push(s);
       }
     });
-
     doneSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
-    
     rawItems = doneSeriesList.map(s => `<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée (${s.totalTomes}/${s.totalTomes})</span></div>`);
   }
 
@@ -2015,24 +2089,25 @@ function closeStatDetail() {
 
 function pioche(mode) {
   let pool = [];
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
   
   if (mode === 'serie_en_cours_achetee') {
     const activeSeriesIds = new Set(
-      books.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
+      ownedBooks.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
     );
     
-    pool = books.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId) && (!series[b.serieId] || !series[b.serieId].isAbandoned));
+    pool = ownedBooks.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId) && (!series[b.serieId] || !series[b.serieId].isAbandoned));
   } else if (mode === 'serie') {
-    pool = books.filter(b => b.type === 'serie' && (b.statut === 'a_commencer' || b.statut === 'en_cours') && (!series[b.serieId] || !series[b.serieId].isAbandoned));
+    pool = ownedBooks.filter(b => b.type === 'serie' && (b.statut === 'a_commencer' || b.statut === 'en_cours') && (!series[b.serieId] || !series[b.serieId].isAbandoned));
   } else {
-    pool = books.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
+    pool = ownedBooks.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
   }
 
   const res = document.getElementById('pioche-result');
   res.style.display = 'block';
   
   if (!pool.length) {
-    document.getElementById('pick-book').textContent = mode === 'serie_en_cours_achetee' ? 'Aucune suite achetée à commencer !' : 'Aucun livre disponible !';
+    document.getElementById('pick-book').textContent = mode === 'serie_en_cours_achetee' ? 'Aucune suite possédée à commencer !' : 'Aucun livre disponible !';
     document.getElementById('pick-info').textContent = 'Ajoute de nouveaux tomes dans ta PAL.'; 
     return;
   }
@@ -2173,6 +2248,7 @@ function processParsedData(data) {
     saveBudget();
     renderAccueil();
     renderPAL();
+    renderWishlist();
     renderBudget();
     populateSerieDropdown();
     initStatsYearSelect();
@@ -2193,6 +2269,7 @@ function processParsedData(data) {
       saveBudget();
       renderAccueil();
       renderPAL();
+      renderWishlist();
       renderBudget();
       populateSerieDropdown();
       initStatsYearSelect();
