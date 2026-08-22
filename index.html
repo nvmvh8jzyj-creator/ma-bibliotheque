@@ -512,7 +512,6 @@ body {
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
 
-/* STYLE FICHE DE LECTURE STRUCTURÉE & ÉDITABLE AVEC STATUT MORT */
 .fiche-box {
   background: var(--surface2);
   border-radius: 12px;
@@ -2120,9 +2119,50 @@ function renderPAL() {
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   
+  // 1. Livres explicitement ajoutés en Wishlist
   let wishBooks = books.filter(b => b.statut === 'a_acheter');
 
-  let filtered = wishBooks.filter(b => {
+  // 2. Génération DYNAMIQUE AUTOMATIQUE des tomes suivants à acheter
+  let generatedWishList = [...wishBooks];
+
+  if (wishSegment === 'continue' || wishSegment === 'all') {
+    Object.keys(series).forEach(sId => {
+      const s = series[sId];
+      if (!s || s.isAbandoned) return;
+
+      const sBooksInPal = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut !== 'a_acheter');
+      if (!sBooksInPal.length) return;
+
+      // Calcul du plus grand tome possédé/lu dans la PAL
+      const maxTomePossede = sBooksInPal.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
+      const nextTomeNum = maxTomePossede + 1;
+
+      if (nextTomeNum <= s.totalTomes) {
+        // Vérifier si le tome N+1 est déjà présent dans les données (PAL ou Wishlist)
+        const alreadyExists = books.some(b => b.type === 'serie' && b.serieId === sId && (b.tomeNum === nextTomeNum || (b.tomeNum === maxTomePossede && b.statut === 'a_commencer')));
+
+        if (!alreadyExists) {
+          // Création de la carte virtuelle automatique
+          generatedWishList.push({
+            id: `virtual_wish_${sId}_${nextTomeNum}`,
+            isVirtual: true,
+            titre: `${s.nom}, Tome ${nextTomeNum}`,
+            auteur: s.auteur,
+            type: 'serie',
+            serieId: sId,
+            tomeNum: nextTomeNum,
+            isPrequel: false,
+            statut: 'a_acheter',
+            prix: 0,
+            rating: 0,
+            cover: ''
+          });
+        }
+      }
+    });
+  }
+
+  let filtered = generatedWishList.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
     const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
@@ -2158,7 +2198,8 @@ function renderWishlist() {
   }
 
   list.innerHTML = filtered.map(b => {
-    const idx = books.indexOf(b);
+    const isVirtual = !!b.isVirtual;
+    const idx = isVirtual ? -1 : books.indexOf(b);
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
 
@@ -2185,22 +2226,22 @@ function renderWishlist() {
               <div class="book-author">${escHtml(authorDisplay)}</div>
               ${b.prix > 0 ? `<div class="book-price-info">Prix indicatif : ${b.prix.toFixed(2)} €</div>` : ''}
             </div>
-            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
+            ${!isVirtual ? `<button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
+            </button>` : ''}
           </div>
           <div class="badges" style="margin-top:8px;">
-            <span class="badge badge-acheter">🛒 À acheter</span>
+            <span class="badge badge-acheter">${isVirtual ? '⚡ Prochain tome suggéré' : '🛒 À acheter'}</span>
           </div>
         </div>
       </div>
       <div class="card-actions">
-        <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Ajouter à ma PAL)</button>
+        <button class="btn btn-action-done" onclick="${isVirtual ? `addVirtualBookToPal('${b.serieId}', ${b.tomeNum}, '${escHtml(b.titre)}')` : `markBought(${idx})`}">📦 Acheté (Ajouter à ma PAL)</button>
         <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
-        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
+        ${!isVirtual ? `<button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>` : ''}
       </div>
 
-      <div class="edit-panel" id="edit-panel-${idx}">
+      ${!isVirtual ? `<div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
         <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
         <div style="display:flex; gap:8px;">
@@ -2214,9 +2255,38 @@ function renderWishlist() {
           </div>
         </div>
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
-      </div>
+      </div>` : ''}
     </div>`;
   }).join('');
+}
+
+function addVirtualBookToPal(serieId, tomeNum, titre) {
+  const s = series[serieId];
+  const newBook = {
+    id: 'book_' + Date.now(),
+    titre: titre,
+    auteur: s ? s.auteur : '',
+    type: 'serie',
+    serieId: serieId,
+    tomeNum: tomeNum,
+    isPrequel: false,
+    statut: 'a_commencer',
+    prix: 0,
+    rating: 0,
+    dateDebut: null,
+    dateFin: null,
+    notes: '',
+    cover: '',
+    favorite: false,
+    dateAjout: new Date().toISOString().slice(0,10)
+  };
+
+  books.unshift(newBook);
+  save();
+  renderAccueil();
+  renderPAL();
+  renderWishlist();
+  alert(`"${titre}" a été ajouté à Ma PAL sous le statut "À commencer" !`);
 }
 
 function markBought(idx) {
@@ -2323,6 +2393,7 @@ function markDone(idx) {
   save(); 
   renderAccueil();
   renderPAL(); 
+  renderWishlist();
 }
 
 function removeBook(idx) {
