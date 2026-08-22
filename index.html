@@ -1701,9 +1701,8 @@ function closeHeroNotesModal() {
   editingFicheItemIdx = null;
 }
 
-/* VERIFICATION HYBRIDE : ANILIST (MANGAS) + OPENLIBRARY (ROMANS) + POPUP DE PROPOSITION */
+/* RECHERCHE ONLINE SÉRIE */
 async function fetchOnlineSeriesVolumes(serieNom) {
-  // 1. Essai sur l'API GraphQL AniList (Manga / Manhwa)
   try {
     const query = `query ($search: String) { Media (search: $search, type: MANGA) { volumes } }`;
     const res = await fetch('https://graphql.anilist.co', {
@@ -1717,11 +1716,10 @@ async function fetchOnlineSeriesVolumes(serieNom) {
     }
   } catch(e) {}
 
-  // 2. Essai sur l'API OpenLibrary (Romans / Littérature générale)
   try {
     const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(serieNom)}&limit=5`);
     const data = await res.json();
-    if (data && data.docs && data.data.docs.length > 0) {
+    if (data && data.docs && data.docs.length > 0) {
       const doc = data.docs[0];
       if (doc.work_count && doc.work_count > 1) {
         return parseInt(doc.work_count);
@@ -1738,7 +1736,9 @@ async function checkMissingSuites() {
   const origPlaceholder = statusEl.placeholder;
   statusEl.placeholder = "Recherche en ligne des tomes...";
 
+  const notFoundList = [];
   const sIds = Object.keys(series);
+
   for (let sId of sIds) {
     const s = series[sId];
     if (!s || s.isAbandoned) continue;
@@ -1748,11 +1748,12 @@ async function checkMissingSuites() {
 
     const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
 
-    // Vérification en ligne
     const onlineTotal = await fetchOnlineSeriesVolumes(s.nom);
     if (onlineTotal && onlineTotal > s.totalTomes) {
       s.totalTomes = onlineTotal;
       save();
+    } else if (!onlineTotal) {
+      notFoundList.push(s.nom);
     }
 
     const nextTomeNum = maxTomeLu + 1;
@@ -1767,7 +1768,11 @@ async function checkMissingSuites() {
   statusEl.placeholder = origPlaceholder;
 
   if (!syncQueue.length) {
-    alert("✓ Tout est bon ! Toutes tes séries ont déjà leur bon nombre de tomes à jour.");
+    let msg = "✓ Tout est bon ! Aucun tome suivant manquant pour vos tomes lus.";
+    if (notFoundList.length > 0) {
+      msg += `\n\nℹ️ Note : Les séries suivantes n'ont pas été trouvées sur les API publiques (${notFoundList.join(', ')}). Vous pouvez vérifier leur total manuellement si besoin !`;
+    }
+    alert(msg);
     return;
   }
 
@@ -1788,7 +1793,7 @@ function processSyncQueue() {
   const current = syncQueue[0];
   content.innerHTML = `
     <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
-    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Il a été détecté que cette série contient au moins <strong>${current.totalTomes} tomes</strong>. Tu as lu le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
+    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter à la Wishlist (À acheter)</button>
       <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('publi')">📦 Ajouter en "En attente de suite / publication"</button>
