@@ -1605,17 +1605,13 @@ function checkMissingSuites() {
     const s = series[sId];
     if (!s || s.isAbandoned) return;
 
-    // Récupérer uniquement les tomes LU/TERMINÉS de cette série (en ignorant les novellas décimales type 1.5)
     const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine' && (b.tomeNum % 1 === 0));
     if (!readSeriesBooks.length) return;
 
-    // Trouver le numéro du plus grand tome ENTIER LU
     const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
     const nextTomeNum = maxTomeLu + 1;
 
-    // Si le tome suivant ne dépasse pas le total prévu
     if (nextTomeNum <= s.totalTomes) {
-      // Vérifier si le Tome N+1 existe DÉJÀ dans la PAL ou la Wishlist
       const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
       
       if (!existsInPalOrWish) {
@@ -2332,19 +2328,58 @@ function renderWishlist() {
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
       </div>
 
+      <!-- PANNEAU DE MODIFICATION COMPLET DE LA WISHLIST -->
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
-        <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+        
+        <div class="form-field">
+          <label>Type de livre</label>
+          <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
+            <option value="one_shot" ${isOne ? 'selected' : ''}>One-shot / Livre unique</option>
+            <option value="serie" ${!isOne ? 'selected' : ''}>Fait partie d'une série</option>
+          </select>
+        </div>
+
+        <div class="form-field"><label>Titre du livre / tome</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+
+        <div id="edit-oneshot-author-wrap-${idx}" style="display:${isOne ? 'block' : 'none'};">
+          <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" list="auteurs-list" value="${escHtml(b.auteur)}"></div>
+        </div>
+
+        <div id="edit-serie-wrap-${idx}" style="display:${!isOne ? 'block' : 'none'}; background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
+          <p style="font-size:11px; font-weight:700; color:var(--purple-dark); margin-bottom:6px;">Série liée</p>
+          <div class="form-field">
+            <label>Sélectionner la série</label>
+            <select id="edit-serie-id-${idx}" onchange="handleEditSerieSelectChange(${idx}, this.value)">
+              <option value="__NEW__">+ Créer / Rattacher à une nouvelle série</option>
+              ${Object.keys(series).map(sKey => `<option value="${sKey}" ${b.serieId === sKey ? 'selected' : ''}>${escHtml(series[sKey].nom)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s ? s.nom : '')}"></div>
+          <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" list="auteurs-list" value="${escHtml(s ? s.auteur : '')}"></div>
+          <div class="form-field"><label>Total tomes de la saga</label><input type="number" id="edit-serie-total-${idx}" value="${s ? s.totalTomes : 1}"></div>
+          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum || 1}"></div>
+          <div class="form-field">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="edit-is-prequel-${idx}" ${b.isPrequel ? 'checked' : ''} style="width:auto;-webkit-appearance:checkbox;">
+              <span>C'est un préquel ⏳</span>
+            </label>
+          </div>
+        </div>
+
         <div style="display:flex; gap:8px;">
           <div class="form-field" style="flex:1;"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix || ''}"></div>
           <div class="form-field" style="flex:1;">
             <label>Statut</label>
             <select id="edit-statut-${idx}">
-              <option value="a_acheter" selected>🛒 En Wishlist</option>
-              <option value="a_commencer">⏳ À commencer (Possédé)</option>
+              <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist</option>
+              <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
             </select>
           </div>
         </div>
+
+        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover)}"></div>
+
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
@@ -2407,7 +2442,7 @@ function saveEdit(idx) {
     const sNom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
     const sAuteur = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
     const sTotal = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
-    const sAbandoned = document.getElementById(`edit-serie-abandoned-${idx}`).checked;
+    const sAbandoned = document.getElementById(`edit-serie-abandoned-${idx}`) ? document.getElementById(`edit-serie-abandoned-${idx}`).checked : false;
 
     if (sId === '__NEW__' || !series[sId]) {
       sId = 'serie_' + Date.now();
@@ -2421,7 +2456,7 @@ function saveEdit(idx) {
 
     b.serieId = sId;
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
-    b.isPrequel = document.getElementById(`edit-is-prequel-${idx}`).checked;
+    b.isPrequel = document.getElementById(`edit-is-prequel-${idx}`) ? document.getElementById(`edit-is-prequel-${idx}`).checked : false;
   }
 
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
