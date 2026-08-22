@@ -1701,78 +1701,34 @@ function closeHeroNotesModal() {
   editingFicheItemIdx = null;
 }
 
-/* RECHERCHE ONLINE SÉRIE */
-async function fetchOnlineSeriesVolumes(serieNom) {
-  try {
-    const query = `query ($search: String) { Media (search: $search, type: MANGA) { volumes } }`;
-    const res = await fetch('https://graphql.anilist.co', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables: { search: serieNom } })
-    });
-    const data = await res.json();
-    if (data && data.data && data.data.Media && data.data.Media.volumes) {
-      return parseInt(data.data.Media.volumes);
-    }
-  } catch(e) {}
-
-  try {
-    const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(serieNom)}&limit=5`);
-    const data = await res.json();
-    if (data && data.docs && data.docs.length > 0) {
-      const doc = data.docs[0];
-      if (doc.work_count && doc.work_count > 1) {
-        return parseInt(doc.work_count);
-      }
-    }
-  } catch(e) {}
-
-  return null;
-}
-
-async function checkMissingSuites() {
+/* VÉRIFICATION STRICTEMENT LOCALE (100% FIABLE, SANS REQUÊTE EXTERNE) */
+function checkMissingSuites() {
   syncQueue = [];
-  const statusEl = document.getElementById('search-wish');
-  const origPlaceholder = statusEl.placeholder;
-  statusEl.placeholder = "Recherche en ligne des tomes...";
 
-  const notFoundList = [];
-  const sIds = Object.keys(series);
-
-  for (let sId of sIds) {
+  Object.keys(series).forEach(sId => {
     const s = series[sId];
-    if (!s || s.isAbandoned) continue;
+    if (!s || s.isAbandoned) return;
 
+    // Prendre uniquement les tomes LU/TERMINÉS
     const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine' && (b.tomeNum % 1 === 0));
-    if (!readSeriesBooks.length) continue;
+    if (!readSeriesBooks.length) return;
 
+    // Numéro du plus grand tome LU
     const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
-
-    const onlineTotal = await fetchOnlineSeriesVolumes(s.nom);
-    if (onlineTotal && onlineTotal > s.totalTomes) {
-      s.totalTomes = onlineTotal;
-      save();
-    } else if (!onlineTotal) {
-      notFoundList.push(s.nom);
-    }
-
     const nextTomeNum = maxTomeLu + 1;
+
+    // Si le tome suivant ne dépasse pas le total configuré
     if (nextTomeNum <= s.totalTomes) {
       const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
+      
       if (!existsInPalOrWish) {
         syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
       }
     }
-  }
-
-  statusEl.placeholder = origPlaceholder;
+  });
 
   if (!syncQueue.length) {
-    let msg = "✓ Tout est bon ! Aucun tome suivant manquant pour vos tomes lus.";
-    if (notFoundList.length > 0) {
-      msg += `\n\nℹ️ Note : Les séries suivantes n'ont pas été trouvées sur les API publiques (${notFoundList.join(', ')}). Vous pouvez vérifier leur total manuellement si besoin !`;
-    }
-    alert(msg);
+    alert("✓ Toutes vos séries à jour ! Aucun tome suivant manquant pour vos tomes lus.");
     return;
   }
 
