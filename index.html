@@ -90,6 +90,29 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-home-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--purple-dark);
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  .header-home-btn { color: var(--purple-light); }
+}
+.header-home-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
 .header h1 {
   font-size: 20px;
   font-weight: 800;
@@ -119,15 +142,20 @@ body {
 }
 .settings-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+/* NAV PARFAITEMENT CENTRÉE */
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0;
   height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface); border-top: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-around; z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr 60px 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+  z-index: 10;
   box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
 }
 .nav-btn {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
+  width: 100%; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 2px; border: none; background: none;
   cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600;
   padding: 4px 0; -webkit-tap-highlight-color: transparent;
@@ -552,19 +580,21 @@ body {
 
 .pioche-section { display: flex; flex-direction: column; gap: 12px; }
 .pioche-btn { 
-  width: 100%; padding: 18px; font-size: 15px; font-weight: 700; 
+  width: 100%; padding: 16px; font-size: 14px; font-weight: 700; 
   border-radius: var(--radius); border: none; cursor: pointer; 
-  display: flex; align-items: center; justify-content: center; gap: 10px; 
+  display: flex; align-items: center; justify-content: center; gap: 8px; 
 }
-.pioche-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pioche-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .pioche-serie-bought { background: var(--green-dark); color: #fff; box-shadow: 0 4px 12px rgba(4, 140, 38, 0.25); }
 .pioche-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.2); }
 .pioche-oneshot { background: var(--ochre); color: #fff; box-shadow: 0 4px 12px rgba(217, 139, 72, 0.2); }
+.pioche-wish { background: var(--purple-light); color: #fff; box-shadow: 0 4px 12px rgba(135, 88, 166, 0.3); }
+
 .pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 22px; text-align: center; display: none; box-shadow: var(--shadow); }
-.pioche-result .pick-book { font-size: 20px; font-weight: 800; color: var(--purple-dark); margin-bottom: 4px; }
+.pioche-result .pick-book { font-size: 18px; font-weight: 800; color: var(--purple-dark); margin-bottom: 4px; }
 @media (prefers-color-scheme: dark) { .pioche-result .pick-book { color: var(--purple-light); } }
-.pioche-result .pick-info { font-size: 14px; color: var(--text2); font-weight: 500; }
-.pioche-result .pick-dice { font-size: 36px; margin-bottom: 10px; }
+.pioche-result .pick-info { font-size: 13px; color: var(--text2); font-weight: 500; }
+.pioche-result .pick-dice { font-size: 32px; margin-bottom: 8px; }
 
 .isbn-row { display: flex; gap: 8px; align-items: flex-end; }
 .isbn-row input { flex: 1; }
@@ -606,9 +636,14 @@ body {
 <datalist id="auteurs-list"></datalist>
 
 <div class="header">
-  <div>
-    <h1>Ma bibliothèque</h1>
-    <p id="header-count">Chargement...</p>
+  <div class="header-left">
+    <button class="header-home-btn" onclick="showSection('accueil')" aria-label="Accueil">
+      <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </button>
+    <div>
+      <h1>Ma bibliothèque</h1>
+      <p id="header-count">Chargement...</p>
+    </div>
   </div>
   <button class="settings-icon-btn" onclick="showSection('reglages')" aria-label="Réglages">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -762,7 +797,7 @@ body {
   <div class="pioche-section">
     <button class="pioche-btn pioche-serie-bought" onclick="pioche('serie_en_cours_achetee')">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      🎲 Série EN COURS (Tome déjà acheté)
+      🎲 Suite de Série possédée
     </button>
     <button class="pioche-btn pioche-serie" onclick="pioche('serie')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
@@ -770,7 +805,11 @@ body {
     </button>
     <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot')">
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      📖 Piocher un One-Shot
+      📖 Piocher un One-Shot possédé
+    </button>
+    <button class="pioche-btn pioche-wish" onclick="pioche('wishlist')">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      🛒 Piocher un livre à acheter (Wishlist)
     </button>
     <div class="pioche-result" id="pioche-result">
       <div class="pick-dice">🎲</div>
@@ -956,12 +995,8 @@ body {
   </div>
 </div>
 
+<!-- BARRE DE NAVIGATION CENTRÉE PARFAITEMENT -->
 <nav class="nav">
-  <button class="nav-btn active" id="nav-accueil" onclick="showSection('accueil')">
-    <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    Accueil
-  </button>
-  
   <button class="nav-btn" id="nav-pal" onclick="showSection('pal')">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
     Ma PAL
@@ -2094,11 +2129,13 @@ function showStatDetail(type) {
       const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
       if (!isAbandoned && !allTermines && hasStarted && !sBooks.some(b => b.statut === 'attente')) {
-        activeSeriesList.push(s);
+        const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
+        const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
+        activeSeriesList.push({ seriesObj: s, maxTomeLu });
       }
     });
-    activeSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
-    rawItems = activeSeriesList.map(s => `<div class="stat-detail-item"><span>📚 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--text2)">${escHtml(s.auteur)}</span></div>`);
+    activeSeriesList.sort((a, b) => a.seriesObj.nom.localeCompare(b.seriesObj.nom, 'fr'));
+    rawItems = activeSeriesList.map(item => `<div class="stat-detail-item"><span>📚 ${escHtml(item.seriesObj.nom)} <strong style="color:var(--purple-light)">(${item.maxTomeLu}/${item.seriesObj.totalTomes})</strong></span> <span style="font-size:11px; color:var(--text2)">${escHtml(item.seriesObj.auteur)}</span></div>`);
   } else if (type === 'series_waiting') {
     titleEl.textContent = `Séries en attente de suite`;
     const waitingSeriesList = [];
@@ -2107,11 +2144,13 @@ function showStatDetail(type) {
       const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       if (!isAbandoned && sBooks.some(b => b.statut === 'attente')) {
-        waitingSeriesList.push(s);
+        const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
+        const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
+        waitingSeriesList.push({ seriesObj: s, maxTomeLu });
       }
     });
-    waitingSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
-    rawItems = waitingSeriesList.map(s => `<div class="stat-detail-item"><span>📦 ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
+    waitingSeriesList.sort((a, b) => a.seriesObj.nom.localeCompare(b.seriesObj.nom, 'fr'));
+    rawItems = waitingSeriesList.map(item => `<div class="stat-detail-item"><span>📦 ${escHtml(item.seriesObj.nom)} <strong style="color:var(--warning)">(${item.maxTomeLu}/${item.seriesObj.totalTomes})</strong></span> <span style="font-size:11px; color:var(--warning)">En attente</span></div>`);
   } else if (type === 'series_done') {
     titleEl.textContent = `Séries terminées`;
     const doneSeriesList = [];
@@ -2152,8 +2191,10 @@ function pioche(mode) {
     pool = ownedBooks.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId) && (!series[b.serieId] || !series[b.serieId].isAbandoned));
   } else if (mode === 'serie') {
     pool = ownedBooks.filter(b => b.type === 'serie' && (b.statut === 'a_commencer' || b.statut === 'en_cours') && (!series[b.serieId] || !series[b.serieId].isAbandoned));
-  } else {
+  } else if (mode === 'oneshot') {
     pool = ownedBooks.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
+  } else if (mode === 'wishlist') {
+    pool = books.filter(b => b.statut === 'a_acheter');
   }
 
   const res = document.getElementById('pioche-result');
@@ -2161,7 +2202,7 @@ function pioche(mode) {
   
   if (!pool.length) {
     document.getElementById('pick-book').textContent = mode === 'serie_en_cours_achetee' ? 'Aucune suite possédée à commencer !' : 'Aucun livre disponible !';
-    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux tomes dans ta PAL.'; 
+    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux livres ou envies.'; 
     return;
   }
   
@@ -2171,7 +2212,8 @@ function pioche(mode) {
   document.getElementById('pick-book').textContent = pick.titre;
   document.getElementById('pick-info').textContent = [
     s ? `${s.nom} (${pick.isPrequel ? 'Préquel' : 'Tome ' + pick.tomeNum})` : '',
-    s ? s.auteur : pick.auteur
+    s ? s.auteur : pick.auteur,
+    pick.prix > 0 ? `${pick.prix.toFixed(2)} €` : ''
   ].filter(Boolean).join(' · ');
 }
 
