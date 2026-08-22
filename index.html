@@ -785,6 +785,14 @@ body {
   </div>
 </div>
 
+<!-- Modal de Vérification/Actualisation des Suites -->
+<div class="modal-overlay" id="sync-modal">
+  <div class="modal-card" style="text-align:center;">
+    <p class="section-label">Vérification des Séries</p>
+    <div id="sync-modal-content"></div>
+  </div>
+</div>
+
 <div class="scanner-overlay" id="scanner-overlay">
   <div class="scanner-box" id="scanner-container">
     <div class="scanner-frame"></div>
@@ -848,6 +856,10 @@ body {
 </div>
 
 <div id="wishlist" class="section">
+  <button class="btn-full btn-scan" onclick="checkMissingSuites()" style="margin-bottom:12px;">
+    🔄 Actualiser &amp; Vérifier s'il manque des tomes
+  </button>
+
   <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()">
 
   <div class="segmented-control">
@@ -1141,7 +1153,7 @@ body {
   </button>
 
   <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Stats
   </button>
 </nav>
@@ -1159,6 +1171,7 @@ let scannerActive = false;
 let currentHeroBookIdx = null;
 let currentModalFicheTab = 'perso';
 let editingFicheItemIdx = null;
+let syncQueue = []; // Queue pour la pop-up de synchro des suites
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1557,6 +1570,97 @@ function closeHeroNotesModal() {
   document.getElementById('hero-notes-modal').classList.remove('open');
   currentHeroBookIdx = null;
   editingFicheItemIdx = null;
+}
+
+/* VERIFICATION DYNAMIQUE ET POP-UP POUR SÉRIES MANQUANTES */
+function checkMissingSuites() {
+  syncQueue = [];
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
+
+  Object.keys(series).forEach(sId => {
+    const s = series[sId];
+    if (!s || s.isAbandoned) return;
+
+    const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === sId);
+    if (!sBooks.length) return;
+
+    const maxTomeLuOuPossede = sBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
+    const nextTomeNum = maxTomeLuOuPossede + 1;
+
+    if (nextTomeNum <= s.totalTomes) {
+      const alreadyInWish = books.some(b => b.type === 'serie' && b.serieId === sId && b.tomeNum === nextTomeNum);
+      if (!alreadyInWish) {
+        syncQueue.push({ serieId: sId, nextTomeNum, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
+      }
+    }
+  });
+
+  if (!syncQueue.length) {
+    alert("✓ Toutes vos séries en cours sont à jour ! Aucun tome manquant détecté.");
+    return;
+  }
+
+  processSyncQueue();
+}
+
+function processSyncQueue() {
+  const modal = document.getElementById('sync-modal');
+  const content = document.getElementById('sync-modal-content');
+
+  if (!syncQueue.length) {
+    modal.classList.remove('open');
+    renderWishlist();
+    alert("✓ Traitement des séries terminé !");
+    return;
+  }
+
+  const current = syncQueue[0];
+  content.innerHTML = `
+    <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
+    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé / possèdes le tome ${current.nextTomeNum - 1}. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter le Tome ${current.nextTomeNum} à la Wishlist</button>
+      <button class="btn-full btn-danger-full" onclick="handleSyncChoice('abandon')">🚫 Abandonner la saga</button>
+      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('skip')">Passer pour le moment</button>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+function handleSyncChoice(choice) {
+  if (!syncQueue.length) return;
+  const current = syncQueue.shift();
+
+  if (choice === 'add') {
+    const newWishBook = {
+      id: 'wish_auto_' + Date.now(),
+      titre: `${current.nom}, Tome ${current.nextTomeNum}`,
+      auteur: current.auteur || '',
+      type: 'serie',
+      serieId: current.serieId,
+      tomeNum: current.nextTomeNum,
+      isPrequel: false,
+      statut: 'a_acheter',
+      prix: 0,
+      rating: 0,
+      dateDebut: null,
+      dateFin: null,
+      notes: '',
+      cover: '',
+      favorite: false,
+      dateAjout: new Date().toISOString().slice(0,10)
+    };
+    books.unshift(newWishBook);
+    save();
+  } else if (choice === 'abandon') {
+    if (series[current.serieId]) {
+      series[current.serieId].isAbandoned = true;
+      save();
+    }
+  }
+
+  processSyncQueue();
 }
 
 function handleCarouselScroll() {
@@ -2119,50 +2223,9 @@ function renderPAL() {
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   
-  // 1. Livres explicitement ajoutés en Wishlist
   let wishBooks = books.filter(b => b.statut === 'a_acheter');
 
-  // 2. Génération DYNAMIQUE AUTOMATIQUE des tomes suivants à acheter
-  let generatedWishList = [...wishBooks];
-
-  if (wishSegment === 'continue' || wishSegment === 'all') {
-    Object.keys(series).forEach(sId => {
-      const s = series[sId];
-      if (!s || s.isAbandoned) return;
-
-      const sBooksInPal = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut !== 'a_acheter');
-      if (!sBooksInPal.length) return;
-
-      // Calcul du plus grand tome possédé/lu dans la PAL
-      const maxTomePossede = sBooksInPal.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
-      const nextTomeNum = maxTomePossede + 1;
-
-      if (nextTomeNum <= s.totalTomes) {
-        // Vérifier si le tome N+1 est déjà présent dans les données (PAL ou Wishlist)
-        const alreadyExists = books.some(b => b.type === 'serie' && b.serieId === sId && (b.tomeNum === nextTomeNum || (b.tomeNum === maxTomePossede && b.statut === 'a_commencer')));
-
-        if (!alreadyExists) {
-          // Création de la carte virtuelle automatique
-          generatedWishList.push({
-            id: `virtual_wish_${sId}_${nextTomeNum}`,
-            isVirtual: true,
-            titre: `${s.nom}, Tome ${nextTomeNum}`,
-            auteur: s.auteur,
-            type: 'serie',
-            serieId: sId,
-            tomeNum: nextTomeNum,
-            isPrequel: false,
-            statut: 'a_acheter',
-            prix: 0,
-            rating: 0,
-            cover: ''
-          });
-        }
-      }
-    });
-  }
-
-  let filtered = generatedWishList.filter(b => {
+  let filtered = wishBooks.filter(b => {
     const s = b.serieId ? series[b.serieId] : null;
     const titleMatch = b.titre.toLowerCase().includes(q);
     const authorMatch = ((b.auteur || (s ? s.auteur : '')) || '').toLowerCase().includes(q);
@@ -2198,8 +2261,7 @@ function renderWishlist() {
   }
 
   list.innerHTML = filtered.map(b => {
-    const isVirtual = !!b.isVirtual;
-    const idx = isVirtual ? -1 : books.indexOf(b);
+    const idx = books.indexOf(b);
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
 
@@ -2226,22 +2288,22 @@ function renderWishlist() {
               <div class="book-author">${escHtml(authorDisplay)}</div>
               ${b.prix > 0 ? `<div class="book-price-info">Prix indicatif : ${b.prix.toFixed(2)} €</div>` : ''}
             </div>
-            ${!isVirtual ? `<button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
+            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>` : ''}
+            </button>
           </div>
           <div class="badges" style="margin-top:8px;">
-            <span class="badge badge-acheter">${isVirtual ? '⚡ Prochain tome suggéré' : '🛒 À acheter'}</span>
+            <span class="badge badge-acheter">🛒 À acheter</span>
           </div>
         </div>
       </div>
       <div class="card-actions">
-        <button class="btn btn-action-done" onclick="${isVirtual ? `addVirtualBookToPal('${b.serieId}', ${b.tomeNum}, '${escHtml(b.titre)}')` : `markBought(${idx})`}">📦 Acheté (Ajouter à ma PAL)</button>
+        <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Ajouter à ma PAL)</button>
         <button class="btn btn-accent" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Chercher sur Google</button>
-        ${!isVirtual ? `<button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>` : ''}
+        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
       </div>
 
-      ${!isVirtual ? `<div class="edit-panel" id="edit-panel-${idx}">
+      <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
         <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
         <div style="display:flex; gap:8px;">
@@ -2255,38 +2317,9 @@ function renderWishlist() {
           </div>
         </div>
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
-      </div>` : ''}
+      </div>
     </div>`;
   }).join('');
-}
-
-function addVirtualBookToPal(serieId, tomeNum, titre) {
-  const s = series[serieId];
-  const newBook = {
-    id: 'book_' + Date.now(),
-    titre: titre,
-    auteur: s ? s.auteur : '',
-    type: 'serie',
-    serieId: serieId,
-    tomeNum: tomeNum,
-    isPrequel: false,
-    statut: 'a_commencer',
-    prix: 0,
-    rating: 0,
-    dateDebut: null,
-    dateFin: null,
-    notes: '',
-    cover: '',
-    favorite: false,
-    dateAjout: new Date().toISOString().slice(0,10)
-  };
-
-  books.unshift(newBook);
-  save();
-  renderAccueil();
-  renderPAL();
-  renderWishlist();
-  alert(`"${titre}" a été ajouté à Ma PAL sous le statut "À commencer" !`);
 }
 
 function markBought(idx) {
