@@ -716,7 +716,6 @@ body {
 .pioche-wish-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.2); }
 .pioche-wish-oneshot { background: var(--purple-light); color: #fff; box-shadow: 0 4px 10px rgba(135, 88, 166, 0.25); }
 
-/* STYLES POPUP PIOCHE MAGIFIQUE */
 .pioche-modal-card {
   position: relative;
   background: var(--surface);
@@ -959,7 +958,6 @@ body {
       <option value="all">Tous les statuts de ma PAL</option>
       <option value="en_cours">📖 En cours de lecture</option>
       <option value="a_commencer">⏳ À commencer</option>
-      <option value="attente">📦 En attente de suite</option>
       <option value="termine">✓ Terminés / Lus</option>
       <option value="abandonne">🚫 Abandonnés</option>
     </select>
@@ -1192,9 +1190,8 @@ body {
       <select id="new-statut" onchange="handleNewStatutChange(this.value)">
         <option value="a_commencer">À commencer (Possédé)</option>
         <option value="en_cours">En cours de lecture</option>
-        <option value="attente">En attente de suite</option>
         <option value="a_acheter">🛒 En Wishlist (À acheter)</option>
-        <option value="en_attente_publi">📅 En attente de publication</option>
+        <option value="en_attente_publi">📦 En attente de suite / publication</option>
         <option value="termine">Terminé / Lu</option>
         <option value="abandonne">🚫 Abandonné</option>
       </select>
@@ -1305,6 +1302,14 @@ function load() {
   
   const limitInput = document.getElementById('setting-budget-limit');
   if (limitInput) limitInput.value = budgetLimit;
+
+  // CONVERSION AUTOMATIQUE : Transfert des anciens livres "attente" vers la Wishlist ("en_attente_publi")
+  books.forEach(b => {
+    if (b.statut === 'attente') {
+      b.statut = 'en_attente_publi';
+    }
+  });
+  save();
 
   renderAccueil();
   renderPAL(); 
@@ -1744,7 +1749,7 @@ function processSyncQueue() {
     <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter à la Wishlist (À acheter)</button>
-      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('publi')">📅 Ajouter en "Attente de publication"</button>
+      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('publi')">📦 Ajouter en "En attente de suite / publication"</button>
       <button class="btn-full btn-danger-full" onclick="handleSyncChoice('abandon')">🚫 Abandonner la saga</button>
       <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('skip')" style="opacity:0.7;">Passer pour le moment</button>
     </div>
@@ -2093,7 +2098,7 @@ function addBook() {
     dateAjout: new Date().toISOString().slice(0,10)
   };
 
-  if (type === 'serie' && (statut === 'en_cours' || statut === 'attente' || statut === 'termine')) {
+  if (type === 'serie' && (statut === 'en_cours' || statut === 'termine')) {
     books.forEach(otherBook => {
       if (otherBook.type === 'serie' && otherBook.serieId === serieId && otherBook.tomeNum < tomeNum) {
         if (otherBook.statut !== 'termine') {
@@ -2194,7 +2199,6 @@ function renderPAL() {
 
     let bClass, bText;
     if (b.statut==='termine') { bClass='badge-termine'; bText='lu / terminé'; }
-    else if (b.statut==='attente') { bClass='badge-attente'; bText='📦 en attente de suite'; }
     else if (b.statut==='en_cours') { bClass='badge-encours'; bText='📖 en cours'; }
     else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
     else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
@@ -2327,9 +2331,8 @@ function renderPAL() {
             <select id="edit-statut-${idx}">
               <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
               <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours</option>
-              <option value="attente" ${b.statut==='attente'?'selected':''}>📦 En attente de suite</option>
               <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (Non possédé)</option>
-              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📅 En attente de publication</option>
+              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite / publication</option>
               <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
               <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
             </select>
@@ -2423,7 +2426,7 @@ function renderWishlist() {
             </button>
           </div>
           <div class="badges" style="margin-top:8px;">
-            ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📅 En attente de publication</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
+            ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente de suite / publication</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
           </div>
         </div>
       </div>
@@ -2478,7 +2481,7 @@ function renderWishlist() {
             <label>Statut</label>
             <select id="edit-statut-${idx}">
               <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
-              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📅 En attente de publication</option>
+              <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite / publication</option>
               <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
             </select>
           </div>
@@ -2692,10 +2695,11 @@ function renderStats() {
   Object.keys(series).forEach(id => {
     const s = series[id];
     const seriesBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+    const allWishSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === id && (b.statut === 'a_acheter' || b.statut === 'en_attente_publi'));
     
     const isAbandoned = s.isAbandoned || seriesBooks.some(b => b.statut === 'abandonne');
     const allTermines = seriesBooks.length >= s.totalTomes && seriesBooks.every(b => b.statut === 'termine');
-    const isWaiting = seriesBooks.some(b => b.statut === 'attente');
+    const isWaiting = allWishSeriesBooks.some(b => b.statut === 'en_attente_publi');
     const hasStarted = seriesBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
     if (!isAbandoned) {
@@ -2738,8 +2742,9 @@ function showStatDetail(type) {
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
       const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
+      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
 
-      if (!isAbandoned && !allTermines && hasStarted && !sBooks.some(b => b.statut === 'attente')) {
+      if (!isAbandoned && !allTermines && hasStarted && !isWaiting) {
         const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
         const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
         activeSeriesList.push({ seriesObj: s, maxTomeLu });
@@ -2754,7 +2759,8 @@ function showStatDetail(type) {
       const s = series[id];
       const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
-      if (!isAbandoned && sBooks.some(b => b.statut === 'attente')) {
+      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+      if (!isAbandoned && isWaiting) {
         const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
         const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
         waitingSeriesList.push({ seriesObj: s, maxTomeLu });
@@ -2790,9 +2796,7 @@ function closeStatDetail() {
   document.getElementById('stat-detail-box').style.display = 'none';
 }
 
-/* PIOCHE AVEC POPUP IMMERSIVE */
 function pioche(mode) {
-  lastPiocheMode = mode;
   let pool = [];
   const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
   const wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -2815,8 +2819,12 @@ function pioche(mode) {
     pool = wishBooks.filter(b => b.type === 'one_shot');
   }
 
+  const res = document.getElementById('pioche-result');
+  res.style.display = 'block';
+  
   if (!pool.length) {
-    alert("Aucun livre disponible pour ce tirage ! Ajoutes-en de nouveaux.");
+    document.getElementById('pick-book').textContent = 'Aucun livre disponible pour ce choix !';
+    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux livres ou envies.'; 
     return;
   }
   
@@ -2824,7 +2832,6 @@ function pioche(mode) {
   currentPiocheBookIdx = books.indexOf(pick);
   const s = pick.serieId ? series[pick.serieId] : null;
 
-  // Remplissage Modal Pioche
   const coverUrl = (pick.cover && pick.cover.trim().length > 5) ? escHtml(pick.cover) : '';
   const coverWrap = document.getElementById('pioche-modal-cover-wrap');
   const bgBlur = document.getElementById('pioche-modal-bg');
@@ -2841,7 +2848,7 @@ function pioche(mode) {
   }
 
   document.getElementById('pioche-modal-title').textContent = pick.titre;
-  document.getElementById('pioche-modal-serie').textContent = (!pick.type === 'one_shot' && s) ? `📚 ${s.nom} · Tome ${pick.tomeNum}/${s.totalTomes}` : '';
+  document.getElementById('pioche-modal-serie').textContent = (pick.type !== 'one_shot' && s) ? `📚 ${s.nom} · Tome ${pick.tomeNum}/${s.totalTomes}` : '';
   document.getElementById('pioche-modal-author').textContent = pick.type === 'one_shot' ? pick.auteur : (s ? s.auteur : '');
 
   const startBtn = document.getElementById('pioche-modal-start-btn');
