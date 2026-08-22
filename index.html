@@ -1597,7 +1597,7 @@ function closeHeroNotesModal() {
   editingFicheItemIdx = null;
 }
 
-/* VERIFICATION STRICTEMENT BASÉE SUR LE DERNIER TOME LU */
+/* VERIFICATION STRICTEMENT BASÉE SUR DES NUMÉROS DE TOMES ENTIERS (IGNORANT LES DÉCIMAUX COMME 1.5) */
 function checkMissingSuites() {
   syncQueue = [];
 
@@ -1605,14 +1605,18 @@ function checkMissingSuites() {
     const s = series[sId];
     if (!s || s.isAbandoned) return;
 
-    const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine');
+    // Récupérer uniquement les tomes LU/TERMINÉS de cette série (en ignorant les novellas décimales type 1.5)
+    const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine' && (b.tomeNum % 1 === 0));
     if (!readSeriesBooks.length) return;
 
-    const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
+    // Trouver le numéro du plus grand tome ENTIER LU
+    const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
     const nextTomeNum = maxTomeLu + 1;
 
+    // Si le tome suivant ne dépasse pas le total prévu
     if (nextTomeNum <= s.totalTomes) {
-      const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && b.tomeNum === nextTomeNum);
+      // Vérifier si le Tome N+1 existe DÉJÀ dans la PAL ou la Wishlist
+      const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
       
       if (!existsInPalOrWish) {
         syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
