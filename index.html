@@ -1153,7 +1153,7 @@ body {
   </button>
 
   <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Stats
   </button>
 </nav>
@@ -1171,7 +1171,7 @@ let scannerActive = false;
 let currentHeroBookIdx = null;
 let currentModalFicheTab = 'perso';
 let editingFicheItemIdx = null;
-let syncQueue = []; // Queue pour la pop-up de synchro des suites
+let syncQueue = [];
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1572,31 +1572,35 @@ function closeHeroNotesModal() {
   editingFicheItemIdx = null;
 }
 
-/* VERIFICATION DYNAMIQUE ET POP-UP POUR SÉRIES MANQUANTES */
+/* VERIFICATION STRICTEMENT BASÉE SUR LE DERNIER TOME LU */
 function checkMissingSuites() {
   syncQueue = [];
-  const ownedBooks = books.filter(b => b.statut !== 'a_acheter');
 
   Object.keys(series).forEach(sId => {
     const s = series[sId];
     if (!s || s.isAbandoned) return;
 
-    const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === sId);
-    if (!sBooks.length) return;
+    // Récupérer uniquement les tomes LU/TERMINÉS de cette série
+    const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine');
+    if (!readSeriesBooks.length) return;
 
-    const maxTomeLuOuPossede = sBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
-    const nextTomeNum = maxTomeLuOuPossede + 1;
+    // Trouver le numéro du plus grand tome LU
+    const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, b.tomeNum || 0), 0);
+    const nextTomeNum = maxTomeLu + 1;
 
+    // Si le tome suivant ne dépasse pas le total prévu
     if (nextTomeNum <= s.totalTomes) {
-      const alreadyInWish = books.some(b => b.type === 'serie' && b.serieId === sId && b.tomeNum === nextTomeNum);
-      if (!alreadyInWish) {
-        syncQueue.push({ serieId: sId, nextTomeNum, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
+      // Vérifier si le Tome N+1 existe DÉJÀ (soit dans la PAL sous n'importe quel statut, soit dans la Wishlist)
+      const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && b.tomeNum === nextTomeNum);
+      
+      if (!existsInPalOrWish) {
+        syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
       }
     }
   });
 
   if (!syncQueue.length) {
-    alert("✓ Toutes vos séries en cours sont à jour ! Aucun tome manquant détecté.");
+    alert("✓ Toutes vos séries à jour ! Aucun tome suivant manquant pour vos tomes lus.");
     return;
   }
 
@@ -1617,7 +1621,7 @@ function processSyncQueue() {
   const current = syncQueue[0];
   content.innerHTML = `
     <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
-    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé / possèdes le tome ${current.nextTomeNum - 1}. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
+    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le <strong>Tome ${current.maxTomeLu}</strong>. Souhaites-tu ajouter le <strong>Tome ${current.nextTomeNum}</strong> à ta Wishlist ?</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter le Tome ${current.nextTomeNum} à la Wishlist</button>
       <button class="btn-full btn-danger-full" onclick="handleSyncChoice('abandon')">🚫 Abandonner la saga</button>
