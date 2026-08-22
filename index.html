@@ -716,11 +716,86 @@ body {
 .pioche-wish-serie { background: var(--purple-dark); color: #fff; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.2); }
 .pioche-wish-oneshot { background: var(--purple-light); color: #fff; box-shadow: 0 4px 10px rgba(135, 88, 166, 0.25); }
 
-.pioche-result { background: var(--surface); border: 2px solid var(--ochre); border-radius: var(--radius); padding: 22px; text-align: center; display: none; box-shadow: var(--shadow); margin-top: 6px; }
-.pioche-result .pick-book { font-size: 18px; font-weight: 800; color: var(--purple-dark); margin-bottom: 4px; }
-@media (prefers-color-scheme: dark) { .pioche-result .pick-book { color: var(--purple-light); } }
-.pioche-result .pick-info { font-size: 13px; color: var(--text2); font-weight: 500; }
-.pioche-result .pick-dice { font-size: 32px; margin-bottom: 6px; }
+/* STYLES POPUP PIOCHE MAGIFIQUE */
+.pioche-modal-card {
+  position: relative;
+  background: var(--surface);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 360px;
+  padding: 24px 20px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  text-align: center;
+  overflow: hidden;
+}
+
+.pioche-bg-blur {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(28px) brightness(0.65);
+  opacity: 0.35;
+  z-index: 0;
+  transform: scale(1.15);
+}
+
+.pioche-content-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pioche-cover-img {
+  height: 220px;
+  width: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  margin-bottom: 14px;
+}
+
+.pioche-cover-placeholder {
+  height: 220px;
+  width: 146px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  margin-bottom: 14px;
+}
+
+.pioche-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.pioche-modal-serie {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--purple-light);
+  margin-bottom: 2px;
+}
+
+.pioche-modal-author {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
 
 .isbn-row { display: flex; gap: 8px; align-items: flex-end; }
 .isbn-row input { flex: 1; }
@@ -818,6 +893,28 @@ body {
   <div class="modal-card" style="text-align:center;">
     <p class="section-label">Vérification des Séries</p>
     <div id="sync-modal-content"></div>
+  </div>
+</div>
+
+<!-- POPUP RÉSULTAT DE LA PIOCHE DYNAMIQUE ET VISUELLE -->
+<div class="modal-overlay" id="pioche-modal">
+  <div class="pioche-modal-card">
+    <div class="pioche-bg-blur" id="pioche-modal-bg"></div>
+    <div class="pioche-content-inner">
+      <p class="section-label" style="margin-bottom:12px;">Résultat du tirage 🎲</p>
+      
+      <div id="pioche-modal-cover-wrap"></div>
+      
+      <div class="pioche-modal-title" id="pioche-modal-title"></div>
+      <div class="pioche-modal-serie" id="pioche-modal-serie"></div>
+      <div class="pioche-modal-author" id="pioche-modal-author"></div>
+
+      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-full" id="pioche-modal-start-btn" onclick="startReadingFromPioche()">📖 Commencer la lecture</button>
+        <button class="btn-full btn-secondary-full" onclick="pioche(lastPiocheMode)">🎲 Repiocher un autre</button>
+        <button class="btn-full btn-secondary-full" onclick="closePiocheModal()" style="opacity:0.8;">Fermer</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -978,12 +1075,6 @@ body {
       <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       🛍️ Acheter un nouveau one-shot (Wishlist)
     </button>
-    
-    <div class="pioche-result" id="pioche-result">
-      <div class="pick-dice">🎲</div>
-      <div class="pick-book" id="pick-book"></div>
-      <div class="pick-info" id="pick-info"></div>
-    </div>
   </div>
 </div>
 
@@ -1203,6 +1294,8 @@ let currentHeroBookIdx = null;
 let currentModalFicheTab = 'perso';
 let editingFicheItemIdx = null;
 let syncQueue = [];
+let lastPiocheMode = 'suite_serie_possedee';
+let currentPiocheBookIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -2697,7 +2790,9 @@ function closeStatDetail() {
   document.getElementById('stat-detail-box').style.display = 'none';
 }
 
+/* PIOCHE AVEC POPUP IMMERSIVE */
 function pioche(mode) {
+  lastPiocheMode = mode;
   let pool = [];
   const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
   const wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -2720,24 +2815,55 @@ function pioche(mode) {
     pool = wishBooks.filter(b => b.type === 'one_shot');
   }
 
-  const res = document.getElementById('pioche-result');
-  res.style.display = 'block';
-  
   if (!pool.length) {
-    document.getElementById('pick-book').textContent = 'Aucun livre disponible pour ce choix !';
-    document.getElementById('pick-info').textContent = 'Ajoute de nouveaux livres ou envies.'; 
+    alert("Aucun livre disponible pour ce tirage ! Ajoutes-en de nouveaux.");
     return;
   }
   
   const pick = pool[Math.floor(Math.random()*pool.length)];
+  currentPiocheBookIdx = books.indexOf(pick);
   const s = pick.serieId ? series[pick.serieId] : null;
 
-  document.getElementById('pick-book').textContent = pick.titre;
-  document.getElementById('pick-info').textContent = [
-    s ? `${s.nom} (${pick.isPrequel ? 'Préquel' : 'Tome ' + pick.tomeNum})` : '',
-    s ? s.auteur : pick.auteur,
-    pick.prix > 0 ? `${pick.prix.toFixed(2)} €` : ''
-  ].filter(Boolean).join(' · ');
+  // Remplissage Modal Pioche
+  const coverUrl = (pick.cover && pick.cover.trim().length > 5) ? escHtml(pick.cover) : '';
+  const coverWrap = document.getElementById('pioche-modal-cover-wrap');
+  const bgBlur = document.getElementById('pioche-modal-bg');
+
+  if (coverUrl) {
+    coverWrap.innerHTML = `<img src="${coverUrl}" class="pioche-cover-img" alt="Couverture">`;
+    bgBlur.style.backgroundImage = `url('${coverUrl}')`;
+  } else {
+    coverWrap.innerHTML = `<div class="pioche-cover-placeholder">
+      <div style="font-size:32px; margin-bottom:8px;">📖</div>
+      <div style="font-size:14px; font-weight:800; line-height:1.2;">${escHtml(pick.titre)}</div>
+    </div>`;
+    bgBlur.style.backgroundImage = 'none';
+  }
+
+  document.getElementById('pioche-modal-title').textContent = pick.titre;
+  document.getElementById('pioche-modal-serie').textContent = (!pick.type === 'one_shot' && s) ? `📚 ${s.nom} · Tome ${pick.tomeNum}/${s.totalTomes}` : '';
+  document.getElementById('pioche-modal-author').textContent = pick.type === 'one_shot' ? pick.auteur : (s ? s.auteur : '');
+
+  const startBtn = document.getElementById('pioche-modal-start-btn');
+  if (pick.statut === 'a_acheter' || pick.statut === 'en_attente_publi') {
+    startBtn.style.display = 'none';
+  } else {
+    startBtn.style.display = 'block';
+  }
+
+  document.getElementById('pioche-modal').classList.add('open');
+}
+
+function startReadingFromPioche() {
+  if (currentPiocheBookIdx !== null && books[currentPiocheBookIdx]) {
+    closePiocheModal();
+    startReading(currentPiocheBookIdx);
+  }
+}
+
+function closePiocheModal() {
+  document.getElementById('pioche-modal').classList.remove('open');
+  currentPiocheBookIdx = null;
 }
 
 function renderBudget() {
