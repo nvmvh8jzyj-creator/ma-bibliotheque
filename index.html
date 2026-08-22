@@ -512,7 +512,7 @@ body {
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
 
-/* STYLE FICHE DE LECTURE STRUCTURÉE & ÉDITABLE */
+/* STYLE FICHE DE LECTURE STRUCTURÉE & ÉDITABLE AVEC STATUT MORT */
 .fiche-box {
   background: var(--surface2);
   border-radius: 12px;
@@ -559,10 +559,17 @@ body {
   justify-content: space-between;
   align-items: flex-start;
 }
+.fiche-item-card.is-dead {
+  border-color: rgba(192, 57, 43, 0.4);
+  background: var(--danger-bg);
+}
 .fiche-item-title {
   font-weight: 800;
   color: var(--purple-dark);
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 @media (prefers-color-scheme: dark) { .fiche-item-title { color: var(--purple-light); } }
 .fiche-item-desc {
@@ -578,6 +585,15 @@ body {
   padding: 1px 5px;
   border-radius: 4px;
   margin-right: 4px;
+}
+.fiche-tag-dead {
+  font-size: 9px;
+  font-weight: 800;
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(192, 57, 43, 0.3);
 }
 .fiche-item-actions {
   display: flex;
@@ -754,6 +770,14 @@ body {
         <div class="form-field" style="margin-bottom:8px;">
           <input type="text" id="modal-new-item-desc" placeholder="Détail (ex: Élevé par Garrow, bras-droit...)" style="font-size:12px; padding:6px 10px;">
         </div>
+
+        <div id="modal-dead-checkbox-wrap" style="display:none; margin-bottom:8px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
+            <input type="checkbox" id="modal-new-item-dead" style="width:auto;-webkit-appearance:checkbox;">
+            <span>💀 Personnage décédé</span>
+          </label>
+        </div>
+
         <button class="btn-full btn-secondary-full" id="modal-add-item-btn" onclick="addOrUpdateModalFicheItem()" style="padding:6px; font-size:12px; margin-bottom:0;">➕ Ajouter à la fiche</button>
       </div>
     </div>
@@ -1135,7 +1159,7 @@ let budgetLimit = 75;
 let scannerActive = false;
 let currentHeroBookIdx = null;
 let currentModalFicheTab = 'perso';
-let editingFicheItemIdx = null; // Index en cours d'édition
+let editingFicheItemIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1298,7 +1322,7 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
-/* GESTION AVANCÉE DE LA FICHE DE RAPPEL (ÉDITION DE CARTE) */
+/* GESTION FICHE DE RAPPEL & STATUT MORT */
 function parseBookFiche(notesRaw) {
   try {
     const parsed = JSON.parse(notesRaw);
@@ -1312,7 +1336,7 @@ function parseBookFiche(notesRaw) {
   } catch(e) {}
   
   if (notesRaw && notesRaw.trim()) {
-    return { perso: [{ title: 'Notes générales', desc: notesRaw.trim(), tome: null }], lieu: [], event: [] };
+    return { perso: [{ title: 'Notes générales', desc: notesRaw.trim(), tome: null, isDead: false }], lieu: [], event: [] };
   }
   return { perso: [], lieu: [], event: [] };
 }
@@ -1356,12 +1380,22 @@ function setModalFicheTab(tab) {
     const btn = document.getElementById(`modal-tab-${t}`);
     if (btn) btn.classList.toggle('active', t === tab);
   });
+  
+  const deadWrap = document.getElementById('modal-dead-checkbox-wrap');
+  if (deadWrap) deadWrap.style.display = (tab === 'perso') ? 'block' : 'none';
+
   renderModalFiche();
 }
 
 function resetFicheForm() {
   document.getElementById('modal-new-item-title').value = '';
   document.getElementById('modal-new-item-desc').value = '';
+  const deadCb = document.getElementById('modal-new-item-dead');
+  if (deadCb) deadCb.checked = false;
+  
+  const deadWrap = document.getElementById('modal-dead-checkbox-wrap');
+  if (deadWrap) deadWrap.style.display = (currentModalFicheTab === 'perso') ? 'block' : 'none';
+
   document.getElementById('modal-add-item-btn').textContent = '➕ Ajouter à la fiche';
   editingFicheItemIdx = null;
 }
@@ -1380,17 +1414,48 @@ function renderModalFiche() {
 
   listEl.innerHTML = items.map((item, i) => {
     const tomeBadge = item.tome ? `<span class="fiche-tag-tome">T.${item.tome}</span>` : '';
-    return `<div class="fiche-item-card">
+    const deadBadge = (currentModalFicheTab === 'perso' && item.isDead) ? `<span class="fiche-tag-dead">💀 Décédé</span>` : '';
+    const deadClass = (currentModalFicheTab === 'perso' && item.isDead) ? 'is-dead' : '';
+
+    return `<div class="fiche-item-card ${deadClass}">
       <div>
-        <div class="fiche-item-title">${tomeBadge}${escHtml(item.title)}</div>
+        <div class="fiche-item-title">${tomeBadge}${deadBadge}${escHtml(item.title)}</div>
         <div class="fiche-item-desc">${escHtml(item.desc)}</div>
       </div>
       <div class="fiche-item-actions">
+        ${currentModalFicheTab === 'perso' ? `<button class="fiche-item-btn" onclick="toggleModalPersoDead(${i})" title="Changer statut vivant/mort">${item.isDead ? '💀' : '❤️'}</button>` : ''}
         <button class="fiche-item-btn" onclick="editModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Modifier">✏️</button>
         <button class="fiche-item-btn" onclick="deleteModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Supprimer">✕</button>
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleModalPersoDead(itemIndex) {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+
+  if (b.type === 'serie' && b.serieId) {
+    const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+    let count = 0;
+    for (let sb of sBooks) {
+      const f = parseBookFiche(sb.notes);
+      if (count + f.perso.length > itemIndex) {
+        const internalIdx = itemIndex - count;
+        f.perso[internalIdx].isDead = !f.perso[internalIdx].isDead;
+        sb.notes = stringifyBookFiche(f);
+        break;
+      }
+      count += f.perso.length;
+    }
+  } else {
+    const f = parseBookFiche(b.notes);
+    f.perso[itemIndex].isDead = !f.perso[itemIndex].isDead;
+    b.notes = stringifyBookFiche(f);
+  }
+
+  save();
+  renderModalFiche();
 }
 
 function editModalFicheItem(tab, itemIndex) {
@@ -1403,6 +1468,10 @@ function editModalFicheItem(tab, itemIndex) {
     editingFicheItemIdx = itemIndex;
     document.getElementById('modal-new-item-title').value = item.title || '';
     document.getElementById('modal-new-item-desc').value = item.desc || '';
+    
+    const deadCb = document.getElementById('modal-new-item-dead');
+    if (deadCb && tab === 'perso') deadCb.checked = !!item.isDead;
+
     document.getElementById('modal-add-item-btn').textContent = '💾 Modifier la carte';
   }
 }
@@ -1412,6 +1481,8 @@ function addOrUpdateModalFicheItem() {
   const b = books[currentHeroBookIdx];
   const title = document.getElementById('modal-new-item-title').value.trim();
   const desc = document.getElementById('modal-new-item-desc').value.trim();
+  const deadCb = document.getElementById('modal-new-item-dead');
+  const isDead = (currentModalFicheTab === 'perso' && deadCb) ? deadCb.checked : false;
 
   if (!title) { alert('Merci de saisir un nom.'); return; }
 
@@ -1425,6 +1496,7 @@ function addOrUpdateModalFicheItem() {
           const internalIdx = editingFicheItemIdx - count;
           f[currentModalFicheTab][internalIdx].title = title;
           f[currentModalFicheTab][internalIdx].desc = desc;
+          if (currentModalFicheTab === 'perso') f.perso[internalIdx].isDead = isDead;
           sb.notes = stringifyBookFiche(f);
           break;
         }
@@ -1432,7 +1504,7 @@ function addOrUpdateModalFicheItem() {
       }
     } else {
       const currentFiche = parseBookFiche(b.notes);
-      currentFiche[currentModalFicheTab].push({ title, desc, tome: b.tomeNum || null });
+      currentFiche[currentModalFicheTab].push({ title, desc, tome: b.tomeNum || null, isDead });
       b.notes = stringifyBookFiche(currentFiche);
     }
   } else {
@@ -1440,8 +1512,9 @@ function addOrUpdateModalFicheItem() {
     if (editingFicheItemIdx !== null) {
       currentFiche[currentModalFicheTab][editingFicheItemIdx].title = title;
       currentFiche[currentModalFicheTab][editingFicheItemIdx].desc = desc;
+      if (currentModalFicheTab === 'perso') currentFiche.perso[editingFicheItemIdx].isDead = isDead;
     } else {
-      currentFiche[currentModalFicheTab].push({ title, desc, tome: null });
+      currentFiche[currentModalFicheTab].push({ title, desc, tome: null, isDead });
     }
     b.notes = stringifyBookFiche(currentFiche);
   }
