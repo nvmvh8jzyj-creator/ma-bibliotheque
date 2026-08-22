@@ -512,7 +512,7 @@ body {
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
 
-/* STYLE FICHE DE LECTURE STRUCTURÉE */
+/* STYLE FICHE DE LECTURE STRUCTURÉE & ÉDITABLE */
 .fiche-box {
   background: var(--surface2);
   border-radius: 12px;
@@ -578,6 +578,20 @@ body {
   padding: 1px 5px;
   border-radius: 4px;
   margin-right: 4px;
+}
+.fiche-item-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.fiche-item-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--text3);
 }
 
 .note-preview { font-size: 12px; color: var(--text2); margin-top: 8px; font-style: italic; background: var(--surface2); padding: 8px 12px; border-radius: 8px; }
@@ -740,7 +754,7 @@ body {
         <div class="form-field" style="margin-bottom:8px;">
           <input type="text" id="modal-new-item-desc" placeholder="Détail (ex: Élevé par Garrow, bras-droit...)" style="font-size:12px; padding:6px 10px;">
         </div>
-        <button class="btn-full btn-secondary-full" onclick="addModalFicheItem()" style="padding:6px; font-size:12px; margin-bottom:0;">➕ Ajouter à la fiche</button>
+        <button class="btn-full btn-secondary-full" id="modal-add-item-btn" onclick="addOrUpdateModalFicheItem()" style="padding:6px; font-size:12px; margin-bottom:0;">➕ Ajouter à la fiche</button>
       </div>
     </div>
 
@@ -1121,6 +1135,7 @@ let budgetLimit = 75;
 let scannerActive = false;
 let currentHeroBookIdx = null;
 let currentModalFicheTab = 'perso';
+let editingFicheItemIdx = null; // Index en cours d'édition
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1283,7 +1298,7 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
-/* FONCTIONS FICHE STRUCTURÉE (PERSONNAGES, LIEUX, ÉVÉNEMENTS) */
+/* GESTION AVANCÉE DE LA FICHE DE RAPPEL (ÉDITION DE CARTE) */
 function parseBookFiche(notesRaw) {
   try {
     const parsed = JSON.parse(notesRaw);
@@ -1323,21 +1338,32 @@ function getFicheForBook(b) {
 
 function openHeroNotesModal(idx) {
   currentHeroBookIdx = idx;
+  editingFicheItemIdx = null;
   const b = books[idx];
   const s = b.serieId ? series[b.serieId] : null;
   document.getElementById('modal-notes-title').textContent = s ? `Fiche Saga : ${s.nom}` : `Fiche : ${b.titre}`;
   currentModalFicheTab = 'perso';
+  resetFicheForm();
   renderModalFiche();
   document.getElementById('hero-notes-modal').classList.add('open');
 }
 
 function setModalFicheTab(tab) {
   currentModalFicheTab = tab;
+  editingFicheItemIdx = null;
+  resetFicheForm();
   ['perso','lieu','event'].forEach(t => {
     const btn = document.getElementById(`modal-tab-${t}`);
     if (btn) btn.classList.toggle('active', t === tab);
   });
   renderModalFiche();
+}
+
+function resetFicheForm() {
+  document.getElementById('modal-new-item-title').value = '';
+  document.getElementById('modal-new-item-desc').value = '';
+  document.getElementById('modal-add-item-btn').textContent = '➕ Ajouter à la fiche';
+  editingFicheItemIdx = null;
 }
 
 function renderModalFiche() {
@@ -1359,12 +1385,29 @@ function renderModalFiche() {
         <div class="fiche-item-title">${tomeBadge}${escHtml(item.title)}</div>
         <div class="fiche-item-desc">${escHtml(item.desc)}</div>
       </div>
-      <button class="del-btn" onclick="deleteModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Supprimer">✕</button>
+      <div class="fiche-item-actions">
+        <button class="fiche-item-btn" onclick="editModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Modifier">✏️</button>
+        <button class="fiche-item-btn" onclick="deleteModalFicheItem('${currentModalFicheTab}', ${i})" aria-label="Supprimer">✕</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-function addModalFicheItem() {
+function editModalFicheItem(tab, itemIndex) {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  const fiche = getFicheForBook(b);
+  const item = fiche[tab][itemIndex];
+
+  if (item) {
+    editingFicheItemIdx = itemIndex;
+    document.getElementById('modal-new-item-title').value = item.title || '';
+    document.getElementById('modal-new-item-desc').value = item.desc || '';
+    document.getElementById('modal-add-item-btn').textContent = '💾 Modifier la carte';
+  }
+}
+
+function addOrUpdateModalFicheItem() {
   if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
   const b = books[currentHeroBookIdx];
   const title = document.getElementById('modal-new-item-title').value.trim();
@@ -1372,15 +1415,39 @@ function addModalFicheItem() {
 
   if (!title) { alert('Merci de saisir un nom.'); return; }
 
-  const currentFiche = parseBookFiche(b.notes);
-  const newItem = { title, desc, tome: b.tomeNum || null };
-  currentFiche[currentModalFicheTab].push(newItem);
+  if (b.type === 'serie' && b.serieId) {
+    if (editingFicheItemIdx !== null) {
+      const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      let count = 0;
+      for (let sb of sBooks) {
+        const f = parseBookFiche(sb.notes);
+        if (count + f[currentModalFicheTab].length > editingFicheItemIdx) {
+          const internalIdx = editingFicheItemIdx - count;
+          f[currentModalFicheTab][internalIdx].title = title;
+          f[currentModalFicheTab][internalIdx].desc = desc;
+          sb.notes = stringifyBookFiche(f);
+          break;
+        }
+        count += f[currentModalFicheTab].length;
+      }
+    } else {
+      const currentFiche = parseBookFiche(b.notes);
+      currentFiche[currentModalFicheTab].push({ title, desc, tome: b.tomeNum || null });
+      b.notes = stringifyBookFiche(currentFiche);
+    }
+  } else {
+    const currentFiche = parseBookFiche(b.notes);
+    if (editingFicheItemIdx !== null) {
+      currentFiche[currentModalFicheTab][editingFicheItemIdx].title = title;
+      currentFiche[currentModalFicheTab][editingFicheItemIdx].desc = desc;
+    } else {
+      currentFiche[currentModalFicheTab].push({ title, desc, tome: null });
+    }
+    b.notes = stringifyBookFiche(currentFiche);
+  }
 
-  b.notes = stringifyBookFiche(currentFiche);
   save();
-
-  document.getElementById('modal-new-item-title').value = '';
-  document.getElementById('modal-new-item-desc').value = '';
+  resetFicheForm();
   renderModalFiche();
   renderPAL();
 }
@@ -1409,6 +1476,7 @@ function deleteModalFicheItem(tab, itemIndex) {
   }
 
   save();
+  resetFicheForm();
   renderModalFiche();
   renderPAL();
 }
@@ -1416,6 +1484,7 @@ function deleteModalFicheItem(tab, itemIndex) {
 function closeHeroNotesModal() {
   document.getElementById('hero-notes-modal').classList.remove('open');
   currentHeroBookIdx = null;
+  editingFicheItemIdx = null;
 }
 
 function handleCarouselScroll() {
