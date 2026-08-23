@@ -771,6 +771,22 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
+/* NETTOYAGE INTELLIGENT DU TITRE POUR LA RECHERCHE VINTED */
+function openVintedSearch(titreRaw, auteurRaw) {
+  let cleanTitle = titreRaw || '';
+  cleanTitle = cleanTitle.replace(/:.*$/g, ''); 
+  cleanTitle = cleanTitle.replace(/Vol\.\s*\d+/gi, ''); 
+  cleanTitle = cleanTitle.replace(/Tome\s*\d+/gi, ''); 
+  cleanTitle = cleanTitle.replace(/Livre\s*\d+/gi, ''); 
+  cleanTitle = cleanTitle.trim();
+
+  let cleanAuthor = (auteurRaw || '').trim();
+  let query = `${cleanTitle} ${cleanAuthor} livre`.replace(/\s+/g, ' ').trim();
+  
+  window.open(`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(query)}`, '_blank');
+}
+
+/* LISTE DE COURSES STRICTEMENT CORRIGÉE : STATUT a_acheter UNIQUEMENT */
 function generateMonthlyShoppingList() {
   if (activeShoppingItems.length > 0) {
     renderShoppingListModal();
@@ -778,11 +794,13 @@ function generateMonthlyShoppingList() {
     return;
   }
 
+  // RÈGLE STRICTE : Seuls les livres en statut "a_acheter"
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
   activeShoppingItems = [];
 
+  // P1 : Séries dont le tome précédent (T-1) est TERMINÉ
   const wishSeries = wishBooks.filter(b => b.type === 'serie');
   for (let b of wishSeries) {
     if (!b.serieId) continue;
@@ -809,6 +827,7 @@ function generateMonthlyShoppingList() {
     }
   }
 
+  // P2 : Livres avec le marqueur discret "Prochain Achat"
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.bookId === b.id));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
@@ -888,6 +907,7 @@ function addRandomOneshotToShoppingList() {
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
+/* RESTAURATION DU RENDU PAL COMPLET ET DÉTAILLÉ */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -1069,6 +1089,7 @@ function renderWishlist() {
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
     const isTarget = !!b.isNextTarget;
+    const authorVal = isOne ? b.auteur : (s ? s.auteur : '');
 
     let coverHtml = (b.cover && b.cover.trim().length > 5)
       ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
@@ -1082,7 +1103,7 @@ function renderWishlist() {
             <div style="flex:1">
               <div class="book-title">${escHtml(b.titre)}</div>
               ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
-              <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+              <div class="book-author">${escHtml(authorVal)}</div>
             </div>
             <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -1098,7 +1119,7 @@ function renderWishlist() {
         <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Dans ma PAL)</button>
         <button class="btn btn-target ${isTarget ? 'active' : ''}" onclick="toggleNextTarget(${idx})">🎯 ${isTarget ? 'Séquencé' : 'Prochain achat'}</button>
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
-        <button class="btn btn-accent" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
+        <button class="btn btn-accent" onclick="openVintedSearch('${escHtml(b.titre)}', '${escHtml(authorVal)}')">🔍 Vinted</button>
       </div>
 
       <div class="edit-panel" id="edit-panel-${idx}">
