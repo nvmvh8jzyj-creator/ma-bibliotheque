@@ -194,6 +194,9 @@ body {
 .book-title { font-size: 16px; font-weight: 700; line-height: 1.25; color: var(--text); }
 .book-author { font-size: 13px; color: var(--text2); margin-top: 3px; font-weight: 500; }
 .book-serie-info { font-size: 12px; color: var(--purple-light); font-weight: 700; margin-top: 3px; }
+.book-price-info { font-size: 12px; color: var(--green-dark); font-weight: 700; margin-top: 3px; }
+@media (prefers-color-scheme: dark) { .book-price-info { color: var(--green-bright); } }
+.book-rating { font-size: 13px; color: #f39c12; margin-top: 4px; font-weight: 700; }
 
 .badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
 .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
@@ -205,7 +208,17 @@ body {
 .badge-acommencer { background: var(--surface2); color: var(--text2); }
 .badge-termine { background: var(--green-bg); color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
+.badge-abandoned { background: #4a4a4a; color: #ffffff; }
+.badge-prequel { background: var(--ochre-bg); color: var(--ochre); }
+.badge-favorite { background: #fde8e8; color: #e74c3c; }
 .badge-target { background: var(--ochre-bg); color: var(--ochre); border: 1px solid rgba(217, 139, 72, 0.4); }
+
+.heart-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text3); font-size: 12px; font-weight: 600; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; }
+.heart-btn.active { color: #e74c3c; font-weight: 700; }
+
+.progress-txt { font-size: 11px; color: var(--text2); font-weight: 600; margin-top: 8px; }
+.progress-bar-wrap { background: var(--surface2); border-radius: 6px; height: 6px; margin-top: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 6px; background: var(--ochre); transition: width 0.3s; }
 
 .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
@@ -214,6 +227,17 @@ body {
 .btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
 .btn-target { border-color: var(--ochre); color: var(--ochre); background: var(--ochre-bg); font-size: 11px; padding: 4px 10px; }
 .btn-target.active { background: var(--ochre); color: #fff; }
+
+.edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.edit-panel.open { display: block; }
+
+.fiche-box { background: var(--surface2); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
+.fiche-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.fiche-tab-btn { flex: 1; font-size: 11px; font-weight: 700; padding: 6px 0; border: 1px solid var(--border); background: var(--surface); color: var(--text2); border-radius: 8px; cursor: pointer; }
+.fiche-tab-btn.active { background: var(--purple-dark); color: #fff; border-color: var(--purple-dark); }
+.fiche-items-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; margin-bottom: 8px; }
+.fiche-item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: flex-start; }
+.fiche-item-card.is-dead { border-color: rgba(192, 57, 43, 0.4); background: var(--danger-bg); }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
@@ -303,6 +327,33 @@ body {
     
     <button class="btn-full btn-secondary-full" id="btn-add-random-oneshot" onclick="addRandomOneshotToShoppingList()" style="margin-top:8px;">🎲 Ajouter un One-shot au hasard</button>
     <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:8px;">Fermer la liste</button>
+  </div>
+</div>
+
+<!-- Modal Fiche Structurée -->
+<div class="modal-overlay" id="hero-notes-modal">
+  <div class="modal-card">
+    <p class="section-label" id="modal-notes-title">Fiche de rappel</p>
+    <div class="fiche-box">
+      <div class="fiche-tabs">
+        <button class="fiche-tab-btn active" id="modal-tab-perso" onclick="setModalFicheTab('perso')">👤 Persos</button>
+        <button class="fiche-tab-btn" id="modal-tab-lieu" onclick="setModalFicheTab('lieu')">🗺️ Lieux</button>
+        <button class="fiche-tab-btn" id="modal-tab-event" onclick="setModalFicheTab('event')">⚡ Événements</button>
+      </div>
+      <div class="fiche-items-list" id="modal-fiche-items-list"></div>
+      <div style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+        <div class="form-field" style="margin-bottom:6px;"><input type="text" id="modal-new-item-title" placeholder="Nom..." style="font-size:13px; padding:6px 10px;"></div>
+        <div class="form-field" style="margin-bottom:8px;"><input type="text" id="modal-new-item-desc" placeholder="Détails..." style="font-size:12px; padding:6px 10px;"></div>
+        <div id="modal-dead-checkbox-wrap" style="display:none; margin-bottom:8px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
+            <input type="checkbox" id="modal-new-item-dead" style="width:auto;-webkit-appearance:checkbox;">
+            <span>💀 Personnage décédé</span>
+          </label>
+        </div>
+        <button class="btn-full btn-secondary-full" id="modal-add-item-btn" onclick="addOrUpdateModalFicheItem()" style="padding:6px; font-size:12px; margin-bottom:0;">➕ Ajouter à la fiche</button>
+      </div>
+    </div>
+    <button class="btn-full" onclick="closeHeroNotesModal()">Fermer</button>
   </div>
 </div>
 
@@ -571,6 +622,7 @@ let budgetLimit = 75;
 let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
 let syncQueue = [];
 let activeShoppingItems = [];
+let currentHeroBookIdx = null, currentModalFicheTab = 'perso', editingFicheItemIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -621,6 +673,18 @@ function setMainStatusFilter(val) { mainStatusFilter = val; renderPAL(); }
 function toggleQuickChip(chip, el) { activeQuickChip = (activeQuickChip === chip) ? 'none' : chip; el.classList.toggle('active', activeQuickChip === chip); renderPAL(); }
 function goToPalWithChip(chip) { showSection('pal'); toggleQuickChip(chip, document.getElementById('chip-next-read')); }
 
+function getRatingStars(rating) {
+  const r = parseInt(rating) || 0;
+  if (r === 0) return '';
+  return '★'.repeat(r) + '☆'.repeat(5 - r);
+}
+
+function toggleFavorite(idx) {
+  books[idx].favorite = !books[idx].favorite;
+  save();
+  renderPAL();
+}
+
 function renderAccueil() {
   const container = document.getElementById('hero-reading-container');
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
@@ -656,6 +720,7 @@ function renderAccueil() {
           <div class="hero-title-main">${escHtml(b.titre)}</div>
           ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
           <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+          <button class="btn-hero-notes" onclick="openHeroNotesModal(${idx})">📝 Fiche de rappel</button>
           <button class="btn-check-done" onclick="markDone(${idx})"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>
         </div>
       </div>
@@ -772,6 +837,7 @@ function addRandomOneshotToShoppingList() {
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
+/* RESTAURATION DU RENDU PAL COMPLET ET DÉTAILLÉ */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -784,7 +850,7 @@ function renderPAL() {
     if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
     if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
     if (activeQuickChip === 'favorite' && !b.favorite) return false;
-    
+
     if (activeQuickChip === 'next_read') {
       if (b.statut !== 'a_commencer') return false;
       if (b.type === 'one_shot') return true;
@@ -816,9 +882,21 @@ function renderPAL() {
     else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
     else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
 
+    const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
+    const isFav = !!b.favorite;
+
+    let maxTomeLu = 0;
+    if (!isOne && b.serieId) {
+      const readSeriesBooks = ownedBooks.filter(other => other.type === 'serie' && other.serieId === b.serieId && other.statut === 'termine');
+      maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
+    }
+
+    const pct = (!isOne && s && s.totalTomes > 0) ? Math.min(Math.round((maxTomeLu / s.totalTomes) * 100), 100) : 0;
+    const stars = getRatingStars(b.rating);
+
     let coverHtml = (b.cover && b.cover.trim().length > 5)
       ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
-      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div></div>`;
+      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div><div class="p-icon" style="font-size:12px;margin-top:4px;">📖</div></div>`;
 
     return `<div class="book-card">
       <div class="book-card-content">
@@ -827,17 +905,45 @@ function renderPAL() {
           <div class="book-top">
             <div style="flex:1">
               <div class="book-title">${escHtml(b.titre)}</div>
-              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
-              <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} · ${b.isPrequel ? 'Préquel' : ''} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
+              <div class="book-author">${escHtml(authorDisplay)}</div>
+              ${b.prix > 0 ? `<div class="book-price-info">Prix : ${b.prix.toFixed(2)} €</div>` : ''}
+              ${stars ? `<div class="book-rating">${stars}</div>` : ''}
             </div>
-            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;">✕</button>
+            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;padding:2px;">✕</button>
           </div>
-          <div class="badges"><span class="badge ${bClass}">${bText}</span></div>
+          <div class="badges">
+            <span class="badge ${bClass}">${bText}</span>
+            ${b.isPrequel ? `<span class="badge badge-prequel">⏳ Préquel</span>` : ''}
+            ${(!isOne && s && s.isAbandoned) ? `<span class="badge badge-abandoned">🚫 Saga abandonnée</span>` : ''}
+            ${isFav ? `<span class="badge badge-favorite">❤️ Coup de cœur</span>` : ''}
+          </div>
+
+          ${!isOne && s ? `
+            <div class="progress-txt">Avancée de lecture : Tome ${maxTomeLu} lu sur ${s.totalTomes} (${pct}%)</div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+          ` : ''}
+
+          <div>
+            <button class="heart-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${idx})">
+              ${isFav ? '❤️ Coup de cœur' : '🤍 Ajouter aux coups de cœur'}
+            </button>
+          </div>
         </div>
       </div>
       <div class="card-actions">
-        ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer</button>` : ''}
+        ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer la lecture</button>` : ''}
         ${b.statut !== 'termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
+        <button class="btn btn-accent" onclick="openHeroNotesModal(${idx})">📝 Fiche / Notes</button>
+        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
+      </div>
+
+      <div class="edit-panel" id="edit-panel-${idx}">
+        <p class="section-label" style="margin-bottom:8px;">Modifier ce livre</p>
+        <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+        <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
+        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
+        <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer</button>
       </div>
     </div>`;
   }).join('');
@@ -889,7 +995,7 @@ function renderWishlist() {
               ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
               <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
             </div>
-            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;">✕</button>
+            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;padding:2px;">✕</button>
           </div>
           <div class="badges">
             ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
@@ -904,6 +1010,20 @@ function renderWishlist() {
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleEditPanel(idx) {
+  const panel = document.getElementById(`edit-panel-${idx}`);
+  if (panel) panel.classList.toggle('open');
+}
+
+function saveEdit(idx) {
+  const b = books[idx];
+  b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
+  b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
+  b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
+  save();
+  renderPAL();
 }
 
 function pioche(mode) {
@@ -954,7 +1074,72 @@ function pioche(mode) {
 function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
 function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
-/* STATISTIQUES COMPLETES ET DÉTAILLÉES */
+/* FICHE STRUCTURÉE (PERSOS, LIEUX, EVENEMENTS) */
+function parseBookFiche(notesRaw) {
+  try {
+    const parsed = JSON.parse(notesRaw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  } catch(e) {}
+  return { perso: [], lieu: [], event: [] };
+}
+function stringifyBookFiche(ficheObj) { return JSON.stringify(ficheObj); }
+
+function getFicheForBook(b) {
+  if (b.type === 'serie' && b.serieId) {
+    const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+    let combined = { perso: [], lieu: [], event: [] };
+    sBooks.forEach(sb => {
+      const f = parseBookFiche(sb.notes);
+      combined.perso = combined.perso.concat(f.perso||[]);
+      combined.lieu = combined.lieu.concat(f.lieu||[]);
+      combined.event = combined.event.concat(f.event||[]);
+    });
+    return combined;
+  }
+  return parseBookFiche(b.notes);
+}
+
+function openHeroNotesModal(idx) {
+  currentHeroBookIdx = idx;
+  editingFicheItemIdx = null;
+  const b = books[idx];
+  const s = b.serieId ? series[b.serieId] : null;
+  document.getElementById('modal-notes-title').textContent = s ? `Fiche Saga : ${s.nom}` : `Fiche : ${b.titre}`;
+  currentModalFicheTab = 'perso';
+  renderModalFiche();
+  document.getElementById('hero-notes-modal').classList.add('open');
+}
+
+function setModalFicheTab(tab) {
+  currentModalFicheTab = tab;
+  renderModalFiche();
+}
+
+function renderModalFiche() {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  const fiche = getFicheForBook(b);
+  const items = fiche[currentModalFicheTab] || [];
+  const listEl = document.getElementById('modal-fiche-items-list');
+
+  if (!items.length) {
+    listEl.innerHTML = '<div style="font-size:12px; color:var(--text3); font-style:italic; text-align:center; padding:12px;">Aucun élément.</div>';
+    return;
+  }
+
+  listEl.innerHTML = items.map((item) => `
+    <div class="fiche-item-card ${item.isDead ? 'is-dead' : ''}">
+      <div>
+        <div style="font-weight:800; color:var(--purple-dark);">${item.isDead ? '💀 ' : ''}${escHtml(item.title)}</div>
+        <div style="font-size:11px;">${escHtml(item.desc)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function closeHeroNotesModal() { document.getElementById('hero-notes-modal').classList.remove('open'); }
+
+/* STATISTIQUES COMPLETES */
 function initStatsYearSelect() {
   const select = document.getElementById('stats-year-select');
   if (!select) return;
@@ -1198,7 +1383,6 @@ function populateSerieDropdown() {
 
 function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
 function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
-function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
 
 function exportDataText() {
   const data = { books, series, depenses, exportDate: new Date().toISOString() };
