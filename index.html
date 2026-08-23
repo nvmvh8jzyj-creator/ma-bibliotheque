@@ -157,11 +157,6 @@ body {
 .hero-serie-main { font-size: 12px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .hero-author-main { font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 6px; }
 
-.btn-hero-notes { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); color: var(--text); cursor: pointer; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
-.carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; z-index: 2; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
-.dot.active { width: 20px; border-radius: 10px; background: var(--purple-light); }
-
 .btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
 @media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0, 0, 0, 0.35); } }
 .btn-check-done svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3; }
@@ -170,6 +165,10 @@ body {
 
 .search-bar-wrap { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
 .search-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; width: 100%; color: var(--text); box-shadow: var(--shadow); flex: 1; }
+
+.refresh-icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--purple-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow); }
+@media (prefers-color-scheme: dark) { .refresh-icon-btn { color: var(--purple-light); } }
+.refresh-icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 
 .segmented-control { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; margin-bottom: 10px; border: 1px solid var(--border); overflow-x: auto; }
 .segment-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 11px; font-weight: 700; border: none; background: none; color: var(--text2); border-radius: 10px; cursor: pointer; white-space: nowrap; }
@@ -206,17 +205,15 @@ body {
 .badge-acommencer { background: var(--surface2); color: var(--text2); }
 .badge-termine { background: var(--green-bg); color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
-.badge-format { background: var(--surface2); color: var(--purple-dark); border: 1px solid var(--border); }
-@media (prefers-color-scheme: dark) { .badge-format { color: var(--purple-light); } }
+.badge-target { background: var(--ochre-bg); color: var(--ochre); border: 1px solid rgba(217, 139, 72, 0.4); }
 
 .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
 .btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); background: var(--surface); }
 .btn-action-read { border-color: rgba(116, 79, 140, 0.3); color: var(--purple-dark); background: var(--surface2); }
 .btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
-
-.edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-.edit-panel.open { display: block; }
+.btn-target { border-color: var(--ochre); color: var(--ochre); background: var(--ochre-bg); font-size: 11px; padding: 4px 10px; }
+.btn-target.active { background: var(--ochre); color: #fff; }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
@@ -241,11 +238,10 @@ body {
 .pioche-modal-serie { font-size: 13px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .pioche-modal-author { font-size: 13px; color: var(--text2); font-weight: 500; margin-bottom: 16px; }
 
-.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .shopping-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
 .shopping-item-sub { font-size: 11px; color: var(--text2); }
-.shopping-item-price { font-size: 13px; font-weight: 800; color: var(--green-dark); }
-@media (prefers-color-scheme: dark) { .shopping-item-price { color: var(--green-bright); } }
+.shopping-price-input { width: 65px; font-size: 13px; font-weight: 800; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); text-align: right; background: var(--surface); color: var(--text); }
 
 .btn-full { width: 100%; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 12px; border: none; background: var(--purple-dark); color: #ffffff; cursor: pointer; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.25); }
 .btn-secondary-full { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
@@ -287,21 +283,24 @@ body {
 <div class="modal-overlay" id="shopping-list-modal">
   <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
     <p class="section-label" style="margin-bottom:4px;">🛒 Ma Liste de Courses du Mois</p>
-    <div id="shopping-list-budget-info" style="font-size:13px; font-weight:700; color:var(--purple-light); margin-bottom:8px;"></div>
+    <div id="shopping-list-budget-info" style="font-size:13px; font-weight:700; color:var(--purple-light); margin-bottom:12px;"></div>
     
-    <div style="background:var(--surface2); padding:8px 12px; border-radius:10px; margin-bottom:12px; border:1px solid var(--border);">
-      <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
-        <input type="checkbox" id="include-new-series-cb" onchange="generateMonthlyShoppingList()" style="width:auto;-webkit-appearance:checkbox;">
-        <span>➕ Inclure aussi de nouvelles séries à commencer (Tome 1)</span>
-      </label>
-    </div>
-
     <div id="shopping-list-items-container"></div>
-    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:12px;">Fermer la liste</button>
+    
+    <button class="btn-full btn-secondary-full" id="btn-add-random-oneshot" onclick="addRandomOneshotToShoppingList()" style="margin-top:8px;">🎲 Ajouter un One-shot au hasard</button>
+    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:8px;">Fermer la liste</button>
   </div>
 </div>
 
-<!-- POPUP RÉSULTAT PIOCHE -->
+<!-- Modal de Vérification des Suites -->
+<div class="modal-overlay" id="sync-modal">
+  <div class="modal-card" style="text-align:center;">
+    <p class="section-label">Vérification des Séries</p>
+    <div id="sync-modal-content"></div>
+  </div>
+</div>
+
+<!-- POPUP PIOCHE -->
 <div class="modal-overlay" id="pioche-modal">
   <div class="pioche-modal-card">
     <div class="pioche-bg-blur" id="pioche-modal-bg"></div>
@@ -366,7 +365,10 @@ body {
 
 <div id="wishlist" class="section">
   <div class="search-bar-wrap">
-    <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()">
+    <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()" style="margin-bottom:0;">
+    <button class="refresh-icon-btn" onclick="checkMissingSuites()" title="Vérifier les tomes manquants">
+      <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+    </button>
   </div>
 
   <div class="segmented-control">
@@ -412,7 +414,7 @@ body {
 <div id="ajouter" class="section">
   <div class="form-card">
     <p class="section-label" style="margin-bottom:12px;">Informations du livre</p>
-    
+
     <div class="form-field">
       <label>URL de la couverture (optionnel)</label>
       <input type="url" id="new-cover" placeholder="Ex: https://...">
@@ -433,28 +435,18 @@ body {
           <option value="__NEW__">+ Créer une nouvelle série</option>
         </select>
       </div>
+
       <div id="custom-serie-wrap">
         <div class="form-field"><label>Nom de la nouvelle série</label><input type="text" id="new-serie-nom" placeholder="Ex: L'Héritage"></div>
         <div class="form-field"><label>Auteur·rice de la série</label><input type="text" id="new-serie-auteur" list="auteurs-list" placeholder="Ex: Christopher Paolini"></div>
         <div class="form-field"><label>Nombre total de tomes prévus</label><input type="number" id="new-serie-total" min="1" value="4"></div>
       </div>
+
       <div class="form-field"><label>Numéro de ce tome *</label><input type="number" id="new-tome-num" min="0" step="0.1" value="1"></div>
     </div>
 
     <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre"></div>
     <div class="form-field" id="oneshot-author-wrap"><label>Auteur·rice</label><input type="text" id="new-auteur" list="auteurs-list"></div>
-
-    <div class="form-field">
-      <label>Format de prédilection</label>
-      <select id="new-format">
-        <option value="broche">Broché (Occasion ~10€)</option>
-        <option value="poche">Poche (Occasion ~5€)</option>
-      </select>
-    </div>
-
-    <div style="display:flex; gap:8px;">
-      <div class="form-field" style="flex:1;"><label>Prix indicatif (€)</label><input type="number" id="new-prix" placeholder="Ex: 10.00" step="0.01" min="0"></div>
-    </div>
 
     <div class="form-field">
       <label>Statut de lecture</label>
@@ -524,6 +516,8 @@ let books = [], series = {}, depenses = [];
 let segmentType = 'all', wishSegment = 'continue', mainStatusFilter = 'all', activeQuickChip = 'none';
 let budgetLimit = 75;
 let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
+let syncQueue = [];
+let activeShoppingItems = [];
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -618,24 +612,26 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
-/* 🛒 LISTE DE COURSES DU MOIS STRICTE (TOME PRÉCÉDENT TERMINÉ OBLIGATOIRE + ONE-SHOTS) */
+/* TOGGLE PROCHAIN ACHAT INDIVIDUEL SUR CHAQUE LIVRE DE LA WISHLIST */
+function toggleNextTarget(idx) {
+  books[idx].isNextTarget = !books[idx].isNextTarget;
+  save();
+  renderWishlist();
+}
+
+/* GENERATEUR DE LISTE DE COURSES SUR-MESURE */
 function generateMonthlyShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
-  const includeNewSeries = document.getElementById('include-new-series-cb') ? document.getElementById('include-new-series-cb').checked : false;
+  activeShoppingItems = [];
 
-  let totalEstime = 0;
-  let selectedItems = [];
-
-  // P1 : Séries dont le tome précédent (Tome-1) est TERMINÉ et le tome actuel pas encore possédé
+  // P1 : Séries dont le tome précédent est TERMINÉ
   const wishSeries = wishBooks.filter(b => b.type === 'serie');
-
   for (let b of wishSeries) {
     if (!b.serieId) continue;
     const tomeCurrent = b.tomeNum || 1;
     
-    // Vérifier si le tome précédent est TERMINÉ
     const previousTomeRead = books.some(other => 
       other.type === 'serie' && 
       other.serieId === b.serieId && 
@@ -643,7 +639,6 @@ function generateMonthlyShoppingList() {
       other.statut === 'termine'
     );
 
-    // Vérifier si le tome actuel n'est pas DEJA possédé dans la PAL
     const alreadyInPal = books.some(other => 
       other.type === 'serie' && 
       other.serieId === b.serieId && 
@@ -653,62 +648,74 @@ function generateMonthlyShoppingList() {
     );
 
     if (previousTomeRead && !alreadyInPal) {
-      let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
-      if (totalEstime + price <= budgetLimit) {
-        totalEstime += price;
-        selectedItems.push({ book: b, estimatedPrice: price, reason: "🔄 Suite débloquée (Tome préc. lu)" });
-      }
+      let price = b.prix > 0 ? b.prix : 10;
+      activeShoppingItems.push({ book: b, currentPrice: price, reason: "🔄 Suite de série débloquée" });
     }
   }
 
-  // P2 : One-shots
-  const oneShots = wishBooks.filter(b => b.type === 'one_shot');
-  for (let b of oneShots) {
-    let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
-    if (totalEstime + price <= budgetLimit) {
-      totalEstime += price;
-      selectedItems.push({ book: b, estimatedPrice: price, reason: "📖 One-shot" });
-    }
+  // P2 : Livres spécifiquement marqués "Prochain achat" par l'utilisateur
+  const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.book === b));
+  for (let b of targetBooks) {
+    let price = b.prix > 0 ? b.prix : 10;
+    activeShoppingItems.push({ book: b, currentPrice: price, reason: "🎯 Marquable Prochain Achat" });
   }
 
-  // P3 : Nouvelles séries (Tome 1) SEULEMENT si coché
-  if (includeNewSeries) {
-    const newSeriesTome1 = wishBooks.filter(b => b.type === 'serie' && (b.tomeNum === 1 || !b.tomeNum));
-    for (let b of newSeriesTome1) {
-      const inPal = books.some(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
-      if (!inPal) {
-        let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
-        if (totalEstime + price <= budgetLimit) {
-          totalEstime += price;
-          selectedItems.push({ book: b, estimatedPrice: price, reason: "📚 Nouvelle série (Tome 1)" });
-        }
-      }
-    }
-  }
+  renderShoppingListModal();
+  document.getElementById('shopping-list-modal').classList.add('open');
+}
 
-  if (!selectedItems.length) { 
-    alert("Aucun livre ne correspond à tes critères ce mois-ci (aucun tome suivant débloqué par un tome terminé)."); 
-    return; 
-  }
+function renderShoppingListModal() {
+  let totalEstime = activeShoppingItems.reduce((sum, item) => sum + item.currentPrice, 0);
 
-  document.getElementById('shopping-list-budget-info').textContent = `Total estimé : ${totalEstime.toFixed(2)} € sur ${budgetLimit} € (${selectedItems.length} livre(s))`;
+  const budgetInfoEl = document.getElementById('shopping-list-budget-info');
+  budgetInfoEl.textContent = `Total : ${totalEstime.toFixed(2)} € sur ${budgetLimit} € autorisés (${activeShoppingItems.length} livre(s))`;
+  budgetInfoEl.style.color = (totalEstime > budgetLimit) ? "var(--danger)" : "var(--purple-light)";
+
   const container = document.getElementById('shopping-list-items-container');
-  container.innerHTML = selectedItems.map(item => {
+  if (!activeShoppingItems.length) {
+    container.innerHTML = '<div style="font-size:12px; color:var(--text3); font-style:italic; padding:12px; text-align:center;">Aucun livre sélectionné. Clique sur "Ajouter un One-shot au hasard" ci-dessous pour compléter !</div>';
+    return;
+  }
+
+  container.innerHTML = activeShoppingItems.map((item, i) => {
     const b = item.book;
-    const formatTxt = b.format === 'poche' ? 'Poche (~5€)' : 'Broché (~10€)';
     return `<div class="shopping-item-card">
       <div style="flex:1; min-width:0;">
         <div class="shopping-item-title">${escHtml(b.titre)}</div>
-        <div class="shopping-item-sub">${item.reason} · ${formatTxt}</div>
+        <div class="shopping-item-sub">${item.reason}</div>
       </div>
-      <div style="text-align:right;">
-        <div class="shopping-item-price">${item.estimatedPrice.toFixed(2)} €</div>
-        <button class="btn" style="padding:3px 8px; font-size:10px; margin-top:2px;" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <input type="number" class="shopping-price-input" value="${item.currentPrice}" step="0.5" min="0" onchange="updateShoppingItemPrice(${i}, this.value)">
+        <button onclick="removeShoppingItem(${i})" style="border:none; background:none; color:var(--danger); cursor:pointer; font-weight:700;">✕</button>
       </div>
     </div>`;
   }).join('');
+}
 
-  document.getElementById('shopping-list-modal').classList.add('open');
+function updateShoppingItemPrice(index, newVal) {
+  const price = parseFloat(newVal) || 0;
+  activeShoppingItems[index].currentPrice = price;
+  renderShoppingListModal();
+}
+
+function removeShoppingItem(index) {
+  activeShoppingItems.splice(index, 1);
+  renderShoppingListModal();
+}
+
+function addRandomOneshotToShoppingList() {
+  const wishBooks = books.filter(b => b.statut === 'a_acheter' && b.type === 'one_shot');
+  const availableOneshots = wishBooks.filter(b => !activeShoppingItems.some(item => item.book === b));
+
+  if (!availableOneshots.length) {
+    alert("Aucun autre One-shot disponible dans ta Wishlist !");
+    return;
+  }
+
+  const pick = availableOneshots[Math.floor(Math.random() * availableOneshots.length)];
+  let price = pick.prix > 0 ? pick.prix : 10;
+  activeShoppingItems.push({ book: pick, currentPrice: price, reason: "🎲 One-shot au hasard" });
+  renderShoppingListModal();
 }
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
@@ -814,7 +821,7 @@ function renderWishlist() {
     const idx = books.indexOf(b);
     const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
-    const formatBadge = b.format === 'poche' ? 'Poche (~5€)' : 'Broché (~10€)';
+    const isTarget = !!b.isNextTarget;
 
     let coverHtml = (b.cover && b.cover.trim().length > 5)
       ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
@@ -834,12 +841,13 @@ function renderWishlist() {
           </div>
           <div class="badges">
             ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
-            <span class="badge badge-format">${formatBadge}</span>
+            ${isTarget ? `<span class="badge badge-target">🎯 Prochain achat</span>` : ''}
           </div>
         </div>
       </div>
       <div class="card-actions">
         <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Dans ma PAL)</button>
+        <button class="btn btn-target ${isTarget ? 'active' : ''}" onclick="toggleNextTarget(${idx})">🎯 ${isTarget ? 'Séquencé' : 'Prochain achat'}</button>
         <button class="btn btn-accent" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
       </div>
     </div>`;
@@ -906,12 +914,61 @@ function markDone(idx) { books[idx].statut = 'termine'; save(); renderAccueil();
 function markBought(idx) { books[idx].statut = 'a_commencer'; save(); renderAccueil(); renderPAL(); renderWishlist(); alert(`"${books[idx].titre}" est passé dans Ma PAL !`); }
 function removeBook(idx) { if (confirm(`Supprimer "${books[idx].titre}" ?`)) { books.splice(idx,1); save(); renderAccueil(); renderPAL(); renderWishlist(); } }
 
+function checkMissingSuites() {
+  syncQueue = [];
+  Object.keys(series).forEach(sId => {
+    const s = series[sId];
+    if (!s || s.isAbandoned) return;
+    const readSeriesBooks = books.filter(b => b.type === 'serie' && b.serieId === sId && b.statut === 'termine' && (b.tomeNum % 1 === 0));
+    if (!readSeriesBooks.length) return;
+    const maxTomeLu = readSeriesBooks.reduce((max, b) => Math.max(max, Math.floor(b.tomeNum || 0)), 0);
+    const nextTomeNum = maxTomeLu + 1;
+    if (nextTomeNum <= s.totalTomes) {
+      const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
+      if (!existsInPalOrWish) {
+        syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
+      }
+    }
+  });
+
+  if (!syncQueue.length) { alert("✓ Toutes vos séries sont à jour !"); return; }
+  processSyncQueue();
+}
+
+function processSyncQueue() {
+  const modal = document.getElementById('sync-modal');
+  const content = document.getElementById('sync-modal-content');
+  if (!syncQueue.length) { modal.classList.remove('open'); renderWishlist(); return; }
+  const current = syncQueue[0];
+  content.innerHTML = `
+    <div style="font-size:16px; font-weight:800; color:var(--purple-dark); margin-bottom:6px;">📚 ${escHtml(current.nom)}</div>
+    <div style="font-size:13px; color:var(--text2); margin-bottom:16px;">Tu as terminé le Tome ${current.maxTomeLu}. Ajouter le Tome ${current.nextTomeNum} à ta Wishlist ?</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn-full" onclick="handleSyncChoice('add')">🛒 Ajouter à la Wishlist</button>
+      <button class="btn-full btn-secondary-full" onclick="handleSyncChoice('skip')">Passer</button>
+    </div>
+  `;
+  modal.classList.add('open');
+}
+
+function handleSyncChoice(choice) {
+  if (!syncQueue.length) return;
+  const current = syncQueue.shift();
+  if (choice === 'add') {
+    books.unshift({
+      id: 'wish_auto_' + Date.now(), titre: `${current.nom}, Tome ${current.nextTomeNum}`, auteur: current.auteur || '',
+      type: 'serie', serieId: current.serieId, tomeNum: current.nextTomeNum, statut: 'a_acheter', prix: 0, dateAjout: new Date().toISOString().slice(0,10)
+    });
+    save();
+  }
+  processSyncQueue();
+}
+
 function addBook() {
   const titre = document.getElementById('new-titre').value.trim();
   if (!titre) { alert('Le titre est obligatoire.'); return; }
   const type = document.getElementById('new-type').value;
   const statut = document.getElementById('new-statut').value;
-  const format = document.getElementById('new-format').value;
   const cover = document.getElementById('new-cover') ? document.getElementById('new-cover').value.trim() : '';
   let serieId = null;
 
@@ -928,7 +985,7 @@ function addBook() {
     }
   }
 
-  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, serieId, tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, statut, format, prix: 0, cover, dateAjout: new Date().toISOString().slice(0,10) };
+  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, serieId, tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, statut, prix: 0, cover, dateAjout: new Date().toISOString().slice(0,10) };
   books.unshift(b); save();
   document.getElementById('new-titre').value = '';
   showSection(statut === 'a_acheter' || statut === 'en_attente_publi' ? 'wishlist' : 'pal');
@@ -944,10 +1001,9 @@ function populateSerieDropdown() {
 
 function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
 function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
-function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
 
 function exportDataText() {
-  const data = { books, series, depenses, budgetLimit, exportDate: new Date().toISOString() };
+  const data = { books, series, depenses, exportDate: new Date().toISOString() };
   document.getElementById('export-text-val').value = JSON.stringify(data, null, 2);
   document.getElementById('export-text-area-wrap').style.display = 'block';
 }
