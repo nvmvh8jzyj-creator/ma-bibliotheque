@@ -47,13 +47,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 #accueil.section.visible { display: flex; flex-direction: column; height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom)); padding: 0 16px 12px 16px; overflow: hidden; position: relative; }
 .hero-full-container { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 -16px; overflow: hidden; }
-.hero-bg-blur-full { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.65); opacity: 0.5; z-index: 0; transform: scale(1.15); transition: background-image 0.3s ease; }
-.carousel-wrap { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; }
-.carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
-.carousel-slides-container::-webkit-scrollbar { display: none; }
-.carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; }
-.hero-cover-main { max-height: 36vh; width: auto; aspect-ratio: 2/3; object-fit: cover; border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
-.hero-cover-placeholder-large { height: 36vh; width: auto; aspect-ratio: 2/3; border-radius: 14px; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
 .hero-text-details { text-align: center; width: 100%; padding: 0 12px; }
 .hero-title-main { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 2px; color: var(--text); }
 .hero-serie-main { font-size: 12px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
@@ -80,26 +73,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .chip.active { background: var(--purple-dark); color: #fff; border-color: var(--purple-dark); }
 
 .book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
-.book-card-content { display: flex; gap: 12px; }
-.book-cover { width: 54px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; background: var(--surface2); }
-.book-cover-placeholder { width: 54px; height: 80px; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center; }
-.book-cover-placeholder .p-title { font-size: 8px; font-weight: 800; line-height: 1.1; }
-
-.book-info-main { flex: 1; min-width: 0; }
 .book-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
-.book-author { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.book-serie-info { font-size: 11px; color: var(--purple-light); font-weight: 700; margin-top: 2px; }
-
 .badges { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
 .badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
-.badge-acheter { background: var(--danger-bg); color: var(--danger); }
-.badge-publi { background: var(--purple-bg); color: var(--purple-dark); }
-@media (prefers-color-scheme: dark) { .badge-publi { color: var(--purple-light); } }
-.badge-encours { background: var(--purple-bg); color: var(--purple-dark); }
-@media (prefers-color-scheme: dark) { .badge-encours { color: var(--purple-light); } }
-.badge-acommencer { background: var(--surface2); color: var(--text2); }
-.badge-termine { background: var(--green-bg); color: var(--green-dark); }
-@media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
+.badge-format { background: var(--surface2); color: var(--purple-dark); border: 1px solid var(--border); }
+@media (prefers-color-scheme: dark) { .badge-format { color: var(--purple-light); } }
 
 .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
 .btn { font-size: 11px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
@@ -172,7 +150,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div style="background:var(--surface2); padding:8px 10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
       <label style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; cursor:pointer;">
         <input type="checkbox" id="include-new-series-cb" onchange="generateMonthlyShoppingList()" style="width:auto;-webkit-appearance:checkbox;">
-        <span>➕ Inclure aussi de nouvelles séries à commencer</span>
+        <span>➕ Inclure aussi de nouvelles séries à commencer (Tome 1)</span>
       </label>
     </div>
 
@@ -185,7 +163,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="modal-overlay" id="pioche-modal">
   <div class="modal-card" style="text-align:center;">
     <p class="section-label" style="margin-bottom:8px;">Résultat du tirage 🎲</p>
-    <div id="pioche-modal-cover-wrap"></div>
     <div id="pioche-modal-title" style="font-size:16px; font-weight:800; margin-bottom:2px;"></div>
     <div id="pioche-modal-serie" style="font-size:12px; font-weight:700; color:var(--purple-light);"></div>
     <div id="pioche-modal-author" style="font-size:12px; color:var(--text2); margin-bottom:12px;"></div>
@@ -435,6 +412,7 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
+/* 🛒 GENERATEUR STRICT : TOME PRÉCÉDENT TERMINÉ OBLIGATOIRE + ONE-SHOTS */
 function generateMonthlyShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
@@ -444,21 +422,41 @@ function generateMonthlyShoppingList() {
   let totalEstime = 0;
   let selectedItems = [];
 
-  const activeSeriesIds = new Set(
-    books.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
-  );
+  // P1 : Séries dont le tome précédent (Tome-1) est TERMINÉ et le tome actuel pas encore possédé
+  const wishSeries = wishBooks.filter(b => b.type === 'serie');
 
-  const seriesToContinue = wishBooks.filter(b => b.type === 'serie' && activeSeriesIds.has(b.serieId));
-  seriesToContinue.sort((a,b) => (a.tomeNum || 1) - (b.tomeNum || 1));
+  for (let b of wishSeries) {
+    if (!b.serieId) continue;
+    
+    const tomeCurrent = b.tomeNum || 1;
+    
+    // Vérifier si le tome précédent est TERMINÉ
+    const previousTomeRead = books.some(other => 
+      other.type === 'serie' && 
+      other.serieId === b.serieId && 
+      other.tomeNum === (tomeCurrent - 1) && 
+      other.statut === 'termine'
+    );
 
-  for (let b of seriesToContinue) {
-    let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
-    if (totalEstime + price <= budgetLimit) {
-      totalEstime += price;
-      selectedItems.push({ book: b, estimatedPrice: price, reason: "🔄 Suite de série en cours" });
+    // Vérifier si le tome actuel n'est pas DEJA possédé dans la PAL
+    const alreadyInPal = books.some(other => 
+      other.type === 'serie' && 
+      other.serieId === b.serieId && 
+      other.tomeNum === tomeCurrent && 
+      other.statut !== 'a_acheter' && 
+      other.statut !== 'en_attente_publi'
+    );
+
+    if (previousTomeRead && !alreadyInPal) {
+      let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
+      if (totalEstime + price <= budgetLimit) {
+        totalEstime += price;
+        selectedItems.push({ book: b, estimatedPrice: price, reason: "🔄 Suite débloquée (Tome préc. lu)" });
+      }
     }
   }
 
+  // P2 : One-shots
   const oneShots = wishBooks.filter(b => b.type === 'one_shot');
   for (let b of oneShots) {
     let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
@@ -468,18 +466,26 @@ function generateMonthlyShoppingList() {
     }
   }
 
+  // P3 : Nouvelles séries (Tome 1) SEULEMENT si coché
   if (includeNewSeries) {
-    const newSeries = wishBooks.filter(b => b.type === 'serie' && !activeSeriesIds.has(b.serieId));
-    for (let b of newSeries) {
-      let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
-      if (totalEstime + price <= budgetLimit) {
-        totalEstime += price;
-        selectedItems.push({ book: b, estimatedPrice: price, reason: "📚 Nouvelle série" });
+    const newSeriesTome1 = wishBooks.filter(b => b.type === 'serie' && (b.tomeNum === 1 || !b.tomeNum));
+    for (let b of newSeriesTome1) {
+      // Vérifier si pas déjà possédé
+      const inPal = books.some(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
+      if (!inPal) {
+        let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
+        if (totalEstime + price <= budgetLimit) {
+          totalEstime += price;
+          selectedItems.push({ book: b, estimatedPrice: price, reason: "📚 Nouvelle série (Tome 1)" });
+        }
       }
     }
   }
 
-  if (!selectedItems.length) { alert("Aucun livre ne correspond à tes critères ce mois-ci."); return; }
+  if (!selectedItems.length) { 
+    alert("Aucun livre ne correspond à tes critères ce mois-ci (ex: aucun tome suivant débloqué par un tome terminé)."); 
+    return; 
+  }
 
   document.getElementById('shopping-list-budget-info').textContent = `Total estimé : ${totalEstime.toFixed(2)} € sur ${budgetLimit} € (${selectedItems.length} livre(s))`;
   const container = document.getElementById('shopping-list-items-container');
