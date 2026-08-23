@@ -771,15 +771,26 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
-function openVintedSearch(titreRaw, auteurRaw) {
-  let text = `${titreRaw || ''} ${auteurRaw || ''}`;
-  text = text.replace(/:.*$/g, ''); 
-  text = text.replace(/['’\-:_.,]/g, ' '); 
-  text = text.replace(/\b(Vol|Tome|Livre)\b/gi, '')
-             .replace(/\s+/g, ' ')
-             .trim();
+/* OUVERTURE DE VINTED SÉCURISÉE DEPUIS L'INDEX DU LIVRE (RÉSOLUTIF SUR APOSTROPHES & GUILLEMETS) */
+function openVintedForBookIndex(idx) {
+  const b = books[idx];
+  if (!b) return;
 
-  let query = `${text} livre`;
+  const isOne = b.type === 'one_shot';
+  const s = b.serieId ? series[b.serieId] : null;
+  const authorVal = isOne ? b.auteur : (s ? s.auteur : '');
+
+  let text = `${b.titre || ''} ${authorVal || ''}`;
+  
+  // 1. Nettoyer les sous-titres et expressions de volumes/tomes
+  text = text.replace(/:.*$/g, ''); 
+  text = text.replace(/\b(Vol|Tome|Livre)\b\.?\s*\d+/gi, '');
+  
+  // 2. Remplacer les apostrophes, guillemets et caractères spéciaux par des espaces
+  text = text.replace(/['’"”«»\-:_.,]/g, ' '); 
+  text = text.replace(/\s+/g, ' ').trim();
+
+  let query = `${text} livre`.trim();
   window.open(`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(query).replace(/%20/g, ' ')}`, '_blank');
 }
 
@@ -1134,7 +1145,7 @@ function renderWishlist() {
         <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Dans ma PAL)</button>
         <button class="btn btn-target ${isTarget ? 'active' : ''}" onclick="toggleNextTarget(${idx})">🎯 ${isTarget ? 'Séquencé' : 'Prochain achat'}</button>
         <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
-        <button class="btn btn-accent" onclick="openVintedSearch('${escHtml(b.titre)}', '${escHtml(authorVal)}')">🔍 Vinted</button>
+        <button class="btn btn-accent" onclick="openVintedForBookIndex(${idx})">🔍 Vinted</button>
       </div>
 
       <div class="edit-panel" id="edit-panel-${idx}">
