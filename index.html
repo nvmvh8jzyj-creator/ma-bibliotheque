@@ -10,54 +10,166 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f9f6f8; --surface: #ffffff; --surface2: #f2eaf0; --text: #241628; --text2: #634d69; --text3: #9b7e9f; --border: rgba(116, 79, 140, 0.15);
-  --purple-light: #8758A6; --purple-dark: #744F8C; --purple-bg: #f3ebf5;
-  --green-bright: #04BF33; --green-dark: #048C26; --green-bg: #e6f8eb;
-  --ochre: #D98B48; --ochre-bg: #fcf3ea;
-  --warning: var(--ochre); --warning-bg: var(--ochre-bg); --danger: #c0392b; --danger-bg: #fdecea;
-  --radius: 16px; --nav-h: 68px; --shadow: 0 4px 12px rgba(116, 79, 140, 0.08);
+  --bg: #f9f6f8;
+  --surface: #ffffff;
+  --surface2: #f2eaf0;
+  --text: #241628;
+  --text2: #634d69;
+  --text3: #9b7e9f;
+  --border: rgba(116, 79, 140, 0.15);
+  
+  --purple-light: #8758A6;
+  --purple-dark: #744F8C;
+  --purple-bg: #f3ebf5;
+  
+  --green-bright: #04BF33;
+  --green-dark: #048C26;
+  --green-bg: #e6f8eb;
+  
+  --ochre: #D98B48;
+  --ochre-bg: #fcf3ea;
+  
+  --accent: var(--purple-light);
+  --accent-bg: var(--purple-bg);
+  --accent-text: var(--purple-dark);
+  
+  --success: var(--green-dark);
+  --success-bg: var(--green-bg);
+  --warning: var(--ochre);
+  --warning-bg: var(--ochre-bg);
+  --danger: #c0392b;
+  --danger-bg: #fdecea;
+  
+  --radius: 16px;
+  --nav-h: 68px;
+  --shadow: 0 4px 12px rgba(116, 79, 140, 0.08);
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #140d17; --surface: #201524; --surface2: #2e2033; --text: #f5edf7; --text2: #c5b4c9; --text3: #88748c; --border: rgba(255, 255, 255, 0.1);
-    --purple-light: #a375c4; --purple-dark: #8758A6; --purple-bg: #321d3b;
-    --green-bright: #2cd456; --green-dark: #04BF33; --green-bg: #11381c;
+    --bg: #140d17;
+    --surface: #201524;
+    --surface2: #2e2033;
+    --text: #f5edf7;
+    --text2: #c5b4c9;
+    --text3: #88748c;
+    --border: rgba(255, 255, 255, 0.1);
+    
+    --purple-light: #a375c4;
+    --purple-dark: #8758A6;
+    --purple-bg: #321d3b;
+    
+    --green-bright: #2cd456;
+    --green-dark: #04BF33;
+    --green-bg: #11381c;
+    
     --shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px); }
-.header { background: var(--surface); border-bottom: 3px solid var(--ochre); padding: 12px 16px; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 3px solid var(--ochre);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .header-left { display: flex; align-items: center; gap: 10px; }
-.header-home-btn, .settings-icon-btn { background: var(--surface2); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--purple-dark); -webkit-tap-highlight-color: transparent; }
+.header-home-btn, .settings-icon-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  width: 38px; height: 38px; border-radius: 12px; display: flex;
+  align-items: center; justify-content: center; cursor: pointer; color: var(--purple-dark);
+}
 @media (prefers-color-scheme: dark) { .header-home-btn, .settings-icon-btn { color: var(--purple-light); } }
-.header-home-btn svg, .settings-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+.header-home-btn svg, .settings-icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+
 .header h1 { font-size: 20px; font-weight: 800; color: var(--purple-dark); letter-spacing: -0.5px; }
 @media (prefers-color-scheme: dark) { .header h1 { color: var(--purple-light); } }
 .header p { font-size: 11px; color: var(--text2); margin-top: 1px; font-weight: 500; }
 
-.nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom); background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 60px 1fr 1fr; align-items: center; justify-items: center; z-index: 10; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
-.nav-btn { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: none; background: none; cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600; padding: 4px 0; }
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr 60px 1fr 1fr;
+  align-items: center; justify-items: center; z-index: 10;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+}
+.nav-btn {
+  width: 100%; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 2px; border: none; background: none;
+  cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600; padding: 4px 0;
+}
 .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 .nav-btn.active { color: var(--purple-light); }
-.nav-btn-center { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.4); cursor: pointer; margin-top: -20px; }
-.nav-btn-center svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; }
+
+.nav-btn-center {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
+  color: #ffffff; border: none; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.4);
+  cursor: pointer; margin-top: -20px;
+}
+.nav-btn-center svg { width: 24px; height: 24px; stroke: #ffffff; stroke-width: 2.5; }
 
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-#accueil.section.visible { display: flex; flex-direction: column; height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom)); padding: 0 16px 12px 16px; overflow: hidden; position: relative; }
-.hero-full-container { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 -16px; overflow: hidden; }
+#accueil.section.visible {
+  display: flex; flex-direction: column;
+  height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom));
+  padding: 0 16px 12px 16px; overflow: hidden; position: relative;
+}
+
+.hero-full-container {
+  position: relative; flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; margin-left: -16px; margin-right: -16px; overflow: hidden;
+}
+
+.hero-bg-blur-full {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover; background-position: center; filter: blur(28px) brightness(0.65);
+  opacity: 0.5; z-index: 0; transform: scale(1.15); transition: background-image 0.4s ease;
+}
+
+.carousel-wrap { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; }
+.carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.carousel-slides-container::-webkit-scrollbar { display: none; }
+.carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; }
+
+.hero-cover-main { max-height: 36vh; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
+.hero-cover-placeholder-large { height: 36vh; width: auto; aspect-ratio: 2 / 3; border-radius: 14px; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
 .hero-text-details { text-align: center; width: 100%; padding: 0 12px; }
 .hero-title-main { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 2px; color: var(--text); }
 .hero-serie-main { font-size: 12px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .hero-author-main { font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 6px; }
 
-.btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; }
-@media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0,0,0,0.35); } }
+.btn-hero-notes { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); color: var(--text); cursor: pointer; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
+.carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; z-index: 2; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
+.dot.active { width: 20px; border-radius: 10px; background: var(--purple-light); }
+
+.btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+@media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0, 0, 0, 0.35); } }
 .btn-check-done svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3; }
 
 .bottom-shortcuts-area { flex-shrink: 0; padding-top: 8px; z-index: 2; }
-.search-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; width: 100%; color: var(--text); box-shadow: var(--shadow); }
+
+.search-bar-wrap { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.search-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; width: 100%; color: var(--text); box-shadow: var(--shadow); flex: 1; }
 
 .segmented-control { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; margin-bottom: 10px; border: 1px solid var(--border); overflow-x: auto; }
 .segment-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 11px; font-weight: 700; border: none; background: none; color: var(--text2); border-radius: 10px; cursor: pointer; white-space: nowrap; }
@@ -72,52 +184,82 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .chip { white-space: nowrap; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; }
 .chip.active { background: var(--purple-dark); color: #fff; border-color: var(--purple-dark); }
 
-.book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
-.book-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
-.badges { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
-.badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+.book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.book-card-content { display: flex; gap: 14px; }
+.book-cover { width: 58px; height: 86px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; background: var(--surface2); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.book-cover-placeholder { width: 58px; height: 86px; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center; }
+.book-cover-placeholder .p-title { font-size: 9px; font-weight: 800; line-height: 1.1; }
+
+.book-info-main { flex: 1; min-width: 0; }
+.book-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.book-title { font-size: 16px; font-weight: 700; line-height: 1.25; color: var(--text); }
+.book-author { font-size: 13px; color: var(--text2); margin-top: 3px; font-weight: 500; }
+.book-serie-info { font-size: 12px; color: var(--purple-light); font-weight: 700; margin-top: 3px; }
+
+.badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+.badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-acheter { background: var(--danger-bg); color: var(--danger); }
+.badge-publi { background: var(--purple-bg); color: var(--purple-dark); border: 1px solid rgba(116, 79, 140, 0.3); }
+@media (prefers-color-scheme: dark) { .badge-publi { color: var(--purple-light); } }
+.badge-encours { background: var(--purple-bg); color: var(--purple-dark); }
+@media (prefers-color-scheme: dark) { .badge-encours { color: var(--purple-light); } }
+.badge-acommencer { background: var(--surface2); color: var(--text2); }
+.badge-termine { background: var(--green-bg); color: var(--green-dark); }
+@media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
 .badge-format { background: var(--surface2); color: var(--purple-dark); border: 1px solid var(--border); }
 @media (prefers-color-scheme: dark) { .badge-format { color: var(--purple-light); } }
 
-.card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-.btn { font-size: 11px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
-.btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); }
+.card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
+.btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); background: var(--surface); }
 .btn-action-read { border-color: rgba(116, 79, 140, 0.3); color: var(--purple-dark); background: var(--surface2); }
-.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border: none; }
+.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
+
+.edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.edit-panel.open { display: block; }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
-.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 420px; padding: 18px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
-.pioche-section { display: flex; flex-direction: column; gap: 8px; }
-.pioche-btn { width: 100%; padding: 12px 14px; font-size: 13px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left; }
+.pioche-section { display: flex; flex-direction: column; gap: 10px; }
+.pioche-btn { width: 100%; padding: 14px 16px; font-size: 13px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; gap: 10px; text-align: left; }
 .pioche-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
 .pioche-serie-bought { background: var(--green-dark); color: #fff; }
 .pioche-new-serie-bought { background: #27ae60; color: #fff; }
 .pioche-oneshot { background: var(--ochre); color: #fff; }
 .pioche-wish-serie { background: var(--purple-dark); color: #fff; }
 .pioche-wish-oneshot { background: var(--purple-light); color: #fff; }
-.pioche-shopping-list { background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; font-size: 14px; padding: 14px; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.3); }
+.pioche-shopping-list { background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; font-size: 14px; padding: 16px; box-shadow: 0 6px 16px rgba(116, 79, 140, 0.35); }
 
-.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
-.shopping-item-title { font-size: 12px; font-weight: 700; color: var(--text); }
-.shopping-item-sub { font-size: 10px; color: var(--text2); }
-.shopping-item-price { font-size: 12px; font-weight: 800; color: var(--green-dark); }
+.pioche-modal-card { position: relative; background: var(--surface); border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); border: 1px solid var(--border); text-align: center; overflow: hidden; }
+.pioche-bg-blur { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.65); opacity: 0.35; z-index: 0; transform: scale(1.15); }
+.pioche-content-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+.pioche-cover-img { height: 220px; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.3); margin-bottom: 14px; }
+.pioche-cover-placeholder { height: 220px; width: 146px; border-radius: 12px; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; margin-bottom: 14px; }
+.pioche-modal-title { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 4px; }
+.pioche-modal-serie { font-size: 13px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
+.pioche-modal-author { font-size: 13px; color: var(--text2); font-weight: 500; margin-bottom: 16px; }
+
+.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+.shopping-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.shopping-item-sub { font-size: 11px; color: var(--text2); }
+.shopping-item-price { font-size: 13px; font-weight: 800; color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .shopping-item-price { color: var(--green-bright); } }
 
-.btn-full { width: 100%; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; border: none; background: var(--purple-dark); color: #fff; cursor: pointer; margin-bottom: 6px; }
+.btn-full { width: 100%; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 12px; border: none; background: var(--purple-dark); color: #ffffff; cursor: pointer; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.25); }
 .btn-secondary-full { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
-.form-field { margin-bottom: 10px; }
-.form-field label { font-size: 11px; color: var(--text2); font-weight: 600; display: block; margin-bottom: 3px; }
-.form-field input, .form-field select { width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); }
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.form-field { margin-bottom: 12px; }
+.form-field label { font-size: 12px; color: var(--text2); font-weight: 600; display: block; margin-bottom: 4px; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; font-size: 15px; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); font-family: inherit; }
 
-.section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
 @media (prefers-color-scheme: dark) { .section-label { color: var(--purple-light); } }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); cursor: pointer; }
-.stat-num { font-size: 20px; font-weight: 800; }
-.stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; font-weight: 600; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow); cursor: pointer; }
+.stat-num { font-size: 22px; font-weight: 800; }
+.stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; font-weight: 600; }
 .stat-num.purple { color: var(--purple-light); }
 .stat-num.accent { color: var(--ochre); }
 </style>
@@ -145,35 +287,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="modal-overlay" id="shopping-list-modal">
   <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
     <p class="section-label" style="margin-bottom:4px;">🛒 Ma Liste de Courses du Mois</p>
-    <div id="shopping-list-budget-info" style="font-size:12px; font-weight:700; color:var(--purple-light); margin-bottom:8px;"></div>
+    <div id="shopping-list-budget-info" style="font-size:13px; font-weight:700; color:var(--purple-light); margin-bottom:8px;"></div>
     
-    <div style="background:var(--surface2); padding:8px 10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
-      <label style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; cursor:pointer;">
+    <div style="background:var(--surface2); padding:8px 12px; border-radius:10px; margin-bottom:12px; border:1px solid var(--border);">
+      <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
         <input type="checkbox" id="include-new-series-cb" onchange="generateMonthlyShoppingList()" style="width:auto;-webkit-appearance:checkbox;">
         <span>➕ Inclure aussi de nouvelles séries à commencer (Tome 1)</span>
       </label>
     </div>
 
     <div id="shopping-list-items-container"></div>
-    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:10px;">Fermer</button>
+    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:12px;">Fermer la liste</button>
   </div>
 </div>
 
-<!-- POPUP PIOCHE -->
+<!-- POPUP RÉSULTAT PIOCHE -->
 <div class="modal-overlay" id="pioche-modal">
-  <div class="modal-card" style="text-align:center;">
-    <p class="section-label" style="margin-bottom:8px;">Résultat du tirage 🎲</p>
-    <div id="pioche-modal-title" style="font-size:16px; font-weight:800; margin-bottom:2px;"></div>
-    <div id="pioche-modal-serie" style="font-size:12px; font-weight:700; color:var(--purple-light);"></div>
-    <div id="pioche-modal-author" style="font-size:12px; color:var(--text2); margin-bottom:12px;"></div>
-    <button class="btn-full" id="pioche-modal-start-btn" onclick="startReadingFromPioche()">📖 Commencer la lecture</button>
-    <button class="btn-full btn-secondary-full" onclick="closePiocheModal()">Fermer</button>
+  <div class="pioche-modal-card">
+    <div class="pioche-bg-blur" id="pioche-modal-bg"></div>
+    <div class="pioche-content-inner">
+      <p class="section-label" style="margin-bottom:12px;">Résultat du tirage 🎲</p>
+      <div id="pioche-modal-cover-wrap"></div>
+      <div class="pioche-modal-title" id="pioche-modal-title"></div>
+      <div class="pioche-modal-serie" id="pioche-modal-serie"></div>
+      <div class="pioche-modal-author" id="pioche-modal-author"></div>
+      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-full" id="pioche-modal-start-btn" onclick="startReadingFromPioche()">📖 Commencer la lecture</button>
+        <button class="btn-full btn-secondary-full" onclick="pioche(lastPiocheMode)">🎲 Repiocher un autre</button>
+        <button class="btn-full btn-secondary-full" onclick="closePiocheModal()" style="opacity:0.8;">Fermer</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <div id="accueil" class="section visible">
   <div id="hero-reading-container" class="hero-full-container"></div>
   <div class="bottom-shortcuts-area">
+    <p class="section-label" style="margin-bottom:6px;">Raccourcis rapides</p>
     <div class="stat-grid">
       <div class="stat-card" onclick="goToPalWithChip('next_read')">
         <div class="stat-num purple">⚡</div>
@@ -189,23 +339,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div id="pal" class="section">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
+  
   <div class="segmented-control" style="margin-top:10px;">
     <button class="segment-btn active" id="seg-all" onclick="setSegmentType('all', this)">Tous</button>
     <button class="segment-btn" id="seg-serie" onclick="setSegmentType('serie', this)">📚 Séries</button>
     <button class="segment-btn" id="seg-oneshot" onclick="setSegmentType('one_shot', this)">📖 One-shots</button>
   </div>
+
   <div class="filter-row-compact">
     <select class="filter-select" id="main-status-filter" onchange="setMainStatusFilter(this.value)">
       <option value="all">Tous les statuts de ma PAL</option>
       <option value="en_cours">📖 En cours de lecture</option>
       <option value="a_commencer">⏳ À commencer</option>
       <option value="termine">✓ Terminés / Lus</option>
+      <option value="abandonne">🚫 Abandonnés</option>
     </select>
   </div>
-  <div class="quick-chips" style="margin-bottom:12px;">
+
+  <div class="quick-chips" style="margin-bottom: 16px;">
     <button class="chip" id="chip-fav" onclick="toggleQuickChip('favorite', this)">❤️ Coups de cœur</button>
     <button class="chip" id="chip-next-read" onclick="toggleQuickChip('next_read', this)">⚡ Prochain à lire</button>
   </div>
+  
   <div id="pal-list"></div>
 </div>
 
@@ -213,12 +368,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="search-bar-wrap">
     <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()">
   </div>
+
   <div class="segmented-control">
     <button class="segment-btn active" id="wish-seg-continue" onclick="setWishSegment('continue', this)">🔄 Séries à continuer</button>
     <button class="segment-btn" id="wish-seg-start" onclick="setWishSegment('start', this)">📚 Séries à commencer</button>
     <button class="segment-btn" id="wish-seg-oneshot" onclick="setWishSegment('oneshot', this)">📖 One-shots</button>
     <button class="segment-btn" id="wish-seg-publi" onclick="setWishSegment('publi', this)">⏳ À paraître</button>
   </div>
+
   <div id="wishlist-list"></div>
 </div>
 
@@ -229,7 +386,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       🛒 Générer ma liste de courses ce mois-ci
     </button>
     
-    <p class="section-label" style="margin-top:8px; margin-bottom:2px;">Tirage aléatoire</p>
+    <p class="section-label" style="margin-top:10px; margin-bottom:2px;">Tirage aléatoire</p>
     <button class="pioche-btn pioche-serie-bought" onclick="pioche('suite_serie_possedee')">🎲 Suite de série possédée</button>
     <button class="pioche-btn pioche-new-serie-bought" onclick="pioche('commencer_nouvelle_serie_possedee')">📚 Commencer une nouvelle série possédée</button>
     <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot_possede')">📖 One-shot possédé</button>
@@ -239,14 +396,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 
 <div id="stats" class="section">
-  <p class="section-label">Statistiques</p>
+  <p class="section-label">Statistiques de lecture</p>
   <div class="stat-grid">
     <div class="stat-card">
       <div class="stat-num purple" id="stat-read-year">0</div>
       <div class="stat-label">Livres lus</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num accent" id="stat-spend-year">0 €</div>
+      <div class="stat-num ok" id="stat-spend-year">0 €</div>
       <div class="stat-label">Dépensés</div>
     </div>
   </div>
@@ -254,7 +411,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div id="ajouter" class="section">
   <div class="form-card">
-    <p class="section-label" style="margin-bottom:8px;">Informations du livre</p>
+    <p class="section-label" style="margin-bottom:12px;">Informations du livre</p>
+    
+    <div class="form-field">
+      <label>URL de la couverture (optionnel)</label>
+      <input type="url" id="new-cover" placeholder="Ex: https://...">
+    </div>
+
     <div class="form-field">
       <label>Type de livre</label>
       <select id="new-type" onchange="toggleSerieFields()">
@@ -262,7 +425,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <option value="serie">Fait partie d'une série</option>
       </select>
     </div>
-    <div id="serie-fields" style="display:none; background: var(--surface2); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+
+    <div id="serie-fields" style="display:none; background: var(--surface2); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
       <div class="form-field">
         <label>Série / Saga</label>
         <select id="select-serie-id" onchange="handleSerieSelectChange(this.value)">
@@ -270,14 +434,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         </select>
       </div>
       <div id="custom-serie-wrap">
-        <div class="form-field"><label>Nom de la nouvelle série</label><input type="text" id="new-serie-nom"></div>
-        <div class="form-field"><label>Auteur·rice de la série</label><input type="text" id="new-serie-auteur" list="auteurs-list"></div>
-        <div class="form-field"><label>Total tomes</label><input type="number" id="new-serie-total" value="4"></div>
+        <div class="form-field"><label>Nom de la nouvelle série</label><input type="text" id="new-serie-nom" placeholder="Ex: L'Héritage"></div>
+        <div class="form-field"><label>Auteur·rice de la série</label><input type="text" id="new-serie-auteur" list="auteurs-list" placeholder="Ex: Christopher Paolini"></div>
+        <div class="form-field"><label>Nombre total de tomes prévus</label><input type="number" id="new-serie-total" min="1" value="4"></div>
       </div>
-      <div class="form-field"><label>Numéro de ce tome</label><input type="number" id="new-tome-num" step="0.1" value="1"></div>
+      <div class="form-field"><label>Numéro de ce tome *</label><input type="number" id="new-tome-num" min="0" step="0.1" value="1"></div>
     </div>
-    <div class="form-field"><label>Titre propre du livre *</label><input type="text" id="new-titre"></div>
+
+    <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre"></div>
     <div class="form-field" id="oneshot-author-wrap"><label>Auteur·rice</label><input type="text" id="new-auteur" list="auteurs-list"></div>
+
     <div class="form-field">
       <label>Format de prédilection</label>
       <select id="new-format">
@@ -285,8 +451,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <option value="poche">Poche (Occasion ~5€)</option>
       </select>
     </div>
+
+    <div style="display:flex; gap:8px;">
+      <div class="form-field" style="flex:1;"><label>Prix indicatif (€)</label><input type="number" id="new-prix" placeholder="Ex: 10.00" step="0.01" min="0"></div>
+    </div>
+
     <div class="form-field">
-      <label>Statut</label>
+      <label>Statut de lecture</label>
       <select id="new-statut">
         <option value="a_commencer">À commencer (Possédé)</option>
         <option value="en_cours">En cours de lecture</option>
@@ -295,6 +466,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <option value="termine">Terminé / Lu</option>
       </select>
     </div>
+
     <button class="btn-full" onclick="addBook()">Ajouter à ma bibliothèque</button>
   </div>
 </div>
@@ -304,8 +476,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="form-card">
     <div style="display: flex; gap: 8px;">
       <input type="number" id="setting-budget-limit" min="0" step="1" style="flex:1;">
-      <button onclick="saveBudgetLimitSetting()" class="btn" style="background:var(--purple-dark); color:#fff;">Enregistrer</button>
+      <button onclick="saveBudgetLimitSetting()" class="btn-full" style="width:auto; margin-bottom:0;">Enregistrer</button>
     </div>
+  </div>
+
+  <p class="section-label">Sauvegarde et Restauration</p>
+  <div class="form-card">
+    <button class="btn-full" onclick="exportDataText()">📋 Exporter mes données</button>
+    <div id="export-text-area-wrap" style="display:none; margin-top:12px;">
+      <textarea id="export-text-val" rows="5" readonly style="width:100%; font-size:11px; font-family:monospace;"></textarea>
+      <button class="btn-full btn-accent" onclick="copyExportText()" style="margin-top:6px;">✂️ Copier tout le texte</button>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-field">
+      <textarea id="import-text-val" rows="3" placeholder="Colle le texte JSON copié ici..."></textarea>
+    </div>
+    <button class="btn-full" onclick="importDataText()">📥 Importer le texte collé</button>
   </div>
 </div>
 
@@ -322,7 +510,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
   <button class="nav-btn" id="nav-pioche" onclick="showSection('pioche')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
     Pioche
   </button>
   <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">
@@ -335,7 +523,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 let books = [], series = {}, depenses = [];
 let segmentType = 'all', wishSegment = 'continue', mainStatusFilter = 'all', activeQuickChip = 'none';
 let budgetLimit = 75;
-let currentPiocheBookIdx = null;
+let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -362,6 +550,7 @@ function updateAuteursDataList() {
   if (!listEl) return;
   const auteursSet = new Set();
   books.forEach(b => { if (b.auteur && b.auteur.trim()) auteursSet.add(b.auteur.trim()); });
+  Object.keys(series).forEach(id => { if (series[id].auteur && series[id].auteur.trim()) auteursSet.add(series[id].auteur.trim()); });
   listEl.innerHTML = Array.from(auteursSet).sort((a,b) => a.localeCompare(b, 'fr')).map(a => `<option value="${escHtml(a)}"></option>`).join('');
 }
 
@@ -382,37 +571,54 @@ function setSegmentType(type, el) { segmentType = type; document.querySelectorAl
 function setWishSegment(type, el) { wishSegment = type; document.querySelectorAll('#wishlist .segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderWishlist(); }
 function setMainStatusFilter(val) { mainStatusFilter = val; renderPAL(); }
 function toggleQuickChip(chip, el) { activeQuickChip = (activeQuickChip === chip) ? 'none' : chip; el.classList.toggle('active', activeQuickChip === chip); renderPAL(); }
+function goToPalWithChip(chip) { showSection('pal'); toggleQuickChip(chip, document.getElementById('chip-next-read')); }
 
 function renderAccueil() {
   const container = document.getElementById('hero-reading-container');
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
+
   if (!enCoursBooks.length) {
     container.innerHTML = `<div style="text-align:center; padding: 2rem 1rem;">
-      <p style="font-size:15px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
+      <p style="font-size:16px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
+      <p style="font-size:13px; color:var(--text3); margin-bottom:16px;">Va piocher un livre ou choisis-en un dans ta PAL.</p>
       <button class="btn btn-accent" onclick="showSection('pioche')">🎲 Piocher un livre</button>
     </div>`;
     return;
   }
-  let html = `<div class="carousel-wrap"><div class="carousel-slides-container">`;
+
+  const initialBg = (enCoursBooks[0].cover && enCoursBooks[0].cover.trim().length > 5) ? `style="background-image: url('${escHtml(enCoursBooks[0].cover)}');"` : '';
+
+  let html = `<div class="hero-bg-blur-full" id="hero-bg-blur" ${initialBg}></div>
+  <div class="carousel-wrap"><div class="carousel-slides-container" id="carousel-slides">`;
+
   html += enCoursBooks.map((b) => {
     const idx = books.indexOf(b);
+    const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
+    const coverUrl = (b.cover && b.cover.trim().length > 5) ? escHtml(b.cover) : '';
+
+    let coverImgHtml = coverUrl 
+      ? `<img src="${coverUrl}" class="hero-cover-main" alt="Couverture">`
+      : `<div class="hero-cover-placeholder-large"><div style="font-size:32px; margin-bottom:8px;">📖</div><div style="font-size:15px; font-weight:800; line-height:1.2;">${escHtml(b.titre)}</div></div>`;
+
     return `<div class="carousel-slide">
       <div class="hero-reading-content-inner">
+        ${coverImgHtml}
         <div class="hero-text-details">
           <div class="hero-title-main">${escHtml(b.titre)}</div>
-          ${s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
-          <div class="hero-author-main">${escHtml(b.auteur || (s ? s.auteur : ''))}</div>
+          ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+          <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
           <button class="btn-check-done" onclick="markDone(${idx})"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>
         </div>
       </div>
     </div>`;
   }).join('');
+
   html += `</div></div>`;
   container.innerHTML = html;
 }
 
-/* 🛒 GENERATEUR STRICT : TOME PRÉCÉDENT TERMINÉ OBLIGATOIRE + ONE-SHOTS */
+/* 🛒 LISTE DE COURSES DU MOIS STRICTE (TOME PRÉCÉDENT TERMINÉ OBLIGATOIRE + ONE-SHOTS) */
 function generateMonthlyShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
@@ -427,7 +633,6 @@ function generateMonthlyShoppingList() {
 
   for (let b of wishSeries) {
     if (!b.serieId) continue;
-    
     const tomeCurrent = b.tomeNum || 1;
     
     // Vérifier si le tome précédent est TERMINÉ
@@ -470,7 +675,6 @@ function generateMonthlyShoppingList() {
   if (includeNewSeries) {
     const newSeriesTome1 = wishBooks.filter(b => b.type === 'serie' && (b.tomeNum === 1 || !b.tomeNum));
     for (let b of newSeriesTome1) {
-      // Vérifier si pas déjà possédé
       const inPal = books.some(other => other.type === 'serie' && other.serieId === b.serieId && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
       if (!inPal) {
         let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
@@ -483,7 +687,7 @@ function generateMonthlyShoppingList() {
   }
 
   if (!selectedItems.length) { 
-    alert("Aucun livre ne correspond à tes critères ce mois-ci (ex: aucun tome suivant débloqué par un tome terminé)."); 
+    alert("Aucun livre ne correspond à tes critères ce mois-ci (aucun tome suivant débloqué par un tome terminé)."); 
     return; 
   }
 
@@ -499,7 +703,7 @@ function generateMonthlyShoppingList() {
       </div>
       <div style="text-align:right;">
         <div class="shopping-item-price">${item.estimatedPrice.toFixed(2)} €</div>
-        <button class="btn" style="padding:2px 6px; font-size:9px;" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
+        <button class="btn" style="padding:3px 8px; font-size:10px; margin-top:2px;" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
       </div>
     </div>`;
   }).join('');
@@ -521,21 +725,60 @@ function renderPAL() {
     if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
     if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
     if (activeQuickChip === 'favorite' && !b.favorite) return false;
+    
+    if (activeQuickChip === 'next_read') {
+      if (b.statut !== 'a_commencer') return false;
+      if (b.type === 'one_shot') return true;
+      const allSeriesBooks = ownedBooks.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+      const minUnreadTome = allSeriesBooks
+        .filter(other => other.statut === 'a_commencer')
+        .reduce((min, other) => Math.min(min, other.tomeNum || 1), Infinity);
+      return b.tomeNum === minUnreadTome;
+    }
+
     return true;
   });
 
-  document.getElementById('header-count').textContent = `${ownedBooks.length} livres possédés`;
+  const totalOwned = ownedBooks.length;
+  const enCours = ownedBooks.filter(b=>b.statut==='en_cours').length;
+  document.getElementById('header-count').textContent = `${totalOwned} livres possédés · ${enCours} en cours`;
+
   const list = document.getElementById('pal-list');
   if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre trouvé</div>'; return; }
 
   list.innerHTML = filtered.map(b => {
     const idx = books.indexOf(b);
+    const isOne = b.type==='one_shot';
+    const s = b.serieId ? series[b.serieId] : null;
+
+    let bClass, bText;
+    if (b.statut==='termine') { bClass='badge-termine'; bText='lu / terminé'; }
+    else if (b.statut==='en_cours') { bClass='badge-encours'; bText='📖 en cours'; }
+    else if (b.statut==='abandonne') { bClass='badge-abandoned'; bText='🚫 abandonné'; }
+    else { bClass='badge-acommencer'; bText='⏳ à commencer'; }
+
+    let coverHtml = (b.cover && b.cover.trim().length > 5)
+      ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
+      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div></div>`;
+
     return `<div class="book-card">
-      <div class="book-title">${escHtml(b.titre)}</div>
-      <div class="book-author">${escHtml(b.auteur || (b.serieId && series[b.serieId] ? series[b.serieId].auteur : ''))}</div>
+      <div class="book-card-content">
+        ${coverHtml}
+        <div class="book-info-main">
+          <div class="book-top">
+            <div style="flex:1">
+              <div class="book-title">${escHtml(b.titre)}</div>
+              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
+              <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+            </div>
+            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;">✕</button>
+          </div>
+          <div class="badges"><span class="badge ${bClass}">${bText}</span></div>
+        </div>
+      </div>
       <div class="card-actions">
         ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer</button>` : ''}
-        <button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>
+        ${b.statut !== 'termine' ? `<button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -546,10 +789,21 @@ function renderWishlist() {
   let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
 
   let filtered = wishBooks.filter(b => {
-    const matchQ = b.titre.toLowerCase().includes(q) || (b.auteur||'').toLowerCase().includes(q);
+    const s = b.serieId ? series[b.serieId] : null;
+    const matchQ = b.titre.toLowerCase().includes(q) || (b.auteur||'').toLowerCase().includes(q) || (s && s.nom.toLowerCase().includes(q));
     if (q && !matchQ) return false;
     if (wishSegment === 'publi') return b.statut === 'en_attente_publi';
     if (wishSegment === 'oneshot') return b.type === 'one_shot';
+    if (wishSegment === 'start') {
+      if (b.type !== 'serie') return false;
+      const owned = books.filter(o => o.type === 'serie' && o.serieId === b.serieId && o.statut !== 'a_acheter' && o.statut !== 'en_attente_publi');
+      return owned.length === 0;
+    }
+    if (wishSegment === 'continue') {
+      if (b.type !== 'serie') return false;
+      const owned = books.filter(o => o.type === 'serie' && o.serieId === b.serieId && o.statut !== 'a_acheter' && o.statut !== 'en_attente_publi');
+      return owned.length > 0;
+    }
     return true;
   });
 
@@ -558,17 +812,87 @@ function renderWishlist() {
 
   list.innerHTML = filtered.map(b => {
     const idx = books.indexOf(b);
+    const isOne = b.type === 'one_shot';
+    const s = b.serieId ? series[b.serieId] : null;
     const formatBadge = b.format === 'poche' ? 'Poche (~5€)' : 'Broché (~10€)';
+
+    let coverHtml = (b.cover && b.cover.trim().length > 5)
+      ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
+      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div></div>`;
+
     return `<div class="book-card">
-      <div class="book-title">${escHtml(b.titre)}</div>
-      <div class="badges"><span class="badge badge-format">${formatBadge}</span></div>
+      <div class="book-card-content">
+        ${coverHtml}
+        <div class="book-info-main">
+          <div class="book-top">
+            <div style="flex:1">
+              <div class="book-title">${escHtml(b.titre)}</div>
+              ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
+              <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+            </div>
+            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;">✕</button>
+          </div>
+          <div class="badges">
+            ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
+            <span class="badge badge-format">${formatBadge}</span>
+          </div>
+        </div>
+      </div>
       <div class="card-actions">
-        <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté</button>
+        <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Dans ma PAL)</button>
         <button class="btn btn-accent" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
       </div>
     </div>`;
   }).join('');
 }
+
+function pioche(mode) {
+  lastPiocheMode = mode;
+  let pool = [];
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+  const wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
+
+  if (mode === 'suite_serie_possedee') {
+    const activeSeriesIds = new Set(ownedBooks.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId));
+    pool = ownedBooks.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && activeSeriesIds.has(b.serieId));
+  } else if (mode === 'commencer_nouvelle_serie_possedee') {
+    const activeSeriesIds = new Set(ownedBooks.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId));
+    pool = ownedBooks.filter(b => b.type === 'serie' && b.statut === 'a_commencer' && !activeSeriesIds.has(b.serieId));
+  } else if (mode === 'oneshot_possede') {
+    pool = ownedBooks.filter(b => b.type === 'one_shot' && b.statut === 'a_commencer');
+  } else if (mode === 'acheter_nouvelle_serie') {
+    pool = wishBooks.filter(b => b.type === 'serie');
+  } else if (mode === 'acheter_nouveau_oneshot') {
+    pool = wishBooks.filter(b => b.type === 'one_shot');
+  }
+
+  if (!pool.length) { alert("Aucun livre disponible pour ce tirage !"); return; }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  currentPiocheBookIdx = books.indexOf(pick);
+  const s = pick.serieId ? series[pick.serieId] : null;
+
+  const coverWrap = document.getElementById('pioche-modal-cover-wrap');
+  const bgBlur = document.getElementById('pioche-modal-bg');
+  const coverUrl = (pick.cover && pick.cover.trim().length > 5) ? escHtml(pick.cover) : '';
+
+  if (coverUrl) {
+    coverWrap.innerHTML = `<img src="${coverUrl}" class="pioche-cover-img" alt="Couverture">`;
+    bgBlur.style.backgroundImage = `url('${coverUrl}')`;
+  } else {
+    coverWrap.innerHTML = `<div class="pioche-cover-placeholder"><div style="font-size:32px;">📖</div><div>${escHtml(pick.titre)}</div></div>`;
+    bgBlur.style.backgroundImage = 'none';
+  }
+
+  document.getElementById('pioche-modal-title').textContent = pick.titre;
+  document.getElementById('pioche-modal-serie').textContent = (pick.type !== 'one_shot' && s) ? `📚 ${s.nom} (Tome ${pick.tomeNum}/${s.totalTomes})` : '';
+  document.getElementById('pioche-modal-author').textContent = pick.type === 'one_shot' ? pick.auteur : (s ? s.auteur : '');
+
+  document.getElementById('pioche-modal-start-btn').style.display = (pick.statut === 'a_acheter' || pick.statut === 'en_attente_publi') ? 'none' : 'block';
+  document.getElementById('pioche-modal').classList.add('open');
+}
+
+function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
+function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
 function renderStats() {
   const readBooksYear = books.filter(b => b.statut === 'termine');
@@ -579,18 +903,35 @@ function renderStats() {
 
 function startReading(idx) { books[idx].statut = 'en_cours'; save(); renderAccueil(); renderPAL(); showSection('accueil'); }
 function markDone(idx) { books[idx].statut = 'termine'; save(); renderAccueil(); renderPAL(); renderWishlist(); }
-function markBought(idx) { books[idx].statut = 'a_commencer'; save(); renderAccueil(); renderPAL(); renderWishlist(); }
+function markBought(idx) { books[idx].statut = 'a_commencer'; save(); renderAccueil(); renderPAL(); renderWishlist(); alert(`"${books[idx].titre}" est passé dans Ma PAL !`); }
+function removeBook(idx) { if (confirm(`Supprimer "${books[idx].titre}" ?`)) { books.splice(idx,1); save(); renderAccueil(); renderPAL(); renderWishlist(); } }
 
 function addBook() {
   const titre = document.getElementById('new-titre').value.trim();
-  if (!titre) return;
+  if (!titre) { alert('Le titre est obligatoire.'); return; }
   const type = document.getElementById('new-type').value;
   const statut = document.getElementById('new-statut').value;
   const format = document.getElementById('new-format').value;
-  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, statut, format, prix: 0, dateAjout: new Date().toISOString().slice(0,10) };
+  const cover = document.getElementById('new-cover') ? document.getElementById('new-cover').value.trim() : '';
+  let serieId = null;
+
+  if (type === 'serie') {
+    const sel = document.getElementById('select-serie-id').value;
+    const sNom = document.getElementById('new-serie-nom').value.trim();
+    const sAut = document.getElementById('new-serie-auteur').value.trim();
+    const sTot = parseInt(document.getElementById('new-serie-total').value) || 1;
+    if (sel === '__NEW__') {
+      serieId = 'serie_' + Date.now();
+      series[serieId] = { nom: sNom, auteur: sAut, totalTomes: sTot, isAbandoned: false };
+    } else {
+      serieId = sel;
+    }
+  }
+
+  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, serieId, tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, statut, format, prix: 0, cover, dateAjout: new Date().toISOString().slice(0,10) };
   books.unshift(b); save();
   document.getElementById('new-titre').value = '';
-  showSection(statut === 'a_acheter' ? 'wishlist' : 'pal');
+  showSection(statut === 'a_acheter' || statut === 'en_attente_publi' ? 'wishlist' : 'pal');
 }
 
 function populateSerieDropdown() {
@@ -604,6 +945,30 @@ function populateSerieDropdown() {
 function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
 function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
 function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
+
+function exportDataText() {
+  const data = { books, series, depenses, budgetLimit, exportDate: new Date().toISOString() };
+  document.getElementById('export-text-val').value = JSON.stringify(data, null, 2);
+  document.getElementById('export-text-area-wrap').style.display = 'block';
+}
+function copyExportText() {
+  const val = document.getElementById('export-text-val'); val.select();
+  navigator.clipboard.writeText(val.value); alert("Texte copié !");
+}
+function importDataText() {
+  const str = document.getElementById('import-text-val').value.trim();
+  if (!str) return;
+  try {
+    const data = JSON.parse(str);
+    if (confirm("Fusionner ces données avec tes livres actuels ?")) {
+      const existing = new Set(books.map(b => b.id || b.titre));
+      data.books.forEach(nb => { if (!existing.has(nb.id || nb.titre)) books.unshift(nb); });
+      if (data.series) Object.assign(series, data.series);
+      save(); renderAccueil(); renderPAL(); renderWishlist(); alert("Fusion réussie !");
+    }
+  } catch(e) { alert("Format invalide."); }
+}
+
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 load();
