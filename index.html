@@ -771,7 +771,6 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
-/* NETTOYAGE INTELLIGENT DU TITRE POUR LA RECHERCHE VINTED */
 function openVintedSearch(titreRaw, auteurRaw) {
   let cleanTitle = titreRaw || '';
   cleanTitle = cleanTitle.replace(/:.*$/g, ''); 
@@ -786,7 +785,6 @@ function openVintedSearch(titreRaw, auteurRaw) {
   window.open(`https://www.vinted.fr/catalog?search_text=${encodeURIComponent(query)}`, '_blank');
 }
 
-/* LISTE DE COURSES STRICTEMENT CORRIGÉE : STATUT a_acheter UNIQUEMENT */
 function generateMonthlyShoppingList() {
   if (activeShoppingItems.length > 0) {
     renderShoppingListModal();
@@ -794,13 +792,11 @@ function generateMonthlyShoppingList() {
     return;
   }
 
-  // RÈGLE STRICTE : Seuls les livres en statut "a_acheter"
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
   activeShoppingItems = [];
 
-  // P1 : Séries dont le tome précédent (T-1) est TERMINÉ
   const wishSeries = wishBooks.filter(b => b.type === 'serie');
   for (let b of wishSeries) {
     if (!b.serieId) continue;
@@ -827,7 +823,6 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P2 : Livres avec le marqueur discret "Prochain Achat"
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.bookId === b.id));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
@@ -907,7 +902,6 @@ function addRandomOneshotToShoppingList() {
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
-/* RESTAURATION DU RENDU PAL COMPLET ET DÉTAILLÉ */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -1030,7 +1024,31 @@ function renderPAL() {
 
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier ce livre</p>
+        <div class="form-field">
+          <label>Type de livre</label>
+          <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
+            <option value="one_shot" ${isOne ? 'selected' : ''}>One-shot / Livre unique</option>
+            <option value="serie" ${!isOne ? 'selected' : ''}>Fait partie d'une série</option>
+          </select>
+        </div>
         <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+        <div id="edit-oneshot-author-wrap-${idx}" style="display:${isOne ? 'block' : 'none'};">
+          <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" value="${escHtml(b.auteur||'')}"></div>
+        </div>
+        <div id="edit-serie-wrap-${idx}" style="display:${!isOne ? 'block' : 'none'}; background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
+          <div class="form-field">
+            <label>Série liée</label>
+            <select id="edit-serie-id-${idx}" onchange="handleEditSerieSelectChange(${idx}, this.value)">
+              <option value="__NEW__">+ Créer une nouvelle série</option>
+              ${Object.keys(series).map(sKey => `<option value="${sKey}" ${b.serieId === sKey ? 'selected' : ''}>${escHtml(series[sKey].nom)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s ? s.nom : '')}"></div>
+          <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" value="${escHtml(s ? s.auteur : '')}"></div>
+          <div class="form-field"><label>Total tomes</label><input type="number" id="edit-serie-total-${idx}" value="${s ? s.totalTomes : 1}"></div>
+          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum || 1}"></div>
+        </div>
+        <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
@@ -1039,7 +1057,6 @@ function renderPAL() {
   }).join('');
 }
 
-/* RENDU WISHLIST AVEC MODIFICATION COMPLÈTE */
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -1124,8 +1141,30 @@ function renderWishlist() {
 
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
+        <div class="form-field">
+          <label>Type de livre</label>
+          <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
+            <option value="one_shot" ${isOne ? 'selected' : ''}>One-shot / Livre unique</option>
+            <option value="serie" ${!isOne ? 'selected' : ''}>Fait partie d'une série</option>
+          </select>
+        </div>
         <div class="form-field"><label>Titre du livre / tome</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
-        <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" value="${escHtml(b.auteur||'')}"></div>
+        <div id="edit-oneshot-author-wrap-${idx}" style="display:${isOne ? 'block' : 'none'};">
+          <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" value="${escHtml(b.auteur||'')}"></div>
+        </div>
+        <div id="edit-serie-wrap-${idx}" style="display:${!isOne ? 'block' : 'none'}; background:var(--purple-bg); padding:10px; border-radius:10px; margin-bottom:10px;">
+          <div class="form-field">
+            <label>Série liée</label>
+            <select id="edit-serie-id-${idx}" onchange="handleEditSerieSelectChange(${idx}, this.value)">
+              <option value="__NEW__">+ Créer une nouvelle série</option>
+              ${Object.keys(series).map(sKey => `<option value="${sKey}" ${b.serieId === sKey ? 'selected' : ''}>${escHtml(series[sKey].nom)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field"><label>Nom de la série</label><input type="text" id="edit-serie-nom-${idx}" value="${escHtml(s ? s.nom : '')}"></div>
+          <div class="form-field"><label>Auteur de la série</label><input type="text" id="edit-serie-auteur-${idx}" value="${escHtml(s ? s.auteur : '')}"></div>
+          <div class="form-field"><label>Total tomes</label><input type="number" id="edit-serie-total-${idx}" value="${s ? s.totalTomes : 1}"></div>
+          <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum || 1}"></div>
+        </div>
         <div class="form-field">
           <label>Statut</label>
           <select id="edit-statut-${idx}">
@@ -1134,11 +1173,27 @@ function renderWishlist() {
             <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
           </select>
         </div>
+        <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
         <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleEditTypeFields(idx) {
+  const isSerie = document.getElementById(`edit-type-${idx}`).value === 'serie';
+  document.getElementById(`edit-oneshot-author-wrap-${idx}`).style.display = isSerie ? 'none' : 'block';
+  document.getElementById(`edit-serie-wrap-${idx}`).style.display = isSerie ? 'block' : 'none';
+}
+
+function handleEditSerieSelectChange(idx, sId) {
+  if (sId !== '__NEW__' && series[sId]) {
+    const s = series[sId];
+    document.getElementById(`edit-serie-nom-${idx}`).value = s.nom;
+    document.getElementById(`edit-serie-auteur-${idx}`).value = s.auteur;
+    document.getElementById(`edit-serie-total-${idx}`).value = s.totalTomes;
+  }
 }
 
 function toggleEditPanel(idx) {
@@ -1148,7 +1203,33 @@ function toggleEditPanel(idx) {
 
 function saveEdit(idx) {
   const b = books[idx];
+  const newType = document.getElementById(`edit-type-${idx}`).value;
+  b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
+  
+  if (newType === 'one_shot') {
+    b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
+    b.serieId = null;
+    b.tomeNum = null;
+  } else {
+    let sId = document.getElementById(`edit-serie-id-${idx}`).value;
+    const sNom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
+    const sAut = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
+    const sTot = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
+
+    if (sId === '__NEW__' || !series[sId]) {
+      sId = 'serie_' + Date.now();
+      series[sId] = { nom: sNom, auteur: sAut, totalTomes: sTot, isAbandoned: false };
+    } else {
+      series[sId].nom = sNom;
+      series[sId].auteur = sAut;
+      series[sId].totalTomes = sTot;
+    }
+    b.serieId = sId;
+    b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
+  }
+
+  b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   save();
@@ -1157,9 +1238,34 @@ function saveEdit(idx) {
 
 function saveWishEdit(idx) {
   const b = books[idx];
+  const newType = document.getElementById(`edit-type-${idx}`).value;
+  b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
-  b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
+
+  if (newType === 'one_shot') {
+    b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
+    b.serieId = null;
+    b.tomeNum = null;
+  } else {
+    let sId = document.getElementById(`edit-serie-id-${idx}`).value;
+    const sNom = document.getElementById(`edit-serie-nom-${idx}`).value.trim();
+    const sAut = document.getElementById(`edit-serie-auteur-${idx}`).value.trim();
+    const sTot = parseInt(document.getElementById(`edit-serie-total-${idx}`).value) || 1;
+
+    if (sId === '__NEW__' || !series[sId]) {
+      sId = 'serie_' + Date.now();
+      series[sId] = { nom: sNom, auteur: sAut, totalTomes: sTot, isAbandoned: false };
+    } else {
+      series[sId].nom = sNom;
+      series[sId].auteur = sAut;
+      series[sId].totalTomes = sTot;
+    }
+    b.serieId = sId;
+    b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
+  }
+
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
+  b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   save();
   renderWishlist();
