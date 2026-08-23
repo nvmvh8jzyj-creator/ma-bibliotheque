@@ -771,7 +771,6 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
-/* OUVERTURE DE VINTED SÉCURISÉE DEPUIS L'INDEX DU LIVRE (RÉSOLUTIF SUR APOSTROPHES & GUILLEMETS) */
 function openVintedForBookIndex(idx) {
   const b = books[idx];
   if (!b) return;
@@ -782,11 +781,8 @@ function openVintedForBookIndex(idx) {
 
   let text = `${b.titre || ''} ${authorVal || ''}`;
   
-  // 1. Nettoyer les sous-titres et expressions de volumes/tomes
   text = text.replace(/:.*$/g, ''); 
   text = text.replace(/\b(Vol|Tome|Livre)\b\.?\s*\d+/gi, '');
-  
-  // 2. Remplacer les apostrophes, guillemets et caractères spéciaux par des espaces
   text = text.replace(/['’"”«»\-:_.,]/g, ' '); 
   text = text.replace(/\s+/g, ' ').trim();
 
@@ -1057,6 +1053,17 @@ function renderPAL() {
           <div class="form-field"><label>Total tomes</label><input type="number" id="edit-serie-total-${idx}" value="${s ? s.totalTomes : 1}"></div>
           <div class="form-field"><label>Numéro de ce tome</label><input type="number" step="0.1" id="edit-tome-num-${idx}" value="${b.tomeNum || 1}"></div>
         </div>
+        <div class="form-field">
+          <label>Statut de lecture</label>
+          <select id="edit-statut-${idx}">
+            <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
+            <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours de lecture</option>
+            <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
+            <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
+            <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
+            <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite</option>
+          </select>
+        </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
@@ -1180,6 +1187,8 @@ function renderWishlist() {
             <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
             <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite / publication</option>
             <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
+            <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours de lecture</option>
+            <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
           </select>
         </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
@@ -1238,11 +1247,15 @@ function saveEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
+  b.statut = document.getElementById(`edit-statut-${idx}`).value;
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
+  
   save();
   renderPAL();
+  renderWishlist();
+  renderAccueil();
 }
 
 function saveWishEdit(idx) {
@@ -1276,9 +1289,11 @@ function saveWishEdit(idx) {
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
+  
   save();
   renderWishlist();
   renderPAL();
+  renderAccueil();
 }
 
 function pioche(mode) {
