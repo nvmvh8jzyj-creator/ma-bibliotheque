@@ -258,6 +258,20 @@ body {
 .stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; font-weight: 600; }
 .stat-num.purple { color: var(--purple-light); }
 .stat-num.accent { color: var(--ochre); }
+.stat-num.danger { color: var(--danger); }
+.stat-num.ok { color: var(--green-dark); }
+@media (prefers-color-scheme: dark) { .stat-num.ok { color: var(--green-bright); } }
+
+.stat-detail-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; display: none; }
+.stat-detail-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.stat-detail-item:last-child { border-bottom: none; }
+
+.chart-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; margin-top: 14px; padding-top: 20px; }
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.chart-bar-wrap { width: 100%; background: var(--surface2); border-radius: 6px; flex: 1; display: flex; align-items: flex-end; overflow: hidden; }
+.chart-bar { width: 100%; background: var(--purple-light); border-radius: 6px; transition: height 0.4s ease; min-height: 0; }
+.chart-val { font-size: 10px; font-weight: 700; color: var(--text2); }
+.chart-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -300,7 +314,7 @@ body {
   </div>
 </div>
 
-<!-- POPUP PIOCHE -->
+<!-- POPUP RÉSULTAT PIOCHE -->
 <div class="modal-overlay" id="pioche-modal">
   <div class="pioche-modal-card">
     <div class="pioche-bg-blur" id="pioche-modal-bg"></div>
@@ -398,15 +412,54 @@ body {
 </div>
 
 <div id="stats" class="section">
-  <p class="section-label">Statistiques de lecture</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <p class="section-label" style="margin-bottom:0;">Statistiques de lecture</p>
+    <select id="stats-year-select" onchange="renderStats()" style="width:auto; padding:4px 8px; font-size:13px;"></select>
+  </div>
+
   <div class="stat-grid">
-    <div class="stat-card">
+    <div class="stat-card" onclick="showStatDetail('read_year')">
       <div class="stat-num purple" id="stat-read-year">0</div>
-      <div class="stat-label">Livres lus</div>
+      <div class="stat-label">Livres lus cette année 🔍</div>
     </div>
     <div class="stat-card">
       <div class="stat-num ok" id="stat-spend-year">0 €</div>
-      <div class="stat-label">Dépensés</div>
+      <div class="stat-label">Dépensés cette année</div>
+    </div>
+  </div>
+
+  <div class="stat-detail-box" id="stat-detail-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <p class="section-label" id="stat-detail-title" style="margin-bottom:0;">Détails</p>
+      <button onclick="closeStatDetail()" style="border:none; background:none; font-size:12px; font-weight:700; color:var(--text3); cursor:pointer;">Fermer ✕</button>
+    </div>
+    <div id="stat-detail-list"></div>
+  </div>
+
+  <div class="form-card">
+    <p class="section-label" style="margin-bottom:4px;">Livres lus par mois</p>
+    <div class="chart-container" id="chart-months"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num accent" id="stat-avg-days">0 j</div>
+      <div class="stat-label">Temps moyen par livre</div>
+    </div>
+    <div class="stat-card" onclick="showStatDetail('series_active')">
+      <div class="stat-num" id="stat-series-active">0</div>
+      <div class="stat-label">Séries en cours 🔍</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card" onclick="showStatDetail('series_waiting')">
+      <div class="stat-num danger" id="stat-series-waiting">0</div>
+      <div class="stat-label">Séries en attente de suite 🔍</div>
+    </div>
+    <div class="stat-card" onclick="showStatDetail('series_done')">
+      <div class="stat-num ok" id="stat-series-done">0</div>
+      <div class="stat-label">Séries terminées 🔍</div>
     </div>
   </div>
 </div>
@@ -531,6 +584,7 @@ function load() {
   renderPAL(); 
   renderWishlist();
   updateAuteursDataList();
+  initStatsYearSelect();
 }
 
 function save() { 
@@ -612,14 +666,12 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
-/* TOGGLE PROCHAIN ACHAT INDIVIDUEL SUR CHAQUE LIVRE DE LA WISHLIST */
 function toggleNextTarget(idx) {
   books[idx].isNextTarget = !books[idx].isNextTarget;
   save();
   renderWishlist();
 }
 
-/* GENERATEUR DE LISTE DE COURSES SUR-MESURE */
 function generateMonthlyShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
@@ -653,11 +705,11 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P2 : Livres spécifiquement marqués "Prochain achat" par l'utilisateur
+  // P2 : Livres spécifiquement marqués "Prochain achat"
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.book === b));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
-    activeShoppingItems.push({ book: b, currentPrice: price, reason: "🎯 Marquable Prochain Achat" });
+    activeShoppingItems.push({ book: b, currentPrice: price, reason: "🎯 Prochain Achat manuel" });
   }
 
   renderShoppingListModal();
@@ -902,12 +954,157 @@ function pioche(mode) {
 function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
 function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
-function renderStats() {
-  const readBooksYear = books.filter(b => b.statut === 'termine');
-  document.getElementById('stat-read-year').textContent = readBooksYear.length;
-  const spend = books.reduce((s, b) => s + (b.prix || 0), 0);
-  document.getElementById('stat-spend-year').textContent = spend.toFixed(2) + ' €';
+/* STATISTIQUES COMPLETES ET DÉTAILLÉES */
+function initStatsYearSelect() {
+  const select = document.getElementById('stats-year-select');
+  if (!select) return;
+  const currentYear = new Date().getFullYear();
+  const years = new Set([currentYear]);
+  books.forEach(b => {
+    if (b.dateFin) {
+      const y = parseInt(b.dateFin.substring(0,4));
+      if (!isNaN(y)) years.add(y);
+    }
+  });
+  const sortedYears = Array.from(years).sort((a,b) => b - a);
+  select.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
+  select.value = currentYear;
 }
+
+function renderStats() {
+  const yearSelect = document.getElementById('stats-year-select');
+  const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
+
+  const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+  document.getElementById('stat-read-year').textContent = readBooksYear.length;
+
+  const bookSpendYear = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi').reduce((s, b) => {
+    const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
+    return (y === selectedYear && b.prix) ? s + b.prix : s;
+  }, 0);
+
+  document.getElementById('stat-spend-year').textContent = bookSpendYear.toFixed(2) + ' €';
+
+  const monthCounts = Array(12).fill(0);
+  readBooksYear.forEach(b => {
+    const m = parseInt(b.dateFin.substring(5,7)) - 1;
+    if (m >= 0 && m < 12) monthCounts[m]++;
+  });
+
+  const maxVal = Math.max(...monthCounts, 1);
+  const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+  const chartEl = document.getElementById('chart-months');
+  chartEl.innerHTML = monthCounts.map((cnt, i) => {
+    const pct = Math.round((cnt / maxVal) * 100);
+    return `<div class="chart-col">
+      <div class="chart-val">${cnt > 0 ? cnt : ''}</div>
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:${pct}%"></div></div>
+      <div class="chart-label">${monthNames[i]}</div>
+    </div>`;
+  }).join('');
+
+  let totalDays = 0, validReadCount = 0;
+  readBooksYear.forEach(b => {
+    if (b.dateDebut && b.dateFin) {
+      const diffDays = Math.ceil((new Date(b.dateFin) - new Date(b.dateDebut)) / (1000 * 60 * 60 * 24)) + 1;
+      if (diffDays > 0) { totalDays += diffDays; validReadCount++; }
+    }
+  });
+
+  const avgDays = validReadCount > 0 ? Math.round(totalDays / validReadCount) : 0;
+  document.getElementById('stat-avg-days').textContent = avgDays > 0 ? `${avgDays} j` : 'N/A';
+
+  let activeSeries = 0, waitingSeries = 0, doneSeries = 0;
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+
+  Object.keys(series).forEach(id => {
+    const s = series[id];
+    const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+    const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
+    const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
+    const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+    const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
+
+    if (!isAbandoned) {
+      if (allTermines) doneSeries++;
+      else if (isWaiting) waitingSeries++;
+      else if (hasStarted) activeSeries++;
+    }
+  });
+
+  document.getElementById('stat-series-active').textContent = activeSeries;
+  document.getElementById('stat-series-waiting').textContent = waitingSeries;
+  document.getElementById('stat-series-done').textContent = doneSeries;
+}
+
+function showStatDetail(type) {
+  const detailBox = document.getElementById('stat-detail-box');
+  const titleEl = document.getElementById('stat-detail-title');
+  const listEl = document.getElementById('stat-detail-list');
+  const selectedYear = parseInt(document.getElementById('stats-year-select').value || new Date().getFullYear());
+
+  let rawItems = [];
+  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+
+  if (type === 'read_year') {
+    titleEl.textContent = `Livres lus en ${selectedYear}`;
+    const readBooks = ownedBooks.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+    readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+    rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
+  } else if (type === 'series_active') {
+    titleEl.textContent = `Séries en cours`;
+    const activeSeriesList = [];
+    Object.keys(series).forEach(id => {
+      const s = series[id];
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
+      const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
+      const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
+      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+
+      if (!isAbandoned && !allTermines && hasStarted && !isWaiting) {
+        const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
+        const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
+        activeSeriesList.push({ seriesObj: s, maxTomeLu });
+      }
+    });
+    activeSeriesList.sort((a, b) => a.seriesObj.nom.localeCompare(b.seriesObj.nom, 'fr'));
+    rawItems = activeSeriesList.map(item => `<div class="stat-detail-item"><span>📚 ${escHtml(item.seriesObj.nom)} <strong style="color:var(--purple-light)">(${item.maxTomeLu}/${item.seriesObj.totalTomes})</strong></span></div>`);
+  } else if (type === 'series_waiting') {
+    titleEl.textContent = `Séries en attente de suite`;
+    const waitingSeriesList = [];
+    Object.keys(series).forEach(id => {
+      const s = series[id];
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
+      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+      if (!isAbandoned && isWaiting) {
+        const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
+        const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
+        waitingSeriesList.push({ seriesObj: s, maxTomeLu });
+      }
+    });
+    waitingSeriesList.sort((a, b) => a.seriesObj.nom.localeCompare(b.seriesObj.nom, 'fr'));
+    rawItems = waitingSeriesList.map(item => `<div class="stat-detail-item"><span>📦 ${escHtml(item.seriesObj.nom)} <strong style="color:var(--warning)">(${item.maxTomeLu}/${item.seriesObj.totalTomes})</strong></span></div>`);
+  } else if (type === 'series_done') {
+    titleEl.textContent = `Séries terminées`;
+    const doneSeriesList = [];
+    Object.keys(series).forEach(id => {
+      const s = series[id];
+      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const maxTomeInPal = sBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
+      if (maxTomeInPal >= s.totalTomes && sBooks.every(b => b.statut === 'termine')) doneSeriesList.push(s);
+    });
+    doneSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    rawItems = doneSeriesList.map(s => `<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée</span></div>`);
+  }
+
+  listEl.innerHTML = rawItems.length ? rawItems.join('') : '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun élément.</div>';
+  detailBox.style.display = 'block';
+}
+
+function closeStatDetail() { document.getElementById('stat-detail-box').style.display = 'none'; }
 
 function startReading(idx) { books[idx].statut = 'en_cours'; save(); renderAccueil(); renderPAL(); showSection('accueil'); }
 function markDone(idx) { books[idx].statut = 'termine'; save(); renderAccueil(); renderPAL(); renderWishlist(); }
@@ -1001,6 +1198,7 @@ function populateSerieDropdown() {
 
 function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
 function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
+function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
 
 function exportDataText() {
   const data = { books, series, depenses, exportDate: new Date().toISOString() };
