@@ -334,7 +334,8 @@ body {
     <div id="shopping-list-items-container"></div>
     
     <button class="btn-full btn-secondary-full" id="btn-add-random-oneshot" onclick="addRandomOneshotToShoppingList()" style="margin-top:8px;">🎲 Ajouter un One-shot au hasard</button>
-    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:8px;">Fermer la liste</button>
+    <button class="btn-full btn-danger-full" onclick="resetShoppingList()" style="margin-top:4px;">🔄 Réinitialiser la liste</button>
+    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:4px;">Fermer la liste</button>
   </div>
 </div>
 
@@ -653,6 +654,7 @@ function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
   try { series = JSON.parse(localStorage.getItem('pal_series') || '{}'); } catch(e) { series={}; }
   try { budgetLimit = parseFloat(localStorage.getItem('pal_budget_limit')) || 75; } catch(e) { budgetLimit = 75; }
+  try { activeShoppingItems = JSON.parse(localStorage.getItem('pal_shopping_list') || '[]'); } catch(e) { activeShoppingItems = []; }
   
   const limitInput = document.getElementById('setting-budget-limit');
   if (limitInput) limitInput.value = budgetLimit;
@@ -668,6 +670,10 @@ function save() {
   localStorage.setItem('pal_books', JSON.stringify(books)); 
   localStorage.setItem('pal_series', JSON.stringify(series)); 
   updateAuteursDataList();
+}
+
+function saveShoppingList() {
+  localStorage.setItem('pal_shopping_list', JSON.stringify(activeShoppingItems));
 }
 
 function updateAuteursDataList() {
@@ -766,6 +772,12 @@ function toggleNextTarget(idx) {
 }
 
 function generateMonthlyShoppingList() {
+  if (activeShoppingItems.length > 0) {
+    renderShoppingListModal();
+    document.getElementById('shopping-list-modal').classList.add('open');
+    return;
+  }
+
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
@@ -793,18 +805,27 @@ function generateMonthlyShoppingList() {
 
     if (previousTomeRead && !alreadyInPal) {
       let price = b.prix > 0 ? b.prix : 10;
-      activeShoppingItems.push({ book: b, currentPrice: price, reason: "🔄 Suite de série débloquée" });
+      activeShoppingItems.push({ bookId: b.id, currentPrice: price, reason: "🔄 Suite de série débloquée" });
     }
   }
 
-  const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.book === b));
+  const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.bookId === b.id));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
-    activeShoppingItems.push({ book: b, currentPrice: price, reason: "🎯 Prochain Achat manuel" });
+    activeShoppingItems.push({ bookId: b.id, currentPrice: price, reason: "🎯 Prochain Achat manuel" });
   }
 
+  saveShoppingList();
   renderShoppingListModal();
   document.getElementById('shopping-list-modal').classList.add('open');
+}
+
+function resetShoppingList() {
+  if (confirm("Réinitialiser la liste de courses en cours ?")) {
+    activeShoppingItems = [];
+    saveShoppingList();
+    generateMonthlyShoppingList();
+  }
 }
 
 function renderShoppingListModal() {
@@ -821,7 +842,8 @@ function renderShoppingListModal() {
   }
 
   container.innerHTML = activeShoppingItems.map((item, i) => {
-    const b = item.book;
+    const b = books.find(book => book.id === item.bookId);
+    if (!b) return '';
     return `<div class="shopping-item-card">
       <div style="flex:1; min-width:0;">
         <div class="shopping-item-title">${escHtml(b.titre)}</div>
@@ -838,17 +860,19 @@ function renderShoppingListModal() {
 function updateShoppingItemPrice(index, newVal) {
   const price = parseFloat(newVal) || 0;
   activeShoppingItems[index].currentPrice = price;
+  saveShoppingList();
   renderShoppingListModal();
 }
 
 function removeShoppingItem(index) {
   activeShoppingItems.splice(index, 1);
+  saveShoppingList();
   renderShoppingListModal();
 }
 
 function addRandomOneshotToShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter' && b.type === 'one_shot');
-  const availableOneshots = wishBooks.filter(b => !activeShoppingItems.some(item => item.book === b));
+  const availableOneshots = wishBooks.filter(b => !activeShoppingItems.some(item => item.bookId === b.id));
 
   if (!availableOneshots.length) {
     alert("Aucun autre One-shot disponible dans ta Wishlist !");
@@ -857,13 +881,13 @@ function addRandomOneshotToShoppingList() {
 
   const pick = availableOneshots[Math.floor(Math.random() * availableOneshots.length)];
   let price = pick.prix > 0 ? pick.prix : 10;
-  activeShoppingItems.push({ book: pick, currentPrice: price, reason: "🎲 One-shot au hasard" });
+  activeShoppingItems.push({ bookId: pick.id, currentPrice: price, reason: "🎲 One-shot au hasard" });
+  saveShoppingList();
   renderShoppingListModal();
 }
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
-/* RENDU PAL AVEC TRI PAR SÉRIE, TITRE OU AUTEUR */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -890,7 +914,6 @@ function renderPAL() {
     return true;
   });
 
-  // FONCTION DE TRI DYNAMIQUE SUR LA PAL
   filtered.sort((a, b) => {
     if (palSortOrder === 'title_asc') {
       return a.titre.localeCompare(b.titre, 'fr');
@@ -996,7 +1019,7 @@ function renderPAL() {
   }).join('');
 }
 
-/* RENDU WISHLIST AVEC TRI PAR SÉRIE, TITRE OU AUTEUR */
+/* RENDU WISHLIST AVEC MODIFICATION COMPLÈTE */
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -1020,7 +1043,6 @@ function renderWishlist() {
     return true;
   });
 
-  // FONCTION DE TRI DYNAMIQUE SUR LA WISHLIST
   filtered.sort((a, b) => {
     if (wishSortOrder === 'title_asc') {
       return a.titre.localeCompare(b.titre, 'fr');
@@ -1075,7 +1097,24 @@ function renderWishlist() {
       <div class="card-actions">
         <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté (Dans ma PAL)</button>
         <button class="btn btn-target ${isTarget ? 'active' : ''}" onclick="toggleNextTarget(${idx})">🎯 ${isTarget ? 'Séquencé' : 'Prochain achat'}</button>
+        <button class="btn" onclick="toggleEditPanel(${idx})">✏️ Modifier</button>
         <button class="btn btn-accent" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
+      </div>
+
+      <div class="edit-panel" id="edit-panel-${idx}">
+        <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
+        <div class="form-field"><label>Titre du livre / tome</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
+        <div class="form-field"><label>Auteur·rice</label><input type="text" id="edit-auteur-${idx}" value="${escHtml(b.auteur||'')}"></div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select id="edit-statut-${idx}">
+            <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
+            <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite / publication</option>
+            <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
+          </select>
+        </div>
+        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
+        <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
   }).join('');
@@ -1092,6 +1131,17 @@ function saveEdit(idx) {
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   save();
+  renderPAL();
+}
+
+function saveWishEdit(idx) {
+  const b = books[idx];
+  b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
+  b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
+  b.statut = document.getElementById(`edit-statut-${idx}`).value;
+  b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
+  save();
+  renderWishlist();
   renderPAL();
 }
 
@@ -1143,7 +1193,6 @@ function pioche(mode) {
 function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
 function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
-/* FICHE STRUCTURÉE (PERSOS, LIEUX, EVENEMENTS) */
 function parseBookFiche(notesRaw) {
   try {
     const parsed = JSON.parse(notesRaw);
@@ -1208,7 +1257,6 @@ function renderModalFiche() {
 
 function closeHeroNotesModal() { document.getElementById('hero-notes-modal').classList.remove('open'); }
 
-/* STATISTIQUES COMPLETES */
 function initStatsYearSelect() {
   const select = document.getElementById('stats-year-select');
   if (!select) return;
