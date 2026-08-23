@@ -146,7 +146,7 @@ body {
 }
 
 .carousel-wrap { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; }
-.carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .carousel-slides-container::-webkit-scrollbar { display: none; }
 .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; }
 
@@ -156,6 +156,11 @@ body {
 .hero-title-main { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 2px; color: var(--text); }
 .hero-serie-main { font-size: 12px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .hero-author-main { font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 6px; }
+
+.btn-hero-notes { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); color: var(--text); cursor: pointer; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
+.carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; z-index: 2; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
+.dot.active { width: 20px; border-radius: 10px; background: var(--purple-light); }
 
 .btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
 @media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0, 0, 0, 0.35); } }
@@ -197,6 +202,9 @@ body {
 .book-price-info { font-size: 12px; color: var(--green-dark); font-weight: 700; margin-top: 3px; }
 @media (prefers-color-scheme: dark) { .book-price-info { color: var(--green-bright); } }
 .book-rating { font-size: 13px; color: #f39c12; margin-top: 4px; font-weight: 700; }
+
+.del-btn { background: none; border: none; color: var(--text3); cursor: pointer; padding: 2px; flex-shrink: 0; }
+.del-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
 .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
@@ -737,13 +745,15 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
+/* LISTE DE COURSES STRICTEMENT CORRIGÉE : STATUT a_acheter UNIQUEMENT */
 function generateMonthlyShoppingList() {
+  // RÈGLE STRICTE : Seuls les livres en statut "a_acheter" (exclut "en_attente_publi")
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
   activeShoppingItems = [];
 
-  // P1 : Séries dont le tome précédent est TERMINÉ
+  // P1 : Séries dont le tome précédent (T-1) est TERMINÉ
   const wishSeries = wishBooks.filter(b => b.type === 'serie');
   for (let b of wishSeries) {
     if (!b.serieId) continue;
@@ -770,7 +780,7 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P2 : Livres spécifiquement marqués "Prochain achat"
+  // P2 : Livres avec le marqueur discret "Prochain Achat"
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.book === b));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
@@ -837,7 +847,7 @@ function addRandomOneshotToShoppingList() {
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
-/* RESTAURATION DU RENDU PAL COMPLET ET DÉTAILLÉ */
+/* RESTAURATION DU DESIGN ET DES FONCTIONS D'ORIGINE POUR LA PAL */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -896,7 +906,7 @@ function renderPAL() {
 
     let coverHtml = (b.cover && b.cover.trim().length > 5)
       ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
-      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div><div class="p-icon" style="font-size:12px;margin-top:4px;">📖</div></div>`;
+      : `<div class="book-cover-placeholder"><div class="p-title">${escHtml(b.titre)}</div><div style="font-size:12px;margin-top:4px;">📖</div></div>`;
 
     return `<div class="book-card">
       <div class="book-card-content">
@@ -910,7 +920,9 @@ function renderPAL() {
               ${b.prix > 0 ? `<div class="book-price-info">Prix : ${b.prix.toFixed(2)} €</div>` : ''}
               ${stars ? `<div class="book-rating">${stars}</div>` : ''}
             </div>
-            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;padding:2px;">✕</button>
+            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
           </div>
           <div class="badges">
             <span class="badge ${bClass}">${bText}</span>
@@ -943,7 +955,7 @@ function renderPAL() {
         <div class="form-field"><label>Titre</label><input type="text" id="edit-titre-${idx}" value="${escHtml(b.titre)}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
-        <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer</button>
+        <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
   }).join('');
@@ -995,7 +1007,9 @@ function renderWishlist() {
               ${!isOne && s ? `<div class="book-serie-info">📚 ${escHtml(s.nom)} (Tome ${b.tomeNum}/${s.totalTomes})</div>` : ''}
               <div class="book-author">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
             </div>
-            <button onclick="removeBook(${idx})" style="border:none;background:none;color:var(--text3);cursor:pointer;padding:2px;">✕</button>
+            <button class="del-btn" onclick="removeBook(${idx})" aria-label="Supprimer">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
           </div>
           <div class="badges">
             ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
@@ -1383,6 +1397,7 @@ function populateSerieDropdown() {
 
 function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
 function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
+function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
 
 function exportDataText() {
   const data = { books, series, depenses, exportDate: new Date().toISOString() };
