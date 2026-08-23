@@ -10,175 +10,61 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f9f6f8;
-  --surface: #ffffff;
-  --surface2: #f2eaf0;
-  --text: #241628;
-  --text2: #634d69;
-  --text3: #9b7e9f;
-  --border: rgba(116, 79, 140, 0.15);
-  
-  --purple-light: #8758A6;
-  --purple-dark: #744F8C;
-  --purple-bg: #f3ebf5;
-  
-  --green-bright: #04BF33;
-  --green-dark: #048C26;
-  --green-bg: #e6f8eb;
-  
-  --ochre: #D98B48;
-  --ochre-bg: #fcf3ea;
-  
-  --accent: var(--purple-light);
-  --accent-bg: var(--purple-bg);
-  --accent-text: var(--purple-dark);
-  
-  --success: var(--green-dark);
-  --success-bg: var(--green-bg);
-  --warning: var(--ochre);
-  --warning-bg: var(--ochre-bg);
-  --danger: #c0392b;
-  --danger-bg: #fdecea;
-  
-  --radius: 16px;
-  --nav-h: 68px;
-  --shadow: 0 4px 12px rgba(116, 79, 140, 0.08);
+  --bg: #f9f6f8; --surface: #ffffff; --surface2: #f2eaf0; --text: #241628; --text2: #634d69; --text3: #9b7e9f; --border: rgba(116, 79, 140, 0.15);
+  --purple-light: #8758A6; --purple-dark: #744F8C; --purple-bg: #f3ebf5;
+  --green-bright: #04BF33; --green-dark: #048C26; --green-bg: #e6f8eb;
+  --ochre: #D98B48; --ochre-bg: #fcf3ea;
+  --warning: var(--ochre); --warning-bg: var(--ochre-bg); --danger: #c0392b; --danger-bg: #fdecea;
+  --radius: 16px; --nav-h: 68px; --shadow: 0 4px 12px rgba(116, 79, 140, 0.08);
 }
-
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #140d17;
-    --surface: #201524;
-    --surface2: #2e2033;
-    --text: #f5edf7;
-    --text2: #c5b4c9;
-    --text3: #88748c;
-    --border: rgba(255, 255, 255, 0.1);
-    
-    --purple-light: #a375c4;
-    --purple-dark: #8758A6;
-    --purple-bg: #321d3b;
-    
-    --green-bright: #2cd456;
-    --green-dark: #04BF33;
-    --green-bg: #11381c;
-    
-    --ochre: #e69d5a;
-    --ochre-bg: #3d2915;
-    
+    --bg: #140d17; --surface: #201524; --surface2: #2e2033; --text: #f5edf7; --text2: #c5b4c9; --text3: #88748c; --border: rgba(255, 255, 255, 0.1);
+    --purple-light: #a375c4; --purple-dark: #8758A6; --purple-bg: #321d3b;
+    --green-bright: #2cd456; --green-dark: #04BF33; --green-bg: #11381c;
     --shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
 }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
-}
-
-.header {
-  background: var(--surface);
-  border-bottom: 3px solid var(--ochre);
-  padding: 12px 16px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: var(--shadow);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px); }
+.header { background: var(--surface); border-bottom: 3px solid var(--ochre); padding: 12px 16px; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
 .header-left { display: flex; align-items: center; gap: 10px; }
-.header-home-btn {
-  background: var(--surface2); border: 1px solid var(--border);
-  width: 38px; height: 38px; border-radius: 12px; display: flex;
-  align-items: center; justify-content: center; cursor: pointer; color: var(--purple-dark);
-}
-@media (prefers-color-scheme: dark) { .header-home-btn { color: var(--purple-light); } }
-.header-home-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
-
+.header-home-btn, .settings-icon-btn { background: var(--surface2); border: 1px solid var(--border); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--purple-dark); -webkit-tap-highlight-color: transparent; }
+@media (prefers-color-scheme: dark) { .header-home-btn, .settings-icon-btn { color: var(--purple-light); } }
+.header-home-btn svg, .settings-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 .header h1 { font-size: 20px; font-weight: 800; color: var(--purple-dark); letter-spacing: -0.5px; }
 @media (prefers-color-scheme: dark) { .header h1 { color: var(--purple-light); } }
 .header p { font-size: 11px; color: var(--text2); margin-top: 1px; font-weight: 500; }
 
-.settings-icon-btn {
-  background: var(--surface2); border: 1px solid var(--border);
-  width: 38px; height: 38px; border-radius: 12px; display: flex;
-  align-items: center; justify-content: center; cursor: pointer; color: var(--purple-dark);
-}
-@media (prefers-color-scheme: dark) { .settings-icon-btn { color: var(--purple-light); } }
-.settings-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-.nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom);
-  background: var(--surface); border-top: 1px solid var(--border);
-  display: grid; grid-template-columns: 1fr 1fr 60px 1fr 1fr;
-  align-items: center; justify-items: center; z-index: 10;
-  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
-}
-.nav-btn {
-  width: 100%; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 2px; border: none; background: none;
-  cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600; padding: 4px 0;
-}
+.nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom); background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 60px 1fr 1fr; align-items: center; justify-items: center; z-index: 10; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+.nav-btn { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: none; background: none; cursor: pointer; color: var(--text3); font-size: 9px; font-weight: 600; padding: 4px 0; }
 .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 .nav-btn.active { color: var(--purple-light); }
-
-.nav-btn-center {
-  width: 48px; height: 48px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--purple-dark), var(--purple-light));
-  color: #ffffff; border: none; display: flex; align-items: center;
-  justify-content: center; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.4);
-  cursor: pointer; margin-top: -20px;
-}
-.nav-btn-center svg { width: 24px; height: 24px; stroke: #ffffff; stroke-width: 2.5; }
+.nav-btn-center { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.4); cursor: pointer; margin-top: -20px; }
+.nav-btn-center svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; }
 
 .section { display: none; padding: 16px; }
 .section.visible { display: block; }
 
-#accueil.section.visible {
-  display: flex; flex-direction: column;
-  height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom));
-  padding: 0 16px 12px 16px; overflow: hidden; position: relative;
-}
-
-.hero-full-container {
-  position: relative; flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; margin-left: -16px; margin-right: -16px; overflow: hidden;
-}
-
-.hero-bg-blur-full {
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background-size: cover; background-position: center; filter: blur(28px) brightness(0.65);
-  opacity: 0.5; z-index: 0; transform: scale(1.15); transition: background-image 0.4s ease;
-}
-
+#accueil.section.visible { display: flex; flex-direction: column; height: calc(100vh - 65px - var(--nav-h) - env(safe-area-inset-bottom)); padding: 0 16px 12px 16px; overflow: hidden; position: relative; }
+.hero-full-container { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 -16px; overflow: hidden; }
+.hero-bg-blur-full { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.65); opacity: 0.5; z-index: 0; transform: scale(1.15); transition: background-image 0.3s ease; }
 .carousel-wrap { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; }
 .carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel-slides-container::-webkit-scrollbar { display: none; }
 .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; }
-
-.hero-cover-main { max-height: 36vh; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
+.hero-cover-main { max-height: 36vh; width: auto; aspect-ratio: 2/3; object-fit: cover; border-radius: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
+.hero-cover-placeholder-large { height: 36vh; width: auto; aspect-ratio: 2/3; border-radius: 14px; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; box-shadow: 0 10px 24px rgba(0,0,0,0.35); margin-bottom: 8px; }
 .hero-text-details { text-align: center; width: 100%; padding: 0 12px; }
 .hero-title-main { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 2px; color: var(--text); }
 .hero-serie-main { font-size: 12px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .hero-author-main { font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 6px; }
 
-.btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
-@media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0, 0, 0, 0.35); } }
+.btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; }
+@media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0,0,0,0.35); } }
 .btn-check-done svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3; }
 
 .bottom-shortcuts-area { flex-shrink: 0; padding-top: 8px; z-index: 2; }
-
-.search-bar-wrap { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-.search-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; width: 100%; color: var(--text); box-shadow: var(--shadow); flex: 1; }
-
-.refresh-icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--purple-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: var(--shadow); }
-@media (prefers-color-scheme: dark) { .refresh-icon-btn { color: var(--purple-light); } }
-.refresh-icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.search-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; width: 100%; color: var(--text); box-shadow: var(--shadow); }
 
 .segmented-control { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; margin-bottom: 10px; border: 1px solid var(--border); overflow-x: auto; }
 .segment-btn { flex: 1; text-align: center; padding: 8px 6px; font-size: 11px; font-weight: 700; border: none; background: none; color: var(--text2); border-radius: 10px; cursor: pointer; white-space: nowrap; }
@@ -193,57 +79,67 @@ body {
 .chip { white-space: nowrap; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; }
 .chip.active { background: var(--purple-dark); color: #fff; border-color: var(--purple-dark); }
 
-.book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
-.book-title { font-size: 16px; font-weight: 700; line-height: 1.25; color: var(--text); }
-.badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
-.badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-.badge-format { background: var(--surface2); color: var(--purple-dark); border: 1px solid var(--border); }
-@media (prefers-color-scheme: dark) { .badge-format { color: var(--purple-light); } }
+.book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.book-card-content { display: flex; gap: 12px; }
+.book-cover { width: 54px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; background: var(--surface2); }
+.book-cover-placeholder { width: 54px; height: 80px; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center; }
+.book-cover-placeholder .p-title { font-size: 8px; font-weight: 800; line-height: 1.1; }
 
-.card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.btn { font-size: 12px; padding: 7px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
-.btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); background: var(--surface); }
+.book-info-main { flex: 1; min-width: 0; }
+.book-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.book-author { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.book-serie-info { font-size: 11px; color: var(--purple-light); font-weight: 700; margin-top: 2px; }
+
+.badges { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+.badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+.badge-acheter { background: var(--danger-bg); color: var(--danger); }
+.badge-publi { background: var(--purple-bg); color: var(--purple-dark); }
+@media (prefers-color-scheme: dark) { .badge-publi { color: var(--purple-light); } }
+.badge-encours { background: var(--purple-bg); color: var(--purple-dark); }
+@media (prefers-color-scheme: dark) { .badge-encours { color: var(--purple-light); } }
+.badge-acommencer { background: var(--surface2); color: var(--text2); }
+.badge-termine { background: var(--green-bg); color: var(--green-dark); }
+@media (prefers-color-scheme: dark) { .badge-termine { color: var(--green-bright); } }
+
+.card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.btn { font-size: 11px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 600; }
+.btn-action-done { border-color: rgba(4, 140, 38, 0.3); color: var(--green-dark); }
 .btn-action-read { border-color: rgba(116, 79, 140, 0.3); color: var(--purple-dark); background: var(--surface2); }
-.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border-color: transparent; }
+.btn-accent { background: var(--purple-bg); color: var(--purple-dark); border: none; }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
-.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.modal-card { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 420px; padding: 18px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
-.pioche-section { display: flex; flex-direction: column; gap: 10px; }
-.pioche-btn { width: 100%; padding: 14px 16px; font-size: 13px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; gap: 10px; text-align: left; }
+.pioche-section { display: flex; flex-direction: column; gap: 8px; }
+.pioche-btn { width: 100%; padding: 12px 14px; font-size: 13px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left; }
 .pioche-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
 .pioche-serie-bought { background: var(--green-dark); color: #fff; }
 .pioche-new-serie-bought { background: #27ae60; color: #fff; }
 .pioche-oneshot { background: var(--ochre); color: #fff; }
 .pioche-wish-serie { background: var(--purple-dark); color: #fff; }
 .pioche-wish-oneshot { background: var(--purple-light); color: #fff; }
-.pioche-shopping-list { background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; font-size: 14px; padding: 16px; box-shadow: 0 6px 16px rgba(116, 79, 140, 0.35); }
+.pioche-shopping-list { background: linear-gradient(135deg, var(--purple-dark), var(--purple-light)); color: #fff; font-size: 14px; padding: 14px; box-shadow: 0 4px 12px rgba(116, 79, 140, 0.3); }
 
-.pioche-modal-card { position: relative; background: var(--surface); border-radius: 20px; width: 100%; max-width: 360px; padding: 24px 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); border: 1px solid var(--border); text-align: center; overflow: hidden; }
-.pioche-bg-blur { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; filter: blur(28px) brightness(0.65); opacity: 0.35; z-index: 0; transform: scale(1.15); }
-.pioche-content-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
-
-.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
-.shopping-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
-.shopping-item-sub { font-size: 11px; color: var(--text2); }
-.shopping-item-price { font-size: 13px; font-weight: 800; color: var(--green-dark); }
+.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+.shopping-item-title { font-size: 12px; font-weight: 700; color: var(--text); }
+.shopping-item-sub { font-size: 10px; color: var(--text2); }
+.shopping-item-price { font-size: 12px; font-weight: 800; color: var(--green-dark); }
 @media (prefers-color-scheme: dark) { .shopping-item-price { color: var(--green-bright); } }
 
-.btn-full { width: 100%; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 12px; border: none; background: var(--purple-dark); color: #ffffff; cursor: pointer; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(116, 79, 140, 0.25); }
-.btn-secondary-full { background: var(--surface2); color: var(--text); border: 1px solid var(--border); box-shadow: none; }
-.btn-danger-full { background: var(--danger-bg); color: var(--danger); border: none; font-size: 13px; font-weight: 600; box-shadow: none; }
-.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
-.form-field { margin-bottom: 12px; }
-.form-field label { font-size: 12px; color: var(--text2); font-weight: 600; display: block; margin-bottom: 4px; }
-.form-field input, .form-field select, .form-field textarea { width: 100%; font-size: 15px; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); font-family: inherit; }
+.btn-full { width: 100%; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; border: none; background: var(--purple-dark); color: #fff; cursor: pointer; margin-bottom: 6px; }
+.btn-secondary-full { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.form-field { margin-bottom: 10px; }
+.form-field label { font-size: 11px; color: var(--text2); font-weight: 600; display: block; margin-bottom: 3px; }
+.form-field input, .form-field select { width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); }
 
-.section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.section-label { font-size: 11px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
 @media (prefers-color-scheme: dark) { .section-label { color: var(--purple-light); } }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow); cursor: pointer; }
-.stat-num { font-size: 22px; font-weight: 800; }
-.stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; font-weight: 600; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); cursor: pointer; }
+.stat-num { font-size: 20px; font-weight: 800; }
+.stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; font-weight: 600; }
 .stat-num.purple { color: var(--purple-light); }
 .stat-num.accent { color: var(--ochre); }
 </style>
@@ -267,47 +163,40 @@ body {
   </button>
 </div>
 
-<!-- Modal de Génération de la Liste de Courses -->
+<!-- Modal Liste de Courses -->
 <div class="modal-overlay" id="shopping-list-modal">
   <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
     <p class="section-label" style="margin-bottom:4px;">🛒 Ma Liste de Courses du Mois</p>
-    <div id="shopping-list-budget-info" style="font-size:13px; font-weight:700; color:var(--purple-light); margin-bottom:8px;"></div>
+    <div id="shopping-list-budget-info" style="font-size:12px; font-weight:700; color:var(--purple-light); margin-bottom:8px;"></div>
     
-    <div style="background:var(--surface2); padding:8px 12px; border-radius:10px; margin-bottom:12px; border:1px solid var(--border);">
-      <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer;">
+    <div style="background:var(--surface2); padding:8px 10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
+      <label style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; cursor:pointer;">
         <input type="checkbox" id="include-new-series-cb" onchange="generateMonthlyShoppingList()" style="width:auto;-webkit-appearance:checkbox;">
         <span>➕ Inclure aussi de nouvelles séries à commencer</span>
       </label>
     </div>
 
     <div id="shopping-list-items-container"></div>
-    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:12px;">Fermer la liste</button>
+    <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:10px;">Fermer</button>
   </div>
 </div>
 
-<!-- POPUP RÉSULTAT DE LA PIOCHE -->
+<!-- POPUP PIOCHE -->
 <div class="modal-overlay" id="pioche-modal">
-  <div class="pioche-modal-card">
-    <div class="pioche-bg-blur" id="pioche-modal-bg"></div>
-    <div class="pioche-content-inner">
-      <p class="section-label" style="margin-bottom:12px;">Résultat du tirage 🎲</p>
-      <div id="pioche-modal-cover-wrap"></div>
-      <div class="pioche-modal-title" id="pioche-modal-title"></div>
-      <div class="pioche-modal-serie" id="pioche-modal-serie"></div>
-      <div class="pioche-modal-author" id="pioche-modal-author"></div>
-      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
-        <button class="btn-full" id="pioche-modal-start-btn" onclick="startReadingFromPioche()">📖 Commencer la lecture</button>
-        <button class="btn-full btn-secondary-full" onclick="pioche(lastPiocheMode)">🎲 Repiocher un autre</button>
-        <button class="btn-full btn-secondary-full" onclick="closePiocheModal()" style="opacity:0.8;">Fermer</button>
-      </div>
-    </div>
+  <div class="modal-card" style="text-align:center;">
+    <p class="section-label" style="margin-bottom:8px;">Résultat du tirage 🎲</p>
+    <div id="pioche-modal-cover-wrap"></div>
+    <div id="pioche-modal-title" style="font-size:16px; font-weight:800; margin-bottom:2px;"></div>
+    <div id="pioche-modal-serie" style="font-size:12px; font-weight:700; color:var(--purple-light);"></div>
+    <div id="pioche-modal-author" style="font-size:12px; color:var(--text2); margin-bottom:12px;"></div>
+    <button class="btn-full" id="pioche-modal-start-btn" onclick="startReadingFromPioche()">📖 Commencer la lecture</button>
+    <button class="btn-full btn-secondary-full" onclick="closePiocheModal()">Fermer</button>
   </div>
 </div>
 
 <div id="accueil" class="section visible">
   <div id="hero-reading-container" class="hero-full-container"></div>
   <div class="bottom-shortcuts-area">
-    <p class="section-label" style="margin-bottom:6px;">Raccourcis rapides</p>
     <div class="stat-grid">
       <div class="stat-card" onclick="goToPalWithChip('next_read')">
         <div class="stat-num purple">⚡</div>
@@ -323,7 +212,7 @@ body {
 
 <div id="pal" class="section">
   <input class="search-bar" type="search" id="search" placeholder="Chercher titre, saga ou auteur·rice..." oninput="renderPAL()">
-  <div class="segmented-control">
+  <div class="segmented-control" style="margin-top:10px;">
     <button class="segment-btn active" id="seg-all" onclick="setSegmentType('all', this)">Tous</button>
     <button class="segment-btn" id="seg-serie" onclick="setSegmentType('serie', this)">📚 Séries</button>
     <button class="segment-btn" id="seg-oneshot" onclick="setSegmentType('one_shot', this)">📖 One-shots</button>
@@ -334,16 +223,9 @@ body {
       <option value="en_cours">📖 En cours de lecture</option>
       <option value="a_commencer">⏳ À commencer</option>
       <option value="termine">✓ Terminés / Lus</option>
-      <option value="abandonne">🚫 Abandonnés</option>
-    </select>
-    <select class="filter-select" id="sort-order-select" onchange="setSortOrder(this.value)">
-      <option value="date_desc">📅 Plus récents d'abord</option>
-      <option value="title_asc">🔤 Titre (A ➔ Z)</option>
-      <option value="author_asc">👤 Auteur·rice (A ➔ Z)</option>
-      <option value="serie_asc">📚 Série / Saga (A ➔ Z)</option>
     </select>
   </div>
-  <div class="quick-chips" style="margin-bottom: 16px;">
+  <div class="quick-chips" style="margin-bottom:12px;">
     <button class="chip" id="chip-fav" onclick="toggleQuickChip('favorite', this)">❤️ Coups de cœur</button>
     <button class="chip" id="chip-next-read" onclick="toggleQuickChip('next_read', this)">⚡ Prochain à lire</button>
   </div>
@@ -352,19 +234,14 @@ body {
 
 <div id="wishlist" class="section">
   <div class="search-bar-wrap">
-    <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()" style="margin-bottom:0;">
-    <button class="refresh-icon-btn" onclick="checkMissingSuites()" title="Actualiser et vérifier les tomes manquants">
-      <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
-    </button>
+    <input class="search-bar" type="search" id="search-wish" placeholder="Chercher dans ma wishlist..." oninput="renderWishlist()">
   </div>
-
   <div class="segmented-control">
     <button class="segment-btn active" id="wish-seg-continue" onclick="setWishSegment('continue', this)">🔄 Séries à continuer</button>
     <button class="segment-btn" id="wish-seg-start" onclick="setWishSegment('start', this)">📚 Séries à commencer</button>
     <button class="segment-btn" id="wish-seg-oneshot" onclick="setWishSegment('oneshot', this)">📖 One-shots</button>
     <button class="segment-btn" id="wish-seg-publi" onclick="setWishSegment('publi', this)">⏳ À paraître</button>
   </div>
-
   <div id="wishlist-list"></div>
 </div>
 
@@ -375,67 +252,32 @@ body {
       🛒 Générer ma liste de courses ce mois-ci
     </button>
     
-    <p class="section-label" style="margin-top:10px; margin-bottom:2px;">Tirage aléatoire</p>
-    <button class="pioche-btn pioche-serie-bought" onclick="pioche('suite_serie_possedee')">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      🎲 Suite de série possédée
-    </button>
-    <button class="pioche-btn pioche-new-serie-bought" onclick="pioche('commencer_nouvelle_serie_possedee')">
-      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      📚 Commencer une nouvelle série possédée
-    </button>
-    <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot_possede')">
-      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
-      📖 One-shot possédé
-    </button>
-    <button class="pioche-btn pioche-wish-serie" onclick="pioche('acheter_nouvelle_serie')">
-      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      🛒 Acheter une nouvelle série (Wishlist)
-    </button>
-    <button class="pioche-btn pioche-wish-oneshot" onclick="pioche('acheter_nouveau_oneshot')">
-      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      🛍️ Acheter un nouveau one-shot (Wishlist)
-    </button>
+    <p class="section-label" style="margin-top:8px; margin-bottom:2px;">Tirage aléatoire</p>
+    <button class="pioche-btn pioche-serie-bought" onclick="pioche('suite_serie_possedee')">🎲 Suite de série possédée</button>
+    <button class="pioche-btn pioche-new-serie-bought" onclick="pioche('commencer_nouvelle_serie_possedee')">📚 Commencer une nouvelle série possédée</button>
+    <button class="pioche-btn pioche-oneshot" onclick="pioche('oneshot_possede')">📖 One-shot possédé</button>
+    <button class="pioche-btn pioche-wish-serie" onclick="pioche('acheter_nouvelle_serie')">🛒 Acheter une nouvelle série (Wishlist)</button>
+    <button class="pioche-btn pioche-wish-oneshot" onclick="pioche('acheter_nouveau_oneshot')">🛍️ Acheter un nouveau one-shot (Wishlist)</button>
   </div>
 </div>
 
 <div id="stats" class="section">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <p class="section-label" style="margin-bottom:0;">Statistiques de lecture</p>
-    <select id="stats-year-select" onchange="renderStats()" style="width:auto; padding:4px 8px; font-size:13px;"></select>
-  </div>
+  <p class="section-label">Statistiques</p>
   <div class="stat-grid">
-    <div class="stat-card" onclick="showStatDetail('read_year')">
+    <div class="stat-card">
       <div class="stat-num purple" id="stat-read-year">0</div>
-      <div class="stat-label">Livres lus cette année 🔍</div>
+      <div class="stat-label">Livres lus</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num ok" id="stat-spend-year">0 €</div>
-      <div class="stat-label">Dépensés cette année</div>
+      <div class="stat-num accent" id="stat-spend-year">0 €</div>
+      <div class="stat-label">Dépensés</div>
     </div>
   </div>
-</div>
-
-<div id="budget" class="section">
-  <p class="section-label" id="budget-title-label">Budget mensuel — 75€</p>
-  <div class="stat-grid">
-    <div class="stat-card"><div class="stat-num" id="b-depense">0€</div><div class="stat-label">Dépensé</div></div>
-    <div class="stat-card"><div class="stat-num" id="b-reste">75€</div><div class="stat-label">Restant</div></div>
-  </div>
-  <div class="budget-bar-wrap"><div class="budget-bar-fill" id="b-bar" style="width:0%"></div></div>
-  <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Ajouter une dépense libre</p>
-    <div class="form-field"><label>Intitulé</label><input type="text" id="dep-titre" placeholder="Ex: Achat librairie"></div>
-    <div class="form-field"><label>Montant (€)</label><input type="number" id="dep-montant" placeholder="Ex: 9.83" step="0.01" min="0"></div>
-    <button class="btn-full" onclick="addDepense()">Ajouter</button>
-  </div>
-  <div id="dep-list"></div>
-  <button class="btn-full btn-danger-full" onclick="resetBudget()">Remettre à zéro (nouveau mois)</button>
 </div>
 
 <div id="ajouter" class="section">
   <div class="form-card">
-    <p class="section-label" style="margin-bottom:12px;">Informations du livre</p>
+    <p class="section-label" style="margin-bottom:8px;">Informations du livre</p>
     <div class="form-field">
       <label>Type de livre</label>
       <select id="new-type" onchange="toggleSerieFields()">
@@ -443,7 +285,7 @@ body {
         <option value="serie">Fait partie d'une série</option>
       </select>
     </div>
-    <div id="serie-fields" style="display:none; background: var(--surface2); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+    <div id="serie-fields" style="display:none; background: var(--surface2); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
       <div class="form-field">
         <label>Série / Saga</label>
         <select id="select-serie-id" onchange="handleSerieSelectChange(this.value)">
@@ -451,15 +293,14 @@ body {
         </select>
       </div>
       <div id="custom-serie-wrap">
-        <div class="form-field"><label>Nom de la nouvelle série</label><input type="text" id="new-serie-nom" placeholder="Ex: L'Héritage"></div>
-        <div class="form-field"><label>Auteur·rice de la série</label><input type="text" id="new-serie-auteur" list="auteurs-list" placeholder="Ex: Christopher Paolini"></div>
-        <div class="form-field"><label>Nombre total de tomes prévus</label><input type="number" id="new-serie-total" placeholder="Ex: 4" min="1" value="4"></div>
+        <div class="form-field"><label>Nom de la nouvelle série</label><input type="text" id="new-serie-nom"></div>
+        <div class="form-field"><label>Auteur·rice de la série</label><input type="text" id="new-serie-auteur" list="auteurs-list"></div>
+        <div class="form-field"><label>Total tomes</label><input type="number" id="new-serie-total" value="4"></div>
       </div>
-      <div class="form-field"><label>Numéro de ce tome *</label><input type="number" id="new-tome-num" min="0" step="0.1" value="1"></div>
+      <div class="form-field"><label>Numéro de ce tome</label><input type="number" id="new-tome-num" step="0.1" value="1"></div>
     </div>
-    <div class="form-field"><label>Titre propre du livre / tome *</label><input type="text" id="new-titre" placeholder="Ex: L'Aîné"></div>
+    <div class="form-field"><label>Titre propre du livre *</label><input type="text" id="new-titre"></div>
     <div class="form-field" id="oneshot-author-wrap"><label>Auteur·rice</label><input type="text" id="new-auteur" list="auteurs-list"></div>
-    
     <div class="form-field">
       <label>Format de prédilection</label>
       <select id="new-format">
@@ -467,12 +308,8 @@ body {
         <option value="poche">Poche (Occasion ~5€)</option>
       </select>
     </div>
-
-    <div style="display:flex; gap:8px;">
-      <div class="form-field" style="flex:1;"><label>Prix indicatif (€)</label><input type="number" id="new-prix" placeholder="Ex: 10.00" step="0.01" min="0"></div>
-    </div>
     <div class="form-field">
-      <label>Statut de lecture</label>
+      <label>Statut</label>
       <select id="new-statut">
         <option value="a_commencer">À commencer (Possédé)</option>
         <option value="en_cours">En cours de lecture</option>
@@ -489,8 +326,8 @@ body {
   <p class="section-label">Budget Mensuel</p>
   <div class="form-card">
     <div style="display: flex; gap: 8px;">
-      <input type="number" id="setting-budget-limit" min="0" step="1" style="flex:1; font-size:15px; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); color:var(--text);">
-      <button onclick="saveBudgetLimitSetting()" style="padding: 10px 16px; border-radius: 10px; border: none; background: var(--purple-dark); color: white; font-weight: 700;">Enregistrer</button>
+      <input type="number" id="setting-budget-limit" min="0" step="1" style="flex:1;">
+      <button onclick="saveBudgetLimitSetting()" class="btn" style="background:var(--purple-dark); color:#fff;">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -504,11 +341,11 @@ body {
     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
     Wishlist
   </button>
-  <button class="nav-btn-center" onclick="showSection('ajouter')" aria-label="Ajouter un livre">
+  <button class="nav-btn-center" onclick="showSection('ajouter')" aria-label="Ajouter">
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
   <button class="nav-btn" id="nav-pioche" onclick="showSection('pioche')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
     Pioche
   </button>
   <button class="nav-btn" id="nav-stats" onclick="showSection('stats')">
@@ -519,15 +356,13 @@ body {
 
 <script>
 let books = [], series = {}, depenses = [];
-let segmentType = 'all', wishSegment = 'continue', mainStatusFilter = 'all', sortOrder = 'date_desc', activeQuickChip = 'none';
+let segmentType = 'all', wishSegment = 'continue', mainStatusFilter = 'all', activeQuickChip = 'none';
 let budgetLimit = 75;
-let currentHeroBookIdx = null, currentModalFicheTab = 'perso', editingFicheItemIdx = null;
-let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
+let currentPiocheBookIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
   try { series = JSON.parse(localStorage.getItem('pal_series') || '{}'); } catch(e) { series={}; }
-  try { depenses = JSON.parse(localStorage.getItem('pal_budget') || '[]'); } catch(e) { depenses=[]; }
   try { budgetLimit = parseFloat(localStorage.getItem('pal_budget_limit')) || 75; } catch(e) { budgetLimit = 75; }
   
   const limitInput = document.getElementById('setting-budget-limit');
@@ -550,50 +385,47 @@ function updateAuteursDataList() {
   if (!listEl) return;
   const auteursSet = new Set();
   books.forEach(b => { if (b.auteur && b.auteur.trim()) auteursSet.add(b.auteur.trim()); });
-  Object.keys(series).forEach(id => { if (series[id].auteur && series[id].auteur.trim()) auteursSet.add(series[id].auteur.trim()); });
   listEl.innerHTML = Array.from(auteursSet).sort((a,b) => a.localeCompare(b, 'fr')).map(a => `<option value="${escHtml(a)}"></option>`).join('');
 }
 
 function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
   document.getElementById(id).classList.add('visible');
-  ['accueil','pal','wishlist','stats','pioche','budget','ajouter','reglages'].forEach(s => {
+  ['accueil','pal','wishlist','stats','pioche','ajouter','reglages'].forEach(s => {
     const navBtn = document.getElementById('nav-'+s);
     if (navBtn) navBtn.classList.toggle('active', s===id);
   });
   if (id === 'accueil') renderAccueil();
   else if (id === 'wishlist') renderWishlist();
   else if (id === 'ajouter') populateSerieDropdown();
+  else if (id === 'stats') renderStats();
 }
 
-function setSegmentType(type, el) { segmentType = type; document.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderPAL(); }
+function setSegmentType(type, el) { segmentType = type; document.querySelectorAll('#pal .segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderPAL(); }
 function setWishSegment(type, el) { wishSegment = type; document.querySelectorAll('#wishlist .segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderWishlist(); }
 function setMainStatusFilter(val) { mainStatusFilter = val; renderPAL(); }
-function setSortOrder(val) { sortOrder = val; renderPAL(); }
+function toggleQuickChip(chip, el) { activeQuickChip = (activeQuickChip === chip) ? 'none' : chip; el.classList.toggle('active', activeQuickChip === chip); renderPAL(); }
 
 function renderAccueil() {
   const container = document.getElementById('hero-reading-container');
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
   if (!enCoursBooks.length) {
     container.innerHTML = `<div style="text-align:center; padding: 2rem 1rem;">
-      <p style="font-size:16px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
+      <p style="font-size:15px; font-weight:700; color:var(--text2); margin-bottom:8px;">Aucune lecture en cours !</p>
       <button class="btn btn-accent" onclick="showSection('pioche')">🎲 Piocher un livre</button>
     </div>`;
     return;
   }
-  const initialBg = (enCoursBooks[0].cover && enCoursBooks[0].cover.trim().length > 5) ? `style="background-image: url('${escHtml(enCoursBooks[0].cover)}');"` : '';
-  let html = `<div class="hero-bg-blur-full" id="hero-bg-blur" ${initialBg}></div>
-  <div class="carousel-wrap"><div class="carousel-slides-container" id="carousel-slides">`;
+  let html = `<div class="carousel-wrap"><div class="carousel-slides-container">`;
   html += enCoursBooks.map((b) => {
     const idx = books.indexOf(b);
-    const isOne = b.type === 'one_shot';
     const s = b.serieId ? series[b.serieId] : null;
     return `<div class="carousel-slide">
       <div class="hero-reading-content-inner">
         <div class="hero-text-details">
           <div class="hero-title-main">${escHtml(b.titre)}</div>
-          ${!isOne && s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
-          <div class="hero-author-main">${escHtml(isOne ? b.auteur : (s ? s.auteur : ''))}</div>
+          ${s ? `<div class="hero-serie-main">📚 ${escHtml(s.nom)} · Tome ${b.tomeNum}/${s.totalTomes}</div>` : ''}
+          <div class="hero-author-main">${escHtml(b.auteur || (s ? s.auteur : ''))}</div>
           <button class="btn-check-done" onclick="markDone(${idx})"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>
         </div>
       </div>
@@ -603,20 +435,15 @@ function renderAccueil() {
   container.innerHTML = html;
 }
 
-/* 🛒 GENERATEUR DE LISTE DE COURSES DU MOIS (AVEC CASE À COCHER POUR NOUVELLES SÉRIES) */
 function generateMonthlyShoppingList() {
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
-  if (!wishBooks.length) {
-    alert("Ta Wishlist 'À acheter' est vide !");
-    return;
-  }
+  if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
   const includeNewSeries = document.getElementById('include-new-series-cb') ? document.getElementById('include-new-series-cb').checked : false;
 
   let totalEstime = 0;
   let selectedItems = [];
 
-  // P1 : Séries en cours bloquées
   const activeSeriesIds = new Set(
     books.filter(b => b.type === 'serie' && (b.statut === 'en_cours' || b.statut === 'termine')).map(b => b.serieId)
   );
@@ -632,7 +459,6 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P2 : One-shots
   const oneShots = wishBooks.filter(b => b.type === 'one_shot');
   for (let b of oneShots) {
     let price = b.prix > 0 ? b.prix : (b.format === 'poche' ? 5 : 10);
@@ -642,7 +468,6 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P3 : Nouvelles séries (SEULEMENT SI COCHÉ)
   if (includeNewSeries) {
     const newSeries = wishBooks.filter(b => b.type === 'serie' && !activeSeriesIds.has(b.serieId));
     for (let b of newSeries) {
@@ -654,28 +479,21 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  if (!selectedItems.length) {
-    alert("Aucun livre ne correspond à tes critères pour ton budget ce mois-ci.");
-    return;
-  }
+  if (!selectedItems.length) { alert("Aucun livre ne correspond à tes critères ce mois-ci."); return; }
 
-  const budgetInfoEl = document.getElementById('shopping-list-budget-info');
-  budgetInfoEl.textContent = `Total estimé : ${totalEstime.toFixed(2)} € sur ${budgetLimit} € autorisés (${selectedItems.length} livre(s))`;
-
+  document.getElementById('shopping-list-budget-info').textContent = `Total estimé : ${totalEstime.toFixed(2)} € sur ${budgetLimit} € (${selectedItems.length} livre(s))`;
   const container = document.getElementById('shopping-list-items-container');
   container.innerHTML = selectedItems.map(item => {
     const b = item.book;
     const formatTxt = b.format === 'poche' ? 'Poche (~5€)' : 'Broché (~10€)';
-    const queryVinted = encodeURIComponent(b.titre + " livre");
-
     return `<div class="shopping-item-card">
-      <div style="flex:1; min-width:0; padding-right:8px;">
+      <div style="flex:1; min-width:0;">
         <div class="shopping-item-title">${escHtml(b.titre)}</div>
         <div class="shopping-item-sub">${item.reason} · ${formatTxt}</div>
       </div>
       <div style="text-align:right;">
         <div class="shopping-item-price">${item.estimatedPrice.toFixed(2)} €</div>
-        <button class="btn" style="padding:3px 8px; font-size:10px; margin-top:4px;" onclick="window.open('https://www.vinted.fr/catalog?search_text=${queryVinted}', '_blank')">🔍 Vinted</button>
+        <button class="btn" style="padding:2px 6px; font-size:9px;" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
       </div>
     </div>`;
   }).join('');
@@ -683,18 +501,32 @@ function generateMonthlyShoppingList() {
   document.getElementById('shopping-list-modal').classList.add('open');
 }
 
-function closeShoppingListModal() {
-  document.getElementById('shopping-list-modal').classList.remove('open');
-}
+function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
 function renderPAL() {
+  const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+
+  let filtered = ownedBooks.filter(b => {
+    const s = b.serieId ? series[b.serieId] : null;
+    const matchQ = b.titre.toLowerCase().includes(q) || (b.auteur||'').toLowerCase().includes(q) || (s && s.nom.toLowerCase().includes(q));
+    if (q && !matchQ) return false;
+    if (segmentType === 'serie' && b.type !== 'serie') return false;
+    if (segmentType === 'one_shot' && b.type !== 'one_shot') return false;
+    if (mainStatusFilter !== 'all' && b.statut !== mainStatusFilter) return false;
+    if (activeQuickChip === 'favorite' && !b.favorite) return false;
+    return true;
+  });
+
+  document.getElementById('header-count').textContent = `${ownedBooks.length} livres possédés`;
   const list = document.getElementById('pal-list');
-  if (!ownedBooks.length) { list.innerHTML='<div class="empty-state">Aucun livre possédé ici</div>'; return; }
-  list.innerHTML = ownedBooks.map(b => {
+  if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre trouvé</div>'; return; }
+
+  list.innerHTML = filtered.map(b => {
     const idx = books.indexOf(b);
     return `<div class="book-card">
       <div class="book-title">${escHtml(b.titre)}</div>
+      <div class="book-author">${escHtml(b.auteur || (b.serieId && series[b.serieId] ? series[b.serieId].auteur : ''))}</div>
       <div class="card-actions">
         ${b.statut === 'a_commencer' ? `<button class="btn btn-action-read" onclick="startReading(${idx})">📖 Commencer</button>` : ''}
         <button class="btn btn-action-done" onclick="markDone(${idx})">✓ Terminer</button>
@@ -704,21 +536,39 @@ function renderPAL() {
 }
 
 function renderWishlist() {
+  const q = (document.getElementById('search-wish').value||'').toLowerCase();
   let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
+
+  let filtered = wishBooks.filter(b => {
+    const matchQ = b.titre.toLowerCase().includes(q) || (b.auteur||'').toLowerCase().includes(q);
+    if (q && !matchQ) return false;
+    if (wishSegment === 'publi') return b.statut === 'en_attente_publi';
+    if (wishSegment === 'oneshot') return b.type === 'one_shot';
+    return true;
+  });
+
   const list = document.getElementById('wishlist-list');
-  if (!wishBooks.length) { list.innerHTML = '<div class="empty-state">Wishlist vide</div>'; return; }
-  list.innerHTML = wishBooks.map(b => {
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state">Wishlist vide</div>'; return; }
+
+  list.innerHTML = filtered.map(b => {
     const idx = books.indexOf(b);
     const formatBadge = b.format === 'poche' ? 'Poche (~5€)' : 'Broché (~10€)';
     return `<div class="book-card">
       <div class="book-title">${escHtml(b.titre)}</div>
       <div class="badges"><span class="badge badge-format">${formatBadge}</span></div>
-      <div class="card-actions" style="margin-top:8px;">
+      <div class="card-actions">
         <button class="btn btn-action-done" onclick="markBought(${idx})">📦 Acheté</button>
         <button class="btn btn-accent" onclick="window.open('https://www.vinted.fr/catalog?search_text=${encodeURIComponent(b.titre)}+livre', '_blank')">🔍 Vinted</button>
       </div>
     </div>`;
   }).join('');
+}
+
+function renderStats() {
+  const readBooksYear = books.filter(b => b.statut === 'termine');
+  document.getElementById('stat-read-year').textContent = readBooksYear.length;
+  const spend = books.reduce((s, b) => s + (b.prix || 0), 0);
+  document.getElementById('stat-spend-year').textContent = spend.toFixed(2) + ' €';
 }
 
 function startReading(idx) { books[idx].statut = 'en_cours'; save(); renderAccueil(); renderPAL(); showSection('accueil'); }
@@ -731,14 +581,23 @@ function addBook() {
   const type = document.getElementById('new-type').value;
   const statut = document.getElementById('new-statut').value;
   const format = document.getElementById('new-format').value;
-  const prix = parseFloat(document.getElementById('new-prix').value) || 0;
-
-  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, statut, format, prix, dateAjout: new Date().toISOString().slice(0,10) };
+  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, statut, format, prix: 0, dateAjout: new Date().toISOString().slice(0,10) };
   books.unshift(b); save();
   document.getElementById('new-titre').value = '';
   showSection(statut === 'a_acheter' ? 'wishlist' : 'pal');
 }
 
+function populateSerieDropdown() {
+  const select = document.getElementById('select-serie-id');
+  if (!select) return;
+  let html = '<option value="__NEW__">+ Créer une nouvelle série</option>';
+  Object.keys(series).forEach(id => { html += `<option value="${id}">${escHtml(series[id].nom)}</option>`; });
+  select.innerHTML = html;
+}
+
+function toggleSerieFields() { document.getElementById('serie-fields').style.display = (document.getElementById('new-type').value === 'serie') ? 'block' : 'none'; }
+function handleSerieSelectChange(v) { document.getElementById('custom-serie-wrap').style.display = (v === '__NEW__') ? 'block' : 'none'; }
+function saveBudgetLimitSetting() { budgetLimit = parseFloat(document.getElementById('setting-budget-limit').value) || 75; localStorage.setItem('pal_budget_limit', budgetLimit); alert('Budget mis à jour !'); }
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 load();
