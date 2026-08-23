@@ -426,6 +426,13 @@ body {
       <option value="termine">✓ Terminés / Lus</option>
       <option value="abandonne">🚫 Abandonnés</option>
     </select>
+
+    <select class="filter-select" id="pal-sort-order" onchange="setPalSortOrder(this.value)">
+      <option value="date_desc">📅 Plus récents d'abord</option>
+      <option value="title_asc">🔤 Titre (A ➔ Z)</option>
+      <option value="author_asc">👤 Auteur·rice (A ➔ Z)</option>
+      <option value="serie_asc">📚 Série / Saga (A ➔ Z)</option>
+    </select>
   </div>
 
   <div class="quick-chips" style="margin-bottom: 16px;">
@@ -449,6 +456,15 @@ body {
     <button class="segment-btn" id="wish-seg-start" onclick="setWishSegment('start', this)">📚 Séries à commencer</button>
     <button class="segment-btn" id="wish-seg-oneshot" onclick="setWishSegment('oneshot', this)">📖 One-shots</button>
     <button class="segment-btn" id="wish-seg-publi" onclick="setWishSegment('publi', this)">⏳ À paraître</button>
+  </div>
+
+  <div class="filter-row-compact">
+    <select class="filter-select" id="wish-sort-order" onchange="setWishSortOrder(this.value)">
+      <option value="title_asc">🔤 Titre (A ➔ Z)</option>
+      <option value="author_asc">👤 Auteur·rice (A ➔ Z)</option>
+      <option value="serie_asc">📚 Série / Saga (A ➔ Z)</option>
+      <option value="date_desc">📅 Plus récents d'abord</option>
+    </select>
   </div>
 
   <div id="wishlist-list"></div>
@@ -626,6 +642,7 @@ body {
 <script>
 let books = [], series = {}, depenses = [];
 let segmentType = 'all', wishSegment = 'continue', mainStatusFilter = 'all', activeQuickChip = 'none';
+let palSortOrder = 'date_desc', wishSortOrder = 'title_asc';
 let budgetLimit = 75;
 let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
 let syncQueue = [];
@@ -678,6 +695,9 @@ function showSection(id) {
 function setSegmentType(type, el) { segmentType = type; document.querySelectorAll('#pal .segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderPAL(); }
 function setWishSegment(type, el) { wishSegment = type; document.querySelectorAll('#wishlist .segment-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderWishlist(); }
 function setMainStatusFilter(val) { mainStatusFilter = val; renderPAL(); }
+function setPalSortOrder(val) { palSortOrder = val; renderPAL(); }
+function setWishSortOrder(val) { wishSortOrder = val; renderWishlist(); }
+
 function toggleQuickChip(chip, el) { activeQuickChip = (activeQuickChip === chip) ? 'none' : chip; el.classList.toggle('active', activeQuickChip === chip); renderPAL(); }
 function goToPalWithChip(chip) { showSection('pal'); toggleQuickChip(chip, document.getElementById('chip-next-read')); }
 
@@ -745,15 +765,12 @@ function toggleNextTarget(idx) {
   renderWishlist();
 }
 
-/* LISTE DE COURSES STRICTEMENT CORRIGÉE : STATUT a_acheter UNIQUEMENT */
 function generateMonthlyShoppingList() {
-  // RÈGLE STRICTE : Seuls les livres en statut "a_acheter" (exclut "en_attente_publi")
   const wishBooks = books.filter(b => b.statut === 'a_acheter');
   if (!wishBooks.length) { alert("Ta Wishlist 'À acheter' est vide !"); return; }
 
   activeShoppingItems = [];
 
-  // P1 : Séries dont le tome précédent (T-1) est TERMINÉ
   const wishSeries = wishBooks.filter(b => b.type === 'serie');
   for (let b of wishSeries) {
     if (!b.serieId) continue;
@@ -780,7 +797,6 @@ function generateMonthlyShoppingList() {
     }
   }
 
-  // P2 : Livres avec le marqueur discret "Prochain Achat"
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.book === b));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
@@ -847,7 +863,7 @@ function addRandomOneshotToShoppingList() {
 
 function closeShoppingListModal() { document.getElementById('shopping-list-modal').classList.remove('open'); }
 
-/* RESTAURATION DU DESIGN ET DES FONCTIONS D'ORIGINE POUR LA PAL */
+/* RENDU PAL AVEC TRI PAR SÉRIE, TITRE OU AUTEUR */
 function renderPAL() {
   const q = (document.getElementById('search').value||'').toLowerCase();
   let ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
@@ -872,6 +888,25 @@ function renderPAL() {
     }
 
     return true;
+  });
+
+  // FONCTION DE TRI DYNAMIQUE SUR LA PAL
+  filtered.sort((a, b) => {
+    if (palSortOrder === 'title_asc') {
+      return a.titre.localeCompare(b.titre, 'fr');
+    } else if (palSortOrder === 'author_asc') {
+      const autA = a.auteur || (a.serieId && series[a.serieId] ? series[a.serieId].auteur : '');
+      const autB = b.auteur || (b.serieId && series[b.serieId] ? series[b.serieId].auteur : '');
+      return autA.localeCompare(autB, 'fr');
+    } else if (palSortOrder === 'serie_asc') {
+      const sA = a.serieId && series[a.serieId] ? series[a.serieId].nom : a.titre;
+      const sB = b.serieId && series[b.serieId] ? series[b.serieId].nom : b.titre;
+      return sA.localeCompare(sB, 'fr');
+    } else {
+      const dateA = a.dateAjout || a.dateFin || '2000-01-01';
+      const dateB = b.dateAjout || b.dateFin || '2000-01-01';
+      return dateB.localeCompare(dateA);
+    }
   });
 
   const totalOwned = ownedBooks.length;
@@ -961,6 +996,7 @@ function renderPAL() {
   }).join('');
 }
 
+/* RENDU WISHLIST AVEC TRI PAR SÉRIE, TITRE OU AUTEUR */
 function renderWishlist() {
   const q = (document.getElementById('search-wish').value||'').toLowerCase();
   let wishBooks = books.filter(b => b.statut === 'a_acheter' || b.statut === 'en_attente_publi');
@@ -982,6 +1018,25 @@ function renderWishlist() {
       return owned.length > 0;
     }
     return true;
+  });
+
+  // FONCTION DE TRI DYNAMIQUE SUR LA WISHLIST
+  filtered.sort((a, b) => {
+    if (wishSortOrder === 'title_asc') {
+      return a.titre.localeCompare(b.titre, 'fr');
+    } else if (wishSortOrder === 'author_asc') {
+      const autA = a.auteur || (a.serieId && series[a.serieId] ? series[a.serieId].auteur : '');
+      const autB = b.auteur || (b.serieId && series[b.serieId] ? series[b.serieId].auteur : '');
+      return autA.localeCompare(autB, 'fr');
+    } else if (wishSortOrder === 'serie_asc') {
+      const sA = a.serieId && series[a.serieId] ? series[a.serieId].nom : a.titre;
+      const sB = b.serieId && series[b.serieId] ? series[b.serieId].nom : b.titre;
+      return sA.localeCompare(sB, 'fr');
+    } else {
+      const dateA = a.dateAjout || '2000-01-01';
+      const dateB = b.dateAjout || '2000-01-01';
+      return dateB.localeCompare(dateA);
+    }
   });
 
   const list = document.getElementById('wishlist-list');
