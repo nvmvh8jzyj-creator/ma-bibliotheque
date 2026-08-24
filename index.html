@@ -158,10 +158,6 @@ body {
 .hero-author-main { font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 6px; }
 
 .btn-hero-notes { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); color: var(--text); cursor: pointer; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; }
-.carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; z-index: 2; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
-.dot.active { width: 20px; border-radius: 10px; background: var(--purple-light); }
-
 .btn-check-done { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--green-dark); background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); color: var(--green-dark); display: flex; align-items: center; justify-content: center; margin: 0 auto; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
 @media (prefers-color-scheme: dark) { .btn-check-done { border-color: var(--green-bright); color: var(--green-bright); background: rgba(0, 0, 0, 0.35); } }
 .btn-check-done svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3; }
@@ -353,7 +349,7 @@ body {
       <div style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
         <div class="form-field" style="margin-bottom:6px;"><input type="text" id="modal-new-item-title" placeholder="Nom..." style="font-size:13px; padding:6px 10px;"></div>
         <div class="form-field" style="margin-bottom:8px;"><input type="text" id="modal-new-item-desc" placeholder="Détails..." style="font-size:12px; padding:6px 10px;"></div>
-        <div id="modal-dead-checkbox-wrap" style="display:none; margin-bottom:8px;">
+        <div id="modal-dead-checkbox-wrap" style="display:block; margin-bottom:8px;">
           <label style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
             <input type="checkbox" id="modal-new-item-dead" style="width:auto;-webkit-appearance:checkbox;">
             <span>💀 Personnage décédé</span>
@@ -1064,6 +1060,10 @@ function renderPAL() {
             <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite</option>
           </select>
         </div>
+        <div style="display:flex; gap:8px;">
+          <div class="form-field" style="flex:1;"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
+          <div class="form-field" style="flex:1;"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
+        </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
@@ -1191,6 +1191,10 @@ function renderWishlist() {
             <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
           </select>
         </div>
+        <div style="display:flex; gap:8px;">
+          <div class="form-field" style="flex:1;"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
+          <div class="form-field" style="flex:1;"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
+        </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
         <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
@@ -1247,15 +1251,9 @@ function saveEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
-  const today = new Date().toISOString().slice(0,10);
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  if (b.statut === 'termine') {
-    if (!b.dateFin) b.dateFin = today;
-    if (!b.dateDebut) b.dateDebut = today;
-  } else if (b.statut === 'en_cours') {
-    if (!b.dateDebut) b.dateDebut = today;
-  }
-
+  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
+  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
@@ -1295,15 +1293,9 @@ function saveWishEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
-  const today = new Date().toISOString().slice(0,10);
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  if (b.statut === 'termine') {
-    if (!b.dateFin) b.dateFin = today;
-    if (!b.dateDebut) b.dateDebut = today;
-  } else if (b.statut === 'en_cours') {
-    if (!b.dateDebut) b.dateDebut = today;
-  }
-
+  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
+  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   
@@ -1362,6 +1354,7 @@ function pioche(mode) {
 function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
 function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
+/* GESTION DE LA FICHE STRUCTURÉE AVEC TOME ET DÉCÈS */
 function parseBookFiche(notesRaw) {
   try {
     const parsed = JSON.parse(notesRaw);
@@ -1377,18 +1370,24 @@ function getFicheForBook(b) {
     let combined = { perso: [], lieu: [], event: [] };
     sBooks.forEach(sb => {
       const f = parseBookFiche(sb.notes);
-      combined.perso = combined.perso.concat(f.perso||[]);
-      combined.lieu = combined.lieu.concat(f.lieu||[]);
-      combined.event = combined.event.concat(f.event||[]);
+      const tNum = sb.tomeNum ? `Tome ${sb.tomeNum}` : '';
+      (f.perso||[]).forEach(item => combined.perso.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
+      (f.lieu||[]).forEach(item => combined.lieu.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
+      (f.event||[]).forEach(item => combined.event.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
     });
     return combined;
   }
-  return parseBookFiche(b.notes);
+  const f = parseBookFiche(b.notes);
+  let res = { perso: [], lieu: [], event: [] };
+  const idx = books.indexOf(b);
+  (f.perso||[]).forEach(item => res.perso.push({...item, bookIdx: idx}));
+  (f.lieu||[]).forEach(item => res.lieu.push({...item, bookIdx: idx}));
+  (f.event||[]).forEach(item => res.event.push({...item, bookIdx: idx}));
+  return res;
 }
 
 function openHeroNotesModal(idx) {
   currentHeroBookIdx = idx;
-  editingFicheItemIdx = null;
   const b = books[idx];
   const s = b.serieId ? series[b.serieId] : null;
   document.getElementById('modal-notes-title').textContent = s ? `Fiche Saga : ${s.nom}` : `Fiche : ${b.titre}`;
@@ -1399,6 +1398,13 @@ function openHeroNotesModal(idx) {
 
 function setModalFicheTab(tab) {
   currentModalFicheTab = tab;
+  document.querySelectorAll('.fiche-tab-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`modal-tab-${tab}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  const deadWrap = document.getElementById('modal-dead-checkbox-wrap');
+  if (deadWrap) deadWrap.style.display = (tab === 'perso') ? 'block' : 'none';
+  
   renderModalFiche();
 }
 
@@ -1414,14 +1420,57 @@ function renderModalFiche() {
     return;
   }
 
-  listEl.innerHTML = items.map((item) => `
+  listEl.innerHTML = items.map((item, itemIdx) => `
     <div class="fiche-item-card ${item.isDead ? 'is-dead' : ''}">
-      <div>
-        <div style="font-weight:800; color:var(--purple-dark);">${item.isDead ? '💀 ' : ''}${escHtml(item.title)}</div>
-        <div style="font-size:11px;">${escHtml(item.desc)}</div>
+      <div style="flex:1;">
+        <div style="font-weight:800; color:var(--purple-dark); display:flex; justify-content:space-between; align-items:center;">
+          <span>${item.isDead ? '💀 ' : ''}${escHtml(item.title)}</span>
+          ${item.sourceTome ? `<span style="font-size:10px; font-weight:600; color:var(--text3); background:var(--surface2); padding:1px 6px; border-radius:6px;">${item.sourceTome}</span>` : ''}
+        </div>
+        <div style="font-size:11px; margin-top:2px;">${escHtml(item.desc)}</div>
       </div>
+      <button onclick="removeFicheItem(${item.bookIdx}, '${currentModalFicheTab}', '${escHtml(item.title)}')" style="border:none; background:none; color:var(--text3); cursor:pointer; font-weight:700; margin-left:8px;">✕</button>
     </div>
   `).join('');
+}
+
+function addOrUpdateModalFicheItem() {
+  if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
+  const b = books[currentHeroBookIdx];
+  const titleInput = document.getElementById('modal-new-item-title');
+  const descInput = document.getElementById('modal-new-item-desc');
+  const deadCb = document.getElementById('modal-new-item-dead');
+
+  const title = titleInput.value.trim();
+  const desc = descInput.value.trim();
+  const isDead = deadCb ? deadCb.checked : false;
+
+  if (!title) { alert("Indique un nom."); return; }
+
+  let fiche = parseBookFiche(b.notes);
+  if (!fiche[currentModalFicheTab]) fiche[currentModalFicheTab] = [];
+
+  fiche[currentModalFicheTab].push({ title, desc, isDead });
+  b.notes = stringifyBookFiche(fiche);
+  save();
+
+  titleInput.value = '';
+  descInput.value = '';
+  if (deadCb) deadCb.checked = false;
+
+  renderModalFiche();
+}
+
+function removeFicheItem(bookIdx, tab, title) {
+  const b = books[bookIdx];
+  if (!b) return;
+  let fiche = parseBookFiche(b.notes);
+  if (fiche[tab]) {
+    fiche[tab] = fiche[tab].filter(i => i.title !== title);
+    b.notes = stringifyBookFiche(fiche);
+    save();
+    renderModalFiche();
+  }
 }
 
 function closeHeroNotesModal() { document.getElementById('hero-notes-modal').classList.remove('open'); }
