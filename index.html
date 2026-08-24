@@ -1247,7 +1247,15 @@ function saveEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
+  const today = new Date().toISOString().slice(0,10);
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
+  if (b.statut === 'termine') {
+    if (!b.dateFin) b.dateFin = today;
+    if (!b.dateDebut) b.dateDebut = today;
+  } else if (b.statut === 'en_cours') {
+    if (!b.dateDebut) b.dateDebut = today;
+  }
+
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
@@ -1256,6 +1264,7 @@ function saveEdit(idx) {
   renderPAL();
   renderWishlist();
   renderAccueil();
+  renderStats();
 }
 
 function saveWishEdit(idx) {
@@ -1286,7 +1295,15 @@ function saveWishEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
+  const today = new Date().toISOString().slice(0,10);
   b.statut = document.getElementById(`edit-statut-${idx}`).value;
+  if (b.statut === 'termine') {
+    if (!b.dateFin) b.dateFin = today;
+    if (!b.dateDebut) b.dateDebut = today;
+  } else if (b.statut === 'en_cours') {
+    if (!b.dateDebut) b.dateDebut = today;
+  }
+
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   
@@ -1294,6 +1311,7 @@ function saveWishEdit(idx) {
   renderWishlist();
   renderPAL();
   renderAccueil();
+  renderStats();
 }
 
 function pioche(mode) {
@@ -1559,10 +1577,49 @@ function showStatDetail(type) {
 
 function closeStatDetail() { document.getElementById('stat-detail-box').style.display = 'none'; }
 
-function startReading(idx) { books[idx].statut = 'en_cours'; save(); renderAccueil(); renderPAL(); showSection('accueil'); }
-function markDone(idx) { books[idx].statut = 'termine'; save(); renderAccueil(); renderPAL(); renderWishlist(); }
-function markBought(idx) { books[idx].statut = 'a_commencer'; save(); renderAccueil(); renderPAL(); renderWishlist(); alert(`"${books[idx].titre}" est passé dans Ma PAL !`); }
-function removeBook(idx) { if (confirm(`Supprimer "${books[idx].titre}" ?`)) { books.splice(idx,1); save(); renderAccueil(); renderPAL(); renderWishlist(); } }
+function startReading(idx) { 
+  const today = new Date().toISOString().slice(0,10);
+  books[idx].statut = 'en_cours'; 
+  if (!books[idx].dateDebut) books[idx].dateDebut = today;
+  save(); 
+  renderAccueil(); 
+  renderPAL(); 
+  renderStats();
+  showSection('accueil'); 
+}
+
+function markDone(idx) { 
+  const today = new Date().toISOString().slice(0,10);
+  books[idx].statut = 'termine'; 
+  if (!books[idx].dateFin) books[idx].dateFin = today;
+  if (!books[idx].dateDebut) books[idx].dateDebut = today;
+  save(); 
+  renderAccueil(); 
+  renderPAL(); 
+  renderWishlist(); 
+  renderStats();
+}
+
+function markBought(idx) { 
+  books[idx].statut = 'a_commencer'; 
+  save(); 
+  renderAccueil(); 
+  renderPAL(); 
+  renderWishlist(); 
+  renderStats();
+  alert(`"${books[idx].titre}" est passé dans Ma PAL !`); 
+}
+
+function removeBook(idx) { 
+  if (confirm(`Supprimer "${books[idx].titre}" ?`)) { 
+    books.splice(idx,1); 
+    save(); 
+    renderAccueil(); 
+    renderPAL(); 
+    renderWishlist(); 
+    renderStats();
+  } 
+}
 
 function checkMissingSuites() {
   syncQueue = [];
@@ -1635,9 +1692,26 @@ function addBook() {
     }
   }
 
-  const b = { id: 'book_' + Date.now(), titre, auteur: document.getElementById('new-auteur').value.trim(), type, serieId, tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, statut, prix: 0, cover, dateAjout: new Date().toISOString().slice(0,10) };
-  books.unshift(b); save();
+  const today = new Date().toISOString().slice(0,10);
+  const b = { 
+    id: 'book_' + Date.now(), 
+    titre, 
+    auteur: document.getElementById('new-auteur').value.trim(), 
+    type, 
+    serieId, 
+    tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, 
+    statut, 
+    prix: 0, 
+    cover, 
+    dateAjout: today,
+    dateDebut: statut === 'en_cours' || statut === 'termine' ? today : null,
+    dateFin: statut === 'termine' ? today : null
+  };
+
+  books.unshift(b); 
+  save();
   document.getElementById('new-titre').value = '';
+  renderStats();
   showSection(statut === 'a_acheter' || statut === 'en_attente_publi' ? 'wishlist' : 'pal');
 }
 
@@ -1671,7 +1745,7 @@ function importDataText() {
       const existing = new Set(books.map(b => b.id || b.titre));
       data.books.forEach(nb => { if (!existing.has(nb.id || nb.titre)) books.unshift(nb); });
       if (data.series) Object.assign(series, data.series);
-      save(); renderAccueil(); renderPAL(); renderWishlist(); alert("Fusion réussie !");
+      save(); renderAccueil(); renderPAL(); renderWishlist(); renderStats(); alert("Fusion réussie !");
     }
   } catch(e) { alert("Format invalide."); }
 }
