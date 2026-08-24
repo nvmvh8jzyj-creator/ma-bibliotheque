@@ -239,8 +239,8 @@ body {
 .fiche-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
 .fiche-tab-btn { flex: 1; font-size: 11px; font-weight: 700; padding: 6px 0; border: 1px solid var(--border); background: var(--surface); color: var(--text2); border-radius: 8px; cursor: pointer; }
 .fiche-tab-btn.active { background: var(--purple-dark); color: #fff; border-color: var(--purple-dark); }
-.fiche-items-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; margin-bottom: 8px; }
-.fiche-item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: flex-start; }
+.fiche-items-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; margin-bottom: 8px; }
+.fiche-item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .fiche-item-card.is-dead { border-color: rgba(192, 57, 43, 0.4); background: var(--danger-bg); }
 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
@@ -1354,7 +1354,7 @@ function pioche(mode) {
 function startReadingFromPioche() { if (currentPiocheBookIdx !== null) { closePiocheModal(); startReading(currentPiocheBookIdx); } }
 function closePiocheModal() { document.getElementById('pioche-modal').classList.remove('open'); }
 
-/* GESTION DE LA FICHE STRUCTURÉE AVEC TOME ET DÉCÈS */
+/* GESTION COMPLÈTE DE LA FICHE STRUCTURÉE AVEC TOME, ÉDITION & DÉCÈS RAPIIDE */
 function parseBookFiche(notesRaw) {
   try {
     const parsed = JSON.parse(notesRaw);
@@ -1371,33 +1371,38 @@ function getFicheForBook(b) {
     sBooks.forEach(sb => {
       const f = parseBookFiche(sb.notes);
       const tNum = sb.tomeNum ? `Tome ${sb.tomeNum}` : '';
-      (f.perso||[]).forEach(item => combined.perso.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
-      (f.lieu||[]).forEach(item => combined.lieu.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
-      (f.event||[]).forEach(item => combined.event.push({...item, sourceTome: tNum, bookIdx: books.indexOf(sb)}));
+      const bIdx = books.indexOf(sb);
+      (f.perso||[]).forEach((item, originalIdx) => combined.perso.push({...item, sourceTome: tNum, bookIdx: bIdx, originalIdx}));
+      (f.lieu||[]).forEach((item, originalIdx) => combined.lieu.push({...item, sourceTome: tNum, bookIdx: bIdx, originalIdx}));
+      (f.event||[]).forEach((item, originalIdx) => combined.event.push({...item, sourceTome: tNum, bookIdx: bIdx, originalIdx}));
     });
     return combined;
   }
   const f = parseBookFiche(b.notes);
   let res = { perso: [], lieu: [], event: [] };
   const idx = books.indexOf(b);
-  (f.perso||[]).forEach(item => res.perso.push({...item, bookIdx: idx}));
-  (f.lieu||[]).forEach(item => res.lieu.push({...item, bookIdx: idx}));
-  (f.event||[]).forEach(item => res.event.push({...item, bookIdx: idx}));
+  (f.perso||[]).forEach((item, originalIdx) => res.perso.push({...item, bookIdx: idx, originalIdx}));
+  (f.lieu||[]).forEach((item, originalIdx) => res.lieu.push({...item, bookIdx: idx, originalIdx}));
+  (f.event||[]).forEach((item, originalIdx) => res.event.push({...item, bookIdx: idx, originalIdx}));
   return res;
 }
 
 function openHeroNotesModal(idx) {
   currentHeroBookIdx = idx;
+  editingFicheItemIdx = null;
+  resetFicheForm();
   const b = books[idx];
   const s = b.serieId ? series[b.serieId] : null;
   document.getElementById('modal-notes-title').textContent = s ? `Fiche Saga : ${s.nom}` : `Fiche : ${b.titre}`;
   currentModalFicheTab = 'perso';
-  renderModalFiche();
+  setModalFicheTab('perso');
   document.getElementById('hero-notes-modal').classList.add('open');
 }
 
 function setModalFicheTab(tab) {
   currentModalFicheTab = tab;
+  editingFicheItemIdx = null;
+  resetFicheForm();
   document.querySelectorAll('.fiche-tab-btn').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById(`modal-tab-${tab}`);
   if (activeBtn) activeBtn.classList.add('active');
@@ -1406,6 +1411,14 @@ function setModalFicheTab(tab) {
   if (deadWrap) deadWrap.style.display = (tab === 'perso') ? 'block' : 'none';
   
   renderModalFiche();
+}
+
+function resetFicheForm() {
+  document.getElementById('modal-new-item-title').value = '';
+  document.getElementById('modal-new-item-desc').value = '';
+  const deadCb = document.getElementById('modal-new-item-dead');
+  if (deadCb) deadCb.checked = false;
+  document.getElementById('modal-add-item-btn').textContent = '➕ Ajouter à la fiche';
 }
 
 function renderModalFiche() {
@@ -1420,23 +1433,47 @@ function renderModalFiche() {
     return;
   }
 
-  listEl.innerHTML = items.map((item, itemIdx) => `
+  listEl.innerHTML = items.map((item, listIdx) => `
     <div class="fiche-item-card ${item.isDead ? 'is-dead' : ''}">
-      <div style="flex:1;">
+      <div style="flex:1; min-width:0;">
         <div style="font-weight:800; color:var(--purple-dark); display:flex; justify-content:space-between; align-items:center;">
           <span>${item.isDead ? '💀 ' : ''}${escHtml(item.title)}</span>
-          ${item.sourceTome ? `<span style="font-size:10px; font-weight:600; color:var(--text3); background:var(--surface2); padding:1px 6px; border-radius:6px;">${item.sourceTome}</span>` : ''}
+          ${item.sourceTome ? `<span style="font-size:10px; font-weight:600; color:var(--text3); background:var(--surface2); padding:1px 6px; border-radius:6px; margin-left:6px;">${item.sourceTome}</span>` : ''}
         </div>
         <div style="font-size:11px; margin-top:2px;">${escHtml(item.desc)}</div>
       </div>
-      <button onclick="removeFicheItem(${item.bookIdx}, '${currentModalFicheTab}', '${escHtml(item.title)}')" style="border:none; background:none; color:var(--text3); cursor:pointer; font-weight:700; margin-left:8px;">✕</button>
+      <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+        ${currentModalFicheTab === 'perso' ? `<button onclick="toggleFicheItemDead(${item.bookIdx}, ${item.originalIdx})" style="border:none; background:none; cursor:pointer; font-size:13px;" title="Changer statut de mort">💀</button>` : ''}
+        <button onclick="prepareEditFicheItem(${item.bookIdx}, '${currentModalFicheTab}', ${item.originalIdx})" style="border:none; background:none; cursor:pointer; font-size:12px;" title="Modifier">✏️</button>
+        <button onclick="removeFicheItem(${item.bookIdx}, '${currentModalFicheTab}', ${item.originalIdx})" style="border:none; background:none; color:var(--text3); cursor:pointer; font-weight:700; padding:2px;" title="Supprimer">✕</button>
+      </div>
     </div>
   `).join('');
 }
 
+function prepareEditFicheItem(bookIdx, tab, originalIdx) {
+  const targetBook = books[bookIdx];
+  if (!targetBook) return;
+  const f = parseBookFiche(targetBook.notes);
+  const item = (f[tab] || [])[originalIdx];
+  if (!item) return;
+
+  editingFicheTargetBookIdx = bookIdx;
+  editingFicheItemIdx = originalIdx;
+
+  document.getElementById('modal-new-item-title').value = item.title;
+  document.getElementById('modal-new-item-desc').value = item.desc;
+  const deadCb = document.getElementById('modal-new-item-dead');
+  if (deadCb) deadCb.checked = !!item.isDead;
+
+  document.getElementById('modal-add-item-btn').textContent = '💾 Modifier cet élément';
+}
+
+let editingFicheTargetBookIdx = null;
+
 function addOrUpdateModalFicheItem() {
   if (currentHeroBookIdx === null || !books[currentHeroBookIdx]) return;
-  const b = books[currentHeroBookIdx];
+  
   const titleInput = document.getElementById('modal-new-item-title');
   const descInput = document.getElementById('modal-new-item-desc');
   const deadCb = document.getElementById('modal-new-item-dead');
@@ -1447,27 +1484,43 @@ function addOrUpdateModalFicheItem() {
 
   if (!title) { alert("Indique un nom."); return; }
 
-  let fiche = parseBookFiche(b.notes);
+  let targetBook = (editingFicheItemIdx !== null && editingFicheTargetBookIdx !== null) ? books[editingFicheTargetBookIdx] : books[currentHeroBookIdx];
+  let fiche = parseBookFiche(targetBook.notes);
   if (!fiche[currentModalFicheTab]) fiche[currentModalFicheTab] = [];
 
-  fiche[currentModalFicheTab].push({ title, desc, isDead });
-  b.notes = stringifyBookFiche(fiche);
+  if (editingFicheItemIdx !== null) {
+    fiche[currentModalFicheTab][editingFicheItemIdx] = { title, desc, isDead };
+  } else {
+    fiche[currentModalFicheTab].push({ title, desc, isDead });
+  }
+
+  targetBook.notes = stringifyBookFiche(fiche);
   save();
-
-  titleInput.value = '';
-  descInput.value = '';
-  if (deadCb) deadCb.checked = false;
-
+  resetFicheForm();
+  editingFicheItemIdx = null;
+  editingFicheTargetBookIdx = null;
   renderModalFiche();
 }
 
-function removeFicheItem(bookIdx, tab, title) {
-  const b = books[bookIdx];
-  if (!b) return;
-  let fiche = parseBookFiche(b.notes);
+function toggleFicheItemDead(bookIdx, originalIdx) {
+  const targetBook = books[bookIdx];
+  if (!targetBook) return;
+  let fiche = parseBookFiche(targetBook.notes);
+  if (fiche['perso'] && fiche['perso'][originalIdx]) {
+    fiche['perso'][originalIdx].isDead = !fiche['perso'][originalIdx].isDead;
+    targetBook.notes = stringifyBookFiche(fiche);
+    save();
+    renderModalFiche();
+  }
+}
+
+function removeFicheItem(bookIdx, tab, originalIdx) {
+  const targetBook = books[bookIdx];
+  if (!targetBook) return;
+  let fiche = parseBookFiche(targetBook.notes);
   if (fiche[tab]) {
-    fiche[tab] = fiche[tab].filter(i => i.title !== title);
-    b.notes = stringifyBookFiche(fiche);
+    fiche[tab].splice(originalIdx, 1);
+    targetBook.notes = stringifyBookFiche(fiche);
     save();
     renderModalFiche();
   }
