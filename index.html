@@ -235,7 +235,7 @@ body {
 .edit-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .edit-panel.open { display: block; }
 
-/* STYLE D'ORIGINE MODALE FICHE STRUCTURÉE */
+/* MODALE FICHE STRUCTURÉE - DESIGN D'ORIGINE */
 .fiche-box-v1 { background: #f4ecf3; border-radius: 20px; padding: 14px; margin-bottom: 12px; border: none; }
 .fiche-tabs-v1 { display: flex; gap: 8px; margin-bottom: 12px; }
 .fiche-tab-btn-v1 { flex: 1; font-size: 12px; font-weight: 700; padding: 8px 0; border: none; background: #ffffff; color: var(--text2); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
@@ -253,6 +253,7 @@ body {
 .modal-card { background: var(--surface); border-radius: 24px; width: 100%; max-width: 440px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
 .fiche-input-v1 { width: 100%; font-size: 13px; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); margin-bottom: 8px; font-family: inherit; }
+.fiche-select-v1 { width: 100%; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 14px; border: 1px solid var(--border); background: #ffffff; color: var(--purple-dark); margin-bottom: 8px; }
 .fiche-btn-add-v1 { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); cursor: pointer; }
 
 .modal-close-btn-v1 { width: 100%; padding: 14px; font-size: 15px; font-weight: 800; border-radius: 16px; border: none; background: var(--purple-dark); color: #ffffff; cursor: pointer; margin-top: 8px; }
@@ -360,6 +361,7 @@ body {
       <div class="fiche-items-list-v1" id="modal-fiche-items-list"></div>
       
       <div style="margin-top:12px;">
+        <select class="fiche-select-v1" id="modal-target-tome-select" style="display:none;"></select>
         <input type="text" class="fiche-input-v1" id="modal-new-item-title" placeholder="Nom (ex: Eragon, Alagaësia...)">
         <input type="text" class="fiche-input-v1" id="modal-new-item-desc" placeholder="Détail (ex: Élevé par Garrow, bras-droit...)">
         
@@ -1411,8 +1413,30 @@ function openHeroNotesModal(idx) {
   const b = books[idx];
   const s = b.serieId ? series[b.serieId] : null;
   document.getElementById('modal-notes-title').textContent = s ? `FICHE SAGA : ${s.nom}` : `FICHE : ${b.titre}`;
+  
+  populateModalTomeSelect(b);
+  
   setModalFicheTab('perso');
   document.getElementById('hero-notes-modal').classList.add('open');
+}
+
+function populateModalTomeSelect(b) {
+  const select = document.getElementById('modal-target-tome-select');
+  if (!select) return;
+
+  if (b.type === 'serie' && b.serieId) {
+    const sBooks = books.filter(other => other.type === 'serie' && other.serieId === b.serieId);
+    sBooks.sort((a, b) => (a.tomeNum || 1) - (b.tomeNum || 1));
+
+    select.innerHTML = sBooks.map(sb => {
+      const realIdx = books.indexOf(sb);
+      return `<option value="${realIdx}" ${realIdx === currentHeroBookIdx ? 'selected' : ''}>Rattacher au Tome ${sb.tomeNum || 1} (${escHtml(sb.titre)})</option>`;
+    }).join('');
+    select.style.display = 'block';
+  } else {
+    select.innerHTML = `<option value="${currentHeroBookIdx}">Ce livre</option>`;
+    select.style.display = 'none';
+  }
 }
 
 function setModalFicheTab(tab) {
@@ -1450,6 +1474,9 @@ function renderModalFiche() {
     return;
   }
 
+  // TRI PAR ORDRE ALPHABÉTIQUE AUTOMATIQUE SUR LE TITRE DE LA NOTE
+  items.sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
+
   listEl.innerHTML = items.map((item) => `
     <div class="fiche-item-card-v1 ${item.isDead ? 'is-dead' : ''}">
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -1481,6 +1508,9 @@ function prepareEditFicheItem(bookIdx, tab, originalIdx) {
   editingFicheTargetBookIdx = bookIdx;
   editingFicheItemIdx = originalIdx;
 
+  const select = document.getElementById('modal-target-tome-select');
+  if (select) select.value = bookIdx;
+
   document.getElementById('modal-new-item-title').value = item.title;
   document.getElementById('modal-new-item-desc').value = item.desc;
   const deadCb = document.getElementById('modal-new-item-dead');
@@ -1495,6 +1525,7 @@ function addOrUpdateModalFicheItem() {
   const titleInput = document.getElementById('modal-new-item-title');
   const descInput = document.getElementById('modal-new-item-desc');
   const deadCb = document.getElementById('modal-new-item-dead');
+  const tomeSelect = document.getElementById('modal-target-tome-select');
 
   const title = titleInput.value.trim();
   const desc = descInput.value.trim();
@@ -1502,17 +1533,36 @@ function addOrUpdateModalFicheItem() {
 
   if (!title) { alert("Veuillez saisir au moins un nom."); return; }
 
-  let targetBook = (editingFicheItemIdx !== null && editingFicheTargetBookIdx !== null) ? books[editingFicheTargetBookIdx] : books[currentHeroBookIdx];
-  let fiche = parseBookFiche(targetBook.notes);
-  if (!fiche[currentModalFicheTab]) fiche[currentModalFicheTab] = [];
+  let selectedBookIdx = (tomeSelect && tomeSelect.value) ? parseInt(tomeSelect.value) : currentHeroBookIdx;
+  let targetBook = books[selectedBookIdx] || books[currentHeroBookIdx];
 
-  if (editingFicheItemIdx !== null) {
-    fiche[currentModalFicheTab][editingFicheItemIdx] = { title, desc, isDead };
+  if (editingFicheItemIdx !== null && editingFicheTargetBookIdx !== null) {
+    let oldBook = books[editingFicheTargetBookIdx];
+    let oldFiche = parseBookFiche(oldBook.notes);
+    
+    if (editingFicheTargetBookIdx === selectedBookIdx) {
+      if (oldFiche[currentModalFicheTab]) {
+        oldFiche[currentModalFicheTab][editingFicheItemIdx] = { title, desc, isDead };
+      }
+      oldBook.notes = stringifyBookFiche(oldFiche);
+    } else {
+      if (oldFiche[currentModalFicheTab]) {
+        oldFiche[currentModalFicheTab].splice(editingFicheItemIdx, 1);
+      }
+      oldBook.notes = stringifyBookFiche(oldFiche);
+
+      let newFiche = parseBookFiche(targetBook.notes);
+      if (!newFiche[currentModalFicheTab]) newFiche[currentModalFicheTab] = [];
+      newFiche[currentModalFicheTab].push({ title, desc, isDead });
+      targetBook.notes = stringifyBookFiche(newFiche);
+    }
   } else {
+    let fiche = parseBookFiche(targetBook.notes);
+    if (!fiche[currentModalFicheTab]) fiche[currentModalFicheTab] = [];
     fiche[currentModalFicheTab].push({ title, desc, isDead });
+    targetBook.notes = stringifyBookFiche(fiche);
   }
 
-  targetBook.notes = stringifyBookFiche(fiche);
   save();
   resetFicheForm();
   editingFicheItemIdx = null;
