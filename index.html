@@ -149,7 +149,6 @@ body {
 .carousel-slides-container { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; }
 .carousel-slides-container::-webkit-scrollbar { display: none; }
 
-/* FIX CENTRAGE DU CARROUSEL */
 .carousel-slide { flex: 0 0 100%; min-width: 100%; max-width: 100%; height: 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; }
 .hero-reading-content-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin: auto; }
 
@@ -269,6 +268,9 @@ body {
   appearance: none;
   -webkit-appearance: none;
 }
+
+.date-field-wrap { display: flex; align-items: center; gap: 6px; }
+.btn-clear-date { padding: 8px 10px; font-size: 12px; font-weight: 700; color: var(--danger); background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; flex-shrink: 0; }
 
 .pioche-section { display: flex; flex-direction: column; gap: 10px; }
 .pioche-btn { width: 100%; padding: 14px 16px; font-size: 13px; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; gap: 10px; text-align: left; }
@@ -745,6 +747,16 @@ function toggleFavorite(idx) {
   renderPAL();
 }
 
+function clearBookDate(idx, field) {
+  if (books[idx]) {
+    books[idx][field] = null;
+    const input = document.getElementById(`edit-${field === 'dateDebut' ? 'date-debut' : 'date-fin'}-${idx}`);
+    if (input) input.value = '';
+    save();
+    renderStats();
+  }
+}
+
 function renderAccueil() {
   const container = document.getElementById('hero-reading-container');
   const enCoursBooks = books.filter(b => b.statut === 'en_cours');
@@ -1090,8 +1102,20 @@ function renderPAL() {
             <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite</option>
           </select>
         </div>
-        <div class="form-field"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
-        <div class="form-field"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
+        <div class="form-field">
+          <label>Date de début</label>
+          <div class="date-field-wrap">
+            <input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}">
+            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateDebut')">✕</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Date de fin</label>
+          <div class="date-field-wrap">
+            <input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}">
+            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateFin')">✕</button>
+          </div>
+        </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
@@ -1219,8 +1243,20 @@ function renderWishlist() {
             <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
           </select>
         </div>
-        <div class="form-field"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
-        <div class="form-field"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
+        <div class="form-field">
+          <label>Date de début</label>
+          <div class="date-field-wrap">
+            <input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}">
+            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateDebut')">✕</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Date de fin</label>
+          <div class="date-field-wrap">
+            <input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}">
+            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateFin')">✕</button>
+          </div>
+        </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
         <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
@@ -1277,9 +1313,18 @@ function saveEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
-  b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
-  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
+  const newStatut = document.getElementById(`edit-statut-${idx}`).value;
+  b.statut = newStatut;
+
+  // NETTOYAGE DES DATES EN CAS DE RESET DE STATUT À "A_COMMENCER"
+  if (newStatut === 'a_commencer') {
+    b.dateDebut = null;
+    b.dateFin = null;
+  } else {
+    b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
+    b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
+  }
+
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.rating = parseInt(document.getElementById(`edit-rating-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
@@ -1319,9 +1364,17 @@ function saveWishEdit(idx) {
     b.tomeNum = parseFloat(document.getElementById(`edit-tome-num-${idx}`).value) || 1;
   }
 
-  b.statut = document.getElementById(`edit-statut-${idx}`).value;
-  b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
-  b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
+  const newStatut = document.getElementById(`edit-statut-${idx}`).value;
+  b.statut = newStatut;
+
+  if (newStatut === 'a_commencer' || newStatut === 'a_acheter' || newStatut === 'en_attente_publi') {
+    b.dateDebut = null;
+    b.dateFin = null;
+  } else {
+    b.dateDebut = document.getElementById(`edit-date-debut-${idx}`).value || null;
+    b.dateFin = document.getElementById(`edit-date-fin-${idx}`).value || null;
+  }
+
   b.prix = parseFloat(document.getElementById(`edit-prix-${idx}`).value) || 0;
   b.cover = document.getElementById(`edit-cover-${idx}`).value.trim();
   
@@ -1482,7 +1535,6 @@ function renderModalFiche() {
     return;
   }
 
-  // TRI PAR ORDRE ALPHABÉTIQUE AUTOMATIQUE SUR LE TITRE DE LA NOTE
   items.sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
 
   listEl.innerHTML = items.map((item) => `
