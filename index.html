@@ -990,8 +990,9 @@ function renderPAL() {
   });
 
   const totalOwned = ownedBooks.length;
+  const toRead = ownedBooks.filter(b=>b.statut==='a_commencer').length;
   const enCours = ownedBooks.filter(b=>b.statut==='en_cours').length;
-  document.getElementById('header-count').textContent = `${totalOwned} livres possédés · ${enCours} en cours`;
+  document.getElementById('header-count').textContent = `${totalOwned} livres possédés · ${toRead} à lire · ${enCours} en cours`;
 
   const list = document.getElementById('pal-list');
   if (!filtered.length) { list.innerHTML='<div class="empty-state">Aucun livre trouvé</div>'; return; }
@@ -1316,7 +1317,6 @@ function saveEdit(idx) {
   const newStatut = document.getElementById(`edit-statut-${idx}`).value;
   b.statut = newStatut;
 
-  // NETTOYAGE DES DATES EN CAS DE RESET DE STATUT À "A_COMMENCER"
   if (newStatut === 'a_commencer') {
     b.dateDebut = null;
     b.dateFin = null;
