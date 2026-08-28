@@ -320,9 +320,10 @@ body {
 .stat-detail-item:last-child { border-bottom: none; }
 
 .chart-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; margin-top: 14px; padding-top: 20px; }
-.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; cursor: pointer; }
 .chart-bar-wrap { width: 100%; background: var(--surface2); border-radius: 6px; flex: 1; display: flex; align-items: flex-end; overflow: hidden; }
-.chart-bar { width: 100%; background: var(--purple-light); border-radius: 6px; transition: height 0.4s ease; min-height: 0; }
+.chart-bar { width: 100%; background: var(--purple-light); border-radius: 6px; transition: all 0.2s ease; min-height: 0; }
+.chart-bar.selected { background: var(--purple-dark); box-shadow: 0 0 8px rgba(116, 79, 140, 0.6); }
 .chart-val { font-size: 10px; font-weight: 700; color: var(--text2); }
 .chart-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; }
 </style>
@@ -541,7 +542,7 @@ body {
   </div>
 
   <div class="form-card">
-    <p class="section-label" style="margin-bottom:4px;">Livres lus par mois</p>
+    <p class="section-label" style="margin-bottom:4px;">Livres lus par mois (clique sur un mois 🔍)</p>
     <div class="chart-container" id="chart-months"></div>
   </div>
 
@@ -677,6 +678,7 @@ let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
 let syncQueue = [];
 let activeShoppingItems = [];
 let currentHeroBookIdx = null, currentModalFicheTab = 'perso', editingFicheItemIdx = null, editingFicheTargetBookIdx = null;
+let selectedMonthIdx = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1698,9 +1700,10 @@ function renderStats() {
   const chartEl = document.getElementById('chart-months');
   chartEl.innerHTML = monthCounts.map((cnt, i) => {
     const pct = Math.round((cnt / maxVal) * 100);
-    return `<div class="chart-col">
+    const isSelected = selectedMonthIdx === i;
+    return `<div class="chart-col" onclick="showMonthStatDetail(${i})">
       <div class="chart-val">${cnt > 0 ? cnt : ''}</div>
-      <div class="chart-bar-wrap"><div class="chart-bar" style="height:${pct}%"></div></div>
+      <div class="chart-bar-wrap"><div class="chart-bar ${isSelected ? 'selected' : ''}" style="height:${pct}%"></div></div>
       <div class="chart-label">${monthNames[i]}</div>
     </div>`;
   }).join('');
@@ -1739,7 +1742,35 @@ function renderStats() {
   document.getElementById('stat-series-done').textContent = doneSeries;
 }
 
+function showMonthStatDetail(mIdx) {
+  selectedMonthIdx = mIdx;
+  const detailBox = document.getElementById('stat-detail-box');
+  const titleEl = document.getElementById('stat-detail-title');
+  const listEl = document.getElementById('stat-detail-list');
+  const selectedYear = parseInt(document.getElementById('stats-year-select').value || new Date().getFullYear());
+  const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+  titleEl.textContent = `Livres lus en ${monthNames[mIdx]} ${selectedYear}`;
+  
+  const readBooks = books.filter(b => {
+    if (b.statut !== 'termine' || !b.dateFin) return false;
+    const year = parseInt(b.dateFin.substring(0,4));
+    const month = parseInt(b.dateFin.substring(5,7)) - 1;
+    return year === selectedYear && month === mIdx;
+  });
+
+  readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+
+  const rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>📖 ${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
+
+  listEl.innerHTML = rawItems.length ? rawItems.join('') : '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun livre lu ce mois-ci.</div>';
+  detailBox.style.display = 'block';
+  
+  renderStats();
+}
+
 function showStatDetail(type) {
+  selectedMonthIdx = null;
   const detailBox = document.getElementById('stat-detail-box');
   const titleEl = document.getElementById('stat-detail-title');
   const listEl = document.getElementById('stat-detail-list');
@@ -1803,9 +1834,14 @@ function showStatDetail(type) {
 
   listEl.innerHTML = rawItems.length ? rawItems.join('') : '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun élément.</div>';
   detailBox.style.display = 'block';
+  renderStats();
 }
 
-function closeStatDetail() { document.getElementById('stat-detail-box').style.display = 'none'; }
+function closeStatDetail() { 
+  selectedMonthIdx = null;
+  document.getElementById('stat-detail-box').style.display = 'none'; 
+  renderStats();
+}
 
 function startReading(idx) { 
   const today = new Date().toISOString().slice(0,10);
