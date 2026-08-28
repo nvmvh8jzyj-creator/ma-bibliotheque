@@ -254,6 +254,25 @@ body {
 .modal-overlay.open { display: flex; }
 .modal-card { background: var(--surface); border-radius: 24px; width: 100%; max-width: 440px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
+/* POPUP FÉLICITATIONS DE LECTURE */
+.congrats-card { text-align: center; position: relative; overflow: hidden; }
+.congrats-stars-bg { position: absolute; inset: 0; pointer-events: none; opacity: 0.6; font-size: 18px; }
+.congrats-star { position: absolute; animation: floatStar 3s ease-in-out infinite; }
+@keyframes floatStar {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+  50% { transform: translateY(-12px) rotate(180deg); opacity: 1; }
+  100% { transform: translateY(0px) rotate(360deg); opacity: 0.2; }
+}
+
+.congrats-cover-img { height: 180px; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,0.25); margin: 10px auto 12px auto; display: block; }
+.congrats-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 4px; }
+.congrats-subtitle { font-size: 12px; color: var(--purple-light); font-weight: 700; margin-bottom: 12px; }
+.congrats-time { font-size: 13px; font-weight: 600; color: var(--text2); background: var(--surface2); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 16px; }
+
+.rating-picker { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+.rating-star-btn { font-size: 28px; color: var(--text3); cursor: pointer; background: none; border: none; transition: transform 0.15s ease, color 0.15s ease; }
+.rating-star-btn.active { color: #f39c12; transform: scale(1.15); }
+
 .fiche-input-v1 { width: 100%; font-size: 13px; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); margin-bottom: 8px; font-family: inherit; }
 .fiche-select-v1 { width: 100%; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 14px; border: 1px solid var(--border); background: #ffffff; color: var(--purple-dark); margin-bottom: 8px; }
 .fiche-btn-add-v1 { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); cursor: pointer; }
@@ -358,6 +377,36 @@ body {
     <button class="btn-full btn-secondary-full" id="btn-add-random-oneshot" onclick="addRandomOneshotToShoppingList()" style="margin-top:8px;">🎲 Ajouter un One-shot au hasard</button>
     <button class="btn-full btn-danger-full" onclick="resetShoppingList()" style="margin-top:4px;">🔄 Réinitialiser la liste</button>
     <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:4px;">Fermer la liste</button>
+  </div>
+</div>
+
+<!-- POPUP FIN DE LECTURE & EVALUATION -->
+<div class="modal-overlay" id="congratulations-modal">
+  <div class="modal-card congrats-card">
+    <div class="congrats-stars-bg">
+      <span class="congrats-star" style="top:10%; left:12%;">✨</span>
+      <span class="congrats-star" style="top:15%; right:15%; animation-delay: 0.5s;">⭐</span>
+      <span class="congrats-star" style="top:45%; left:8%; animation-delay: 1s;">✨</span>
+      <span class="congrats-star" style="top:50%; right:10%; animation-delay: 1.5s;">🌟</span>
+      <span class="congrats-star" style="bottom:20%; left:16%; animation-delay: 0.8s;">⭐</span>
+      <span class="congrats-star" style="bottom:15%; right:18%; animation-delay: 1.2s;">✨</span>
+    </div>
+
+    <div id="congrats-cover-wrap"></div>
+    <div class="congrats-title" id="congrats-title"></div>
+    <div class="congrats-subtitle" id="congrats-subtitle"></div>
+    <div class="congrats-time" id="congrats-time"></div>
+
+    <p style="font-size:12px; font-weight:700; color:var(--text2); margin-bottom:8px;">Note à donner à ce livre :</p>
+    <div class="rating-picker" id="congrats-rating-picker">
+      <button class="rating-star-btn" onclick="setCongratsRating(1)">★</button>
+      <button class="rating-star-btn" onclick="setCongratsRating(2)">★</button>
+      <button class="rating-star-btn" onclick="setCongratsRating(3)">★</button>
+      <button class="rating-star-btn" onclick="setCongratsRating(4)">★</button>
+      <button class="rating-star-btn" onclick="setCongratsRating(5)">★</button>
+    </div>
+
+    <button class="modal-close-btn-v1" onclick="saveCongratsAndClose()" style="margin-top:0;">Enregistrer la note</button>
   </div>
 </div>
 
@@ -678,7 +727,7 @@ let lastPiocheMode = 'suite_serie_possedee', currentPiocheBookIdx = null;
 let syncQueue = [];
 let activeShoppingItems = [];
 let currentHeroBookIdx = null, currentModalFicheTab = 'perso', editingFicheItemIdx = null, editingFicheTargetBookIdx = null;
-let selectedMonthIdx = null;
+let selectedMonthIdx = null, congratsBookIdx = null, congratsSelectedRating = 0;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1246,20 +1295,8 @@ function renderWishlist() {
             <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
           </select>
         </div>
-        <div class="form-field">
-          <label>Date de début</label>
-          <div class="date-field-wrap">
-            <input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}">
-            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateDebut')">✕</button>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Date de fin</label>
-          <div class="date-field-wrap">
-            <input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}">
-            <button class="btn-clear-date" onclick="clearBookDate(${idx}, 'dateFin')">✕</button>
-          </div>
-        </div>
+        <div class="form-field"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
+        <div class="form-field"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
         <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
@@ -1855,15 +1892,70 @@ function startReading(idx) {
 }
 
 function markDone(idx) { 
+  congratsBookIdx = idx;
+  const b = books[idx];
   const today = new Date().toISOString().slice(0,10);
-  books[idx].statut = 'termine'; 
-  if (!books[idx].dateFin) books[idx].dateFin = today;
-  if (!books[idx].dateDebut) books[idx].dateDebut = today;
+  
+  b.statut = 'termine'; 
+  if (!b.dateFin) b.dateFin = today;
+  if (!b.dateDebut) b.dateDebut = today;
+  
+  congratsSelectedRating = b.rating || 0;
+  
+  // Calcul durée de lecture
+  let daysText = "Temps de lecture non renseigné";
+  if (b.dateDebut && b.dateFin) {
+    const diffDays = Math.ceil((new Date(b.dateFin) - new Date(b.dateDebut)) / (1000 * 60 * 60 * 24)) + 1;
+    daysText = diffDays > 1 ? `Lu en ${diffDays} jours ⏱️` : `Lu en 1 jour ⏱️`;
+  }
+
+  const isOne = b.type === 'one_shot';
+  const s = b.serieId ? series[b.serieId] : null;
+
+  document.getElementById('congrats-title').textContent = b.titre;
+  document.getElementById('congrats-subtitle').textContent = isOne ? b.auteur : (s ? `${s.nom} · Tome ${b.tomeNum}/${s.totalTomes}` : '');
+  document.getElementById('congrats-time').textContent = daysText;
+
+  const coverWrap = document.getElementById('congrats-cover-wrap');
+  if (b.cover && b.cover.trim().length > 5) {
+    coverWrap.innerHTML = `<img src="${escHtml(b.cover)}" class="congrats-cover-img" alt="Couverture">`;
+  } else {
+    coverWrap.innerHTML = `<div class="hero-cover-placeholder-large" style="height:180px; margin:10px auto 12px auto;"><div style="font-size:28px;">📖</div><div style="font-size:13px; font-weight:800;">${escHtml(b.titre)}</div></div>`;
+  }
+
+  renderCongratsStars();
+  document.getElementById('congratulations-modal').classList.add('open');
+
   save(); 
   renderAccueil(); 
   renderPAL(); 
   renderWishlist(); 
   renderStats();
+}
+
+function setCongratsRating(rating) {
+  congratsSelectedRating = rating;
+  renderCongratsStars();
+}
+
+function renderCongratsStars() {
+  const container = document.getElementById('congrats-rating-picker');
+  if (!container) return;
+  const btns = container.querySelectorAll('.rating-star-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.toggle('active', i < congratsSelectedRating);
+  });
+}
+
+function saveCongratsAndClose() {
+  if (congratsBookIdx !== null && books[congratsBookIdx]) {
+    books[congratsBookIdx].rating = congratsSelectedRating;
+    save();
+    renderPAL();
+    renderStats();
+  }
+  document.getElementById('congratulations-modal').classList.remove('open');
+  congratsBookIdx = null;
 }
 
 function markBought(idx) { 
