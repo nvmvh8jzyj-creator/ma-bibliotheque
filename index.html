@@ -264,14 +264,16 @@ body {
   100% { transform: translateY(0px) rotate(360deg); opacity: 0.2; }
 }
 
-.congrats-cover-img { height: 180px; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,0.25); margin: 10px auto 12px auto; display: block; }
-.congrats-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 4px; }
-.congrats-subtitle { font-size: 12px; color: var(--purple-light); font-weight: 700; margin-bottom: 12px; }
-.congrats-time { font-size: 13px; font-weight: 600; color: var(--text2); background: var(--surface2); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 16px; }
+.congrats-cover-img { height: 170px; width: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,0.25); margin: 10px auto 10px auto; display: block; }
+.congrats-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 2px; }
+.congrats-subtitle { font-size: 12px; color: var(--purple-light); font-weight: 700; margin-bottom: 10px; }
+.congrats-time { font-size: 12px; font-weight: 600; color: var(--text2); background: var(--surface2); padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
 
-.rating-picker { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+.rating-picker { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
 .rating-star-btn { font-size: 28px; color: var(--text3); cursor: pointer; background: none; border: none; transition: transform 0.15s ease, color 0.15s ease; }
 .rating-star-btn.active { color: #f39c12; transform: scale(1.15); }
+
+.next-tome-opt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 14px; text-align: left; }
 
 .fiche-input-v1 { width: 100%; font-size: 13px; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); margin-bottom: 8px; font-family: inherit; }
 .fiche-select-v1 { width: 100%; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 14px; border: 1px solid var(--border); background: #ffffff; color: var(--purple-dark); margin-bottom: 8px; }
@@ -406,7 +408,14 @@ body {
       <button class="rating-star-btn" onclick="setCongratsRating(5)">★</button>
     </div>
 
-    <button class="modal-close-btn-v1" onclick="saveCongratsAndClose()" style="margin-top:0;">Enregistrer la note</button>
+    <div id="congrats-next-tome-wrap" class="next-tome-opt-box" style="display:none;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--purple-dark); cursor:pointer;">
+        <input type="checkbox" id="congrats-add-next-cb" style="width:16px; height:16px; accent-color:var(--purple-dark);" checked>
+        <span id="congrats-add-next-label">Ajouter le tome suivant</span>
+      </label>
+    </div>
+
+    <button class="modal-close-btn-v1" onclick="saveCongratsAndClose()" style="margin-top:0;">Enregistrer</button>
   </div>
 </div>
 
@@ -728,6 +737,7 @@ let syncQueue = [];
 let activeShoppingItems = [];
 let currentHeroBookIdx = null, currentModalFicheTab = 'perso', editingFicheItemIdx = null, editingFicheTargetBookIdx = null;
 let selectedMonthIdx = null, congratsBookIdx = null, congratsSelectedRating = 0;
+let congratsNextTomeAction = null;
 
 function load() {
   try { books = JSON.parse(localStorage.getItem('pal_books') || '[]'); } catch(e) { books=[]; }
@@ -1901,6 +1911,7 @@ function markDone(idx) {
   if (!b.dateDebut) b.dateDebut = today;
   
   congratsSelectedRating = b.rating || 0;
+  congratsNextTomeAction = null;
   
   // Calcul durée de lecture
   let daysText = "Temps de lecture non renseigné";
@@ -1920,7 +1931,34 @@ function markDone(idx) {
   if (b.cover && b.cover.trim().length > 5) {
     coverWrap.innerHTML = `<img src="${escHtml(b.cover)}" class="congrats-cover-img" alt="Couverture">`;
   } else {
-    coverWrap.innerHTML = `<div class="hero-cover-placeholder-large" style="height:180px; margin:10px auto 12px auto;"><div style="font-size:28px;">📖</div><div style="font-size:13px; font-weight:800;">${escHtml(b.titre)}</div></div>`;
+    coverWrap.innerHTML = `<div class="hero-cover-placeholder-large" style="height:170px; margin:10px auto 10px auto;"><div style="font-size:28px;">📖</div><div style="font-size:13px; font-weight:800;">${escHtml(b.titre)}</div></div>`;
+  }
+
+  // ANALYSE DISCRÈTE POUR TOME SUIVANT
+  const nextWrap = document.getElementById('congrats-next-tome-wrap');
+  const nextLabel = document.getElementById('congrats-add-next-label');
+
+  if (!isOne && b.serieId && s && (b.tomeNum < s.totalTomes)) {
+    const nextTomeNum = b.tomeNum + 1;
+    
+    // Vérifier si le tome suivant est déjà dans la base
+    const nextInPal = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
+    const wishNext = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && (other.statut === 'a_acheter' || other.statut === 'en_attente_publi'));
+
+    if (!nextInPal) {
+      nextWrap.style.display = 'block';
+      if (wishNext) {
+        congratsNextTomeAction = { type: 'mark_target', book: wishNext };
+        nextLabel.textContent = `🎯 Marquer Tome ${nextTomeNum} comme "Prochain achat"`;
+      } else {
+        congratsNextTomeAction = { type: 'add_wish', serieId: b.serieId, nextTomeNum, nom: s.nom, auteur: s.auteur };
+        nextLabel.textContent = `🛒 Ajouter Tome ${nextTomeNum} à ma Wishlist`;
+      }
+    } else {
+      nextWrap.style.display = 'none';
+    }
+  } else {
+    nextWrap.style.display = 'none';
   }
 
   renderCongratsStars();
@@ -1950,12 +1988,35 @@ function renderCongratsStars() {
 function saveCongratsAndClose() {
   if (congratsBookIdx !== null && books[congratsBookIdx]) {
     books[congratsBookIdx].rating = congratsSelectedRating;
+    
+    // Traitement de l'action optionnelle sur le tome suivant
+    const cb = document.getElementById('congrats-add-next-cb');
+    if (cb && cb.checked && congratsNextTomeAction) {
+      if (congratsNextTomeAction.type === 'mark_target') {
+        congratsNextTomeAction.book.isNextTarget = true;
+      } else if (congratsNextTomeAction.type === 'add_wish') {
+        books.unshift({
+          id: 'wish_auto_' + Date.now(),
+          titre: `${congratsNextTomeAction.nom}, Tome ${congratsNextTomeAction.nextTomeNum}`,
+          auteur: congratsNextTomeAction.auteur || '',
+          type: 'serie',
+          serieId: congratsNextTomeAction.serieId,
+          tomeNum: congratsNextTomeAction.nextTomeNum,
+          statut: 'a_acheter',
+          prix: 0,
+          dateAjout: new Date().toISOString().slice(0,10)
+        });
+      }
+    }
+
     save();
     renderPAL();
+    renderWishlist();
     renderStats();
   }
   document.getElementById('congratulations-modal').classList.remove('open');
   congratsBookIdx = null;
+  congratsNextTomeAction = null;
 }
 
 function markBought(idx) { 
