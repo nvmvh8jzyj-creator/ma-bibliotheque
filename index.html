@@ -273,13 +273,15 @@ body {
 .rating-star-btn { font-size: 28px; color: var(--text3); cursor: pointer; background: none; border: none; transition: transform 0.15s ease, color 0.15s ease; }
 .rating-star-btn.active { color: #f39c12; transform: scale(1.15); }
 
-.next-tome-opt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 14px; text-align: left; }
+.next-tome-opt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; text-align: left; }
 
 .fiche-input-v1 { width: 100%; font-size: 13px; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); margin-bottom: 8px; font-family: inherit; }
 .fiche-select-v1 { width: 100%; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 14px; border: 1px solid var(--border); background: #ffffff; color: var(--purple-dark); margin-bottom: 8px; }
 .fiche-btn-add-v1 { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; border-radius: 20px; border: 1px solid var(--border); background: #ffffff; color: var(--text); cursor: pointer; }
 
 .modal-close-btn-v1 { width: 100%; padding: 14px; font-size: 15px; font-weight: 800; border-radius: 16px; border: none; background: var(--purple-dark); color: #ffffff; cursor: pointer; margin-top: 8px; }
+
+.btn-dnf-v1 { background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; text-decoration: underline; opacity: 0.85; }
 
 .form-field input[type="date"] {
   width: 100% !important;
@@ -415,7 +417,18 @@ body {
       </label>
     </div>
 
+    <div id="congrats-stop-serie-wrap" class="next-tome-opt-box" style="display:none; background:#fdecea; border-color:rgba(192, 57, 43, 0.2);">
+      <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--danger); cursor:pointer;">
+        <input type="checkbox" id="congrats-stop-serie-cb" style="width:16px; height:16px; accent-color:var(--danger);">
+        <span>🛑 Marquer la saga comme abandonnée</span>
+      </label>
+    </div>
+
     <button class="modal-close-btn-v1" onclick="saveCongratsAndClose()" style="margin-top:0;">Enregistrer</button>
+    
+    <div>
+      <button class="btn-dnf-v1" onclick="markBookAsDNF()">🚫 DNF (Abandonner la lecture)</button>
+    </div>
   </div>
 </div>
 
@@ -1159,7 +1172,7 @@ function renderPAL() {
             <option value="a_commencer" ${b.statut==='a_commencer'?'selected':''}>⏳ À commencer (Possédé)</option>
             <option value="en_cours" ${b.statut==='en_cours'?'selected':''}>📖 En cours de lecture</option>
             <option value="termine" ${b.statut==='termine'?'selected':''}>✓ Terminé / Lu</option>
-            <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné</option>
+            <option value="abandonne" ${b.statut==='abandonne'?'selected':''}>🚫 Abandonné (DNF)</option>
             <option value="a_acheter" ${b.statut==='a_acheter'?'selected':''}>🛒 En Wishlist (À acheter)</option>
             <option value="en_attente_publi" ${b.statut==='en_attente_publi'?'selected':''}>📦 En attente de suite</option>
           </select>
@@ -1937,28 +1950,37 @@ function markDone(idx) {
   // ANALYSE DISCRÈTE POUR TOME SUIVANT
   const nextWrap = document.getElementById('congrats-next-tome-wrap');
   const nextLabel = document.getElementById('congrats-add-next-label');
+  const stopWrap = document.getElementById('congrats-stop-serie-wrap');
+  const stopCb = document.getElementById('congrats-stop-serie-cb');
 
-  if (!isOne && b.serieId && s && (b.tomeNum < s.totalTomes)) {
-    const nextTomeNum = b.tomeNum + 1;
+  if (stopCb) stopCb.checked = false;
+
+  if (!isOne && b.serieId && s) {
+    stopWrap.style.display = 'block';
     
-    // Vérifier si le tome suivant est déjà dans la base
-    const nextInPal = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
-    const wishNext = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && (other.statut === 'a_acheter' || other.statut === 'en_attente_publi'));
+    if (b.tomeNum < s.totalTomes) {
+      const nextTomeNum = b.tomeNum + 1;
+      const nextInPal = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && other.statut !== 'a_acheter' && other.statut !== 'en_attente_publi');
+      const wishNext = books.find(other => other.type === 'serie' && other.serieId === b.serieId && other.tomeNum === nextTomeNum && (other.statut === 'a_acheter' || other.statut === 'en_attente_publi'));
 
-    if (!nextInPal) {
-      nextWrap.style.display = 'block';
-      if (wishNext) {
-        congratsNextTomeAction = { type: 'mark_target', book: wishNext };
-        nextLabel.textContent = `🎯 Marquer Tome ${nextTomeNum} comme "Prochain achat"`;
+      if (!nextInPal) {
+        nextWrap.style.display = 'block';
+        if (wishNext) {
+          congratsNextTomeAction = { type: 'mark_target', book: wishNext };
+          nextLabel.textContent = `🎯 Marquer Tome ${nextTomeNum} comme "Prochain achat"`;
+        } else {
+          congratsNextTomeAction = { type: 'add_wish', serieId: b.serieId, nextTomeNum, nom: s.nom, auteur: s.auteur };
+          nextLabel.textContent = `🛒 Ajouter Tome ${nextTomeNum} à ma Wishlist`;
+        }
       } else {
-        congratsNextTomeAction = { type: 'add_wish', serieId: b.serieId, nextTomeNum, nom: s.nom, auteur: s.auteur };
-        nextLabel.textContent = `🛒 Ajouter Tome ${nextTomeNum} à ma Wishlist`;
+        nextWrap.style.display = 'none';
       }
     } else {
       nextWrap.style.display = 'none';
     }
   } else {
     nextWrap.style.display = 'none';
+    stopWrap.style.display = 'none';
   }
 
   renderCongratsStars();
@@ -1985,13 +2007,42 @@ function renderCongratsStars() {
   });
 }
 
+function markBookAsDNF() {
+  if (congratsBookIdx !== null && books[congratsBookIdx]) {
+    const b = books[congratsBookIdx];
+    b.statut = 'abandonne';
+    b.dateFin = null;
+    
+    const stopCb = document.getElementById('congrats-stop-serie-cb');
+    if (stopCb && stopCb.checked && b.serieId && series[b.serieId]) {
+      series[b.serieId].isAbandoned = true;
+    }
+
+    save();
+    renderPAL();
+    renderWishlist();
+    renderAccueil();
+    renderStats();
+  }
+  document.getElementById('congratulations-modal').classList.remove('open');
+  congratsBookIdx = null;
+  congratsNextTomeAction = null;
+}
+
 function saveCongratsAndClose() {
   if (congratsBookIdx !== null && books[congratsBookIdx]) {
-    books[congratsBookIdx].rating = congratsSelectedRating;
+    const b = books[congratsBookIdx];
+    b.rating = congratsSelectedRating;
     
-    // Traitement de l'action optionnelle sur le tome suivant
+    // Traitement de l'arrêt de série
+    const stopCb = document.getElementById('congrats-stop-serie-cb');
+    if (stopCb && stopCb.checked && b.serieId && series[b.serieId]) {
+      series[b.serieId].isAbandoned = true;
+    }
+
+    // Traitement du tome suivant
     const cb = document.getElementById('congrats-add-next-cb');
-    if (cb && cb.checked && congratsNextTomeAction) {
+    if (cb && cb.checked && congratsNextTomeAction && (!stopCb || !stopCb.checked)) {
       if (congratsNextTomeAction.type === 'mark_target') {
         congratsNextTomeAction.book.isNextTarget = true;
       } else if (congratsNextTomeAction.type === 'add_wish') {
