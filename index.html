@@ -283,6 +283,10 @@ body {
 
 .btn-dnf-v1 { background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; text-decoration: underline; opacity: 0.85; }
 
+/* STYLES DES INPUTS COUVERTURE URL / GALERIE */
+.cover-input-group { display: flex; gap: 8px; align-items: center; }
+.btn-upload-file { font-size: 12px; font-weight: 700; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--purple-dark); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+
 .form-field input[type="date"] {
   width: 100% !important;
   max-width: 100% !important;
@@ -646,7 +650,11 @@ body {
 
     <div class="form-field">
       <label>URL de la couverture (optionnel)</label>
-      <input type="url" id="new-cover" placeholder="Ex: https://...">
+      <div class="cover-input-group">
+        <input type="url" id="new-cover" placeholder="Ex: https://...">
+        <label for="new-cover-file" class="btn-upload-file">🖼️ Galerie</label>
+        <input type="file" id="new-cover-file" accept="image/*" style="display:none;" onchange="handleCoverFileUpload(this, 'new-cover')">
+      </div>
     </div>
 
     <div class="form-field">
@@ -776,6 +784,20 @@ function save() {
 
 function saveShoppingList() {
   localStorage.setItem('pal_shopping_list', JSON.stringify(activeShoppingItems));
+}
+
+function handleCoverFileUpload(fileInput, targetInputId) {
+  if (fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const targetInput = document.getElementById(targetInputId);
+      if (targetInput) {
+        targetInput.value = e.target.result;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
 function updateAuteursDataList() {
@@ -1193,7 +1215,14 @@ function renderPAL() {
         </div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
         <div class="form-field"><label>Note (/5)</label><input type="number" id="edit-rating-${idx}" value="${b.rating||0}" min="0" max="5"></div>
-        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
+        <div class="form-field">
+          <label>URL Couverture</label>
+          <div class="cover-input-group">
+            <input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}">
+            <label for="edit-cover-file-${idx}" class="btn-upload-file">🖼️ Galerie</label>
+            <input type="file" id="edit-cover-file-${idx}" accept="image/*" style="display:none;" onchange="handleCoverFileUpload(this, 'edit-cover-${idx}')">
+          </div>
+        </div>
         <button class="btn-full" onclick="saveEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
@@ -1321,7 +1350,14 @@ function renderWishlist() {
         <div class="form-field"><label>Date de début</label><input type="date" id="edit-date-debut-${idx}" value="${b.dateDebut||''}"></div>
         <div class="form-field"><label>Date de fin</label><input type="date" id="edit-date-fin-${idx}" value="${b.dateFin||''}"></div>
         <div class="form-field"><label>Prix (€)</label><input type="number" step="0.01" id="edit-prix-${idx}" value="${b.prix||0}"></div>
-        <div class="form-field"><label>URL Couverture</label><input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}"></div>
+        <div class="form-field">
+          <label>URL Couverture</label>
+          <div class="cover-input-group">
+            <input type="url" id="edit-cover-${idx}" value="${escHtml(b.cover||'')}">
+            <label for="edit-cover-file-${idx}" class="btn-upload-file">🖼️ Galerie</label>
+            <input type="file" id="edit-cover-file-${idx}" accept="image/*" style="display:none;" onchange="handleCoverFileUpload(this, 'edit-cover-${idx}')">
+          </div>
+        </div>
         <button class="btn-full" onclick="saveWishEdit(${idx})">Enregistrer les modifications</button>
       </div>
     </div>`;
