@@ -218,6 +218,7 @@ body {
 .badge-prequel { background: var(--ochre-bg); color: var(--ochre); }
 .badge-favorite { background: #fde8e8; color: #e74c3c; }
 .badge-target { background: var(--ochre-bg); color: var(--ochre); border: 1px solid rgba(217, 139, 72, 0.4); }
+.badge-manga { background: #e8f4f8; color: #2980b9; border: 1px solid rgba(41, 128, 185, 0.3); }
 
 .heart-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text3); font-size: 12px; font-weight: 600; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; }
 .heart-btn.active { color: #e74c3c; font-weight: 700; }
@@ -383,7 +384,6 @@ body {
     <p class="section-label" style="margin-bottom:4px;">🛒 Ma Liste de Courses du Mois</p>
     <div id="shopping-list-budget-info" style="font-size:13px; font-weight:700; color:var(--purple-light); margin-bottom:12px;"></div>
     
-    <!-- AJOUT MANUEL D'ESTIMATION / LOT TEMPORAIRE -->
     <div class="shopping-manual-box">
       <p style="font-size:11px; font-weight:800; color:var(--purple-dark); text-transform:uppercase;">Simulation / Ajout rapide</p>
       <div class="shopping-manual-row">
@@ -606,7 +606,7 @@ body {
 
 <div id="stats" class="section">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <p class="section-label" style="margin-bottom:0;">Statistiques de lecture</p>
+    <p class="section-label" style="margin-bottom:0;">Statistiques Livres & Romans</p>
     <select id="stats-year-select" onchange="renderStats()" style="width:auto; padding:4px 8px; font-size:13px;"></select>
   </div>
 
@@ -655,6 +655,25 @@ body {
       <div class="stat-label">Séries terminées 🔍</div>
     </div>
   </div>
+
+  <!-- SECTION SÉPARÉE SPECIFIQUE BD / MANGAS -->
+  <p class="section-label" style="margin-top:20px; margin-bottom:8px; border-top:1px solid var(--border); padding-top:14px;">🎨 Statistiques BD & Mangas</p>
+
+  <div class="stat-grid">
+    <div class="stat-card" onclick="showStatDetail('manga_read_year')">
+      <div class="stat-num purple" id="stat-manga-read-year">0</div>
+      <div class="stat-label">BD/Mangas lus 🔍</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num ok" id="stat-manga-spend-year">0 €</div>
+      <div class="stat-label">Dépensés BD/Mangas</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="section-label" style="margin-bottom:4px;">BD & Mangas lus par mois</p>
+    <div class="chart-container" id="chart-manga-months"></div>
+  </div>
 </div>
 
 <div id="ajouter" class="section">
@@ -668,6 +687,13 @@ body {
         <label for="new-cover-file" class="btn-upload-file">🖼️ Galerie</label>
         <input type="file" id="new-cover-file" accept="image/*" style="display:none;" onchange="handleCoverFileUpload(this, 'new-cover')">
       </div>
+    </div>
+
+    <div class="form-field">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:var(--purple-dark);">
+        <input type="checkbox" id="new-is-manga" style="width:16px; height:16px; accent-color:var(--purple-dark);">
+        <span>🎨 BD / Manga (Stats séparées)</span>
+      </label>
     </div>
 
     <div class="form-field">
@@ -1149,6 +1175,7 @@ function renderPAL() {
 
     const authorDisplay = isOne ? b.auteur : (s ? s.auteur : '');
     const isFav = !!b.favorite;
+    const isManga = !!b.isManga;
 
     let maxTomeLu = 0;
     if (!isOne && b.serieId) {
@@ -1181,6 +1208,7 @@ function renderPAL() {
           </div>
           <div class="badges">
             <span class="badge ${bClass}">${bText}</span>
+            ${isManga ? `<span class="badge badge-manga">🎨 BD / Manga</span>` : ''}
             ${b.isPrequel ? `<span class="badge badge-prequel">⏳ Préquel</span>` : ''}
             ${(!isOne && s && s.isAbandoned) ? `<span class="badge badge-abandoned">🚫 Saga abandonnée</span>` : ''}
             ${isFav ? `<span class="badge badge-favorite">❤️ Coup de cœur</span>` : ''}
@@ -1207,6 +1235,12 @@ function renderPAL() {
 
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier ce livre</p>
+        <div class="form-field">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:var(--purple-dark);">
+            <input type="checkbox" id="edit-is-manga-${idx}" ${isManga ? 'checked' : ''} style="width:16px; height:16px; accent-color:var(--purple-dark);">
+            <span>🎨 BD / Manga (Stats séparées)</span>
+          </label>
+        </div>
         <div class="form-field">
           <label>Type de livre</label>
           <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
@@ -1322,6 +1356,7 @@ function renderWishlist() {
     const s = b.serieId ? series[b.serieId] : null;
     const isTarget = !!b.isNextTarget;
     const authorVal = isOne ? b.auteur : (s ? s.auteur : '');
+    const isManga = !!b.isManga;
 
     let coverHtml = (b.cover && b.cover.trim().length > 5)
       ? `<img src="${escHtml(b.cover)}" class="book-cover" alt="Couverture">`
@@ -1343,6 +1378,7 @@ function renderWishlist() {
           </div>
           <div class="badges">
             ${b.statut === 'en_attente_publi' ? `<span class="badge badge-publi">📦 En attente</span>` : `<span class="badge badge-acheter">🛒 À acheter</span>`}
+            ${isManga ? `<span class="badge badge-manga">🎨 BD / Manga</span>` : ''}
             ${isTarget ? `<span class="badge badge-target">🎯 Prochain achat</span>` : ''}
           </div>
         </div>
@@ -1356,6 +1392,12 @@ function renderWishlist() {
 
       <div class="edit-panel" id="edit-panel-${idx}">
         <p class="section-label" style="margin-bottom:8px;">Modifier cette envie</p>
+        <div class="form-field">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:var(--purple-dark);">
+            <input type="checkbox" id="edit-is-manga-${idx}" ${isManga ? 'checked' : ''} style="width:16px; height:16px; accent-color:var(--purple-dark);">
+            <span>🎨 BD / Manga (Stats séparées)</span>
+          </label>
+        </div>
         <div class="form-field">
           <label>Type de livre</label>
           <select id="edit-type-${idx}" onchange="toggleEditTypeFields(${idx})">
@@ -1433,6 +1475,9 @@ function saveEdit(idx) {
   b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
   
+  const isMangaCb = document.getElementById(`edit-is-manga-${idx}`);
+  b.isManga = isMangaCb ? isMangaCb.checked : false;
+
   if (newType === 'one_shot') {
     b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
     b.serieId = null;
@@ -1482,6 +1527,9 @@ function saveWishEdit(idx) {
   const newType = document.getElementById(`edit-type-${idx}`).value;
   b.type = newType;
   b.titre = document.getElementById(`edit-titre-${idx}`).value.trim();
+
+  const isMangaCb = document.getElementById(`edit-is-manga-${idx}`);
+  b.isManga = isMangaCb ? isMangaCb.checked : false;
 
   if (newType === 'one_shot') {
     b.auteur = document.getElementById(`edit-auteur-${idx}`).value.trim();
@@ -1817,18 +1865,19 @@ function renderStats() {
   const yearSelect = document.getElementById('stats-year-select');
   const selectedYear = parseInt(yearSelect ? yearSelect.value : new Date().getFullYear());
 
-  const readBooksYear = books.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
-  document.getElementById('stat-read-year').textContent = readBooksYear.length;
+  // FILTRAGE DES LIVRES/ROMANS (HORS MANGAS/BD)
+  const readNovelsYear = books.filter(b => !b.isManga && b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+  document.getElementById('stat-read-year').textContent = readNovelsYear.length;
 
-  const bookSpendYear = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi').reduce((s, b) => {
+  const novelSpendYear = books.filter(b => !b.isManga && b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi').reduce((s, b) => {
     const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
     return (y === selectedYear && b.prix) ? s + b.prix : s;
   }, 0);
 
-  document.getElementById('stat-spend-year').textContent = bookSpendYear.toFixed(2) + ' €';
+  document.getElementById('stat-spend-year').textContent = novelSpendYear.toFixed(2) + ' €';
 
   const monthCounts = Array(12).fill(0);
-  readBooksYear.forEach(b => {
+  readNovelsYear.forEach(b => {
     const m = parseInt(b.dateFin.substring(5,7)) - 1;
     if (m >= 0 && m < 12) monthCounts[m]++;
   });
@@ -1848,7 +1897,7 @@ function renderStats() {
   }).join('');
 
   let totalDays = 0, validReadCount = 0;
-  readBooksYear.forEach(b => {
+  readNovelsYear.forEach(b => {
     if (b.dateDebut && b.dateFin) {
       const diffDays = Math.ceil((new Date(b.dateFin) - new Date(b.dateDebut)) / (1000 * 60 * 60 * 24)) + 1;
       if (diffDays > 0) { totalDays += diffDays; validReadCount++; }
@@ -1859,17 +1908,17 @@ function renderStats() {
   document.getElementById('stat-avg-days').textContent = avgDays > 0 ? `${avgDays} j` : 'N/A';
 
   let activeSeries = 0, waitingSeries = 0, doneSeries = 0;
-  const ownedBooks = books.filter(b => b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
+  const ownedNovels = books.filter(b => !b.isManga && b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi');
 
   Object.keys(series).forEach(id => {
     const s = series[id];
-    const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+    const sBooks = ownedNovels.filter(b => b.type === 'serie' && b.serieId === id);
     const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
     const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
-    const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+    const isWaiting = books.some(b => !b.isManga && b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
     const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
 
-    if (!isAbandoned) {
+    if (!isAbandoned && sBooks.length > 0) {
       if (allTermines) doneSeries++;
       else if (isWaiting) waitingSeries++;
       else if (hasStarted) activeSeries++;
@@ -1879,6 +1928,35 @@ function renderStats() {
   document.getElementById('stat-series-active').textContent = activeSeries;
   document.getElementById('stat-series-waiting').textContent = waitingSeries;
   document.getElementById('stat-series-done').textContent = doneSeries;
+
+  // STATISTIQUES SÉPARÉES SPECIFIQUES MANGAS / BD
+  const readMangasYear = books.filter(b => b.isManga && b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+  document.getElementById('stat-manga-read-year').textContent = readMangasYear.length;
+
+  const mangaSpendYear = books.filter(b => b.isManga && b.statut !== 'a_acheter' && b.statut !== 'en_attente_publi').reduce((s, b) => {
+    const y = b.dateFin ? parseInt(b.dateFin.substring(0,4)) : (b.dateAjout ? parseInt(b.dateAjout.substring(0,4)) : selectedYear);
+    return (y === selectedYear && b.prix) ? s + b.prix : s;
+  }, 0);
+  document.getElementById('stat-manga-spend-year').textContent = mangaSpendYear.toFixed(2) + ' €';
+
+  const mangaMonthCounts = Array(12).fill(0);
+  readMangasYear.forEach(b => {
+    const m = parseInt(b.dateFin.substring(5,7)) - 1;
+    if (m >= 0 && m < 12) mangaMonthCounts[m]++;
+  });
+
+  const maxMangaVal = Math.max(...mangaMonthCounts, 1);
+  const chartMangaEl = document.getElementById('chart-manga-months');
+  if (chartMangaEl) {
+    chartMangaEl.innerHTML = mangaMonthCounts.map((cnt, i) => {
+      const pct = Math.round((cnt / maxMangaVal) * 100);
+      return `<div class="chart-col">
+        <div class="chart-val">${cnt > 0 ? cnt : ''}</div>
+        <div class="chart-bar-wrap"><div class="chart-bar" style="height:${pct}%; background:#2980b9;"></div></div>
+        <div class="chart-label">${monthNames[i]}</div>
+      </div>`;
+    }).join('');
+  }
 }
 
 function showMonthStatDetail(mIdx) {
@@ -1889,10 +1967,10 @@ function showMonthStatDetail(mIdx) {
   const selectedYear = parseInt(document.getElementById('stats-year-select').value || new Date().getFullYear());
   const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-  titleEl.textContent = `Livres lus en ${monthNames[mIdx]} ${selectedYear}`;
+  titleEl.textContent = `Romans lus en ${monthNames[mIdx]} ${selectedYear}`;
   
   const readBooks = books.filter(b => {
-    if (b.statut !== 'termine' || !b.dateFin) return false;
+    if (b.isManga || b.statut !== 'termine' || !b.dateFin) return false;
     const year = parseInt(b.dateFin.substring(0,4));
     const month = parseInt(b.dateFin.substring(5,7)) - 1;
     return year === selectedYear && month === mIdx;
@@ -1902,7 +1980,7 @@ function showMonthStatDetail(mIdx) {
 
   const rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>📖 ${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
 
-  listEl.innerHTML = rawItems.length ? rawItems.join('') : '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun livre lu ce mois-ci.</div>';
+  listEl.innerHTML = rawItems.length ? rawItems.join('') : '<div style="font-size:12px; color:var(--text3); font-style:italic;">Aucun roman lu ce mois-ci.</div>';
   detailBox.style.display = 'block';
   
   renderStats();
@@ -1920,21 +1998,26 @@ function showStatDetail(type) {
 
   if (type === 'read_year') {
     titleEl.textContent = `Livres lus en ${selectedYear}`;
-    const readBooks = ownedBooks.filter(b => b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+    const readBooks = ownedBooks.filter(b => !b.isManga && b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
     readBooks.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
-    rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
+    rawItems = readBooks.map(b => `<div class="stat-detail-item"><span>📖 ${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
+  } else if (type === 'manga_read_year') {
+    titleEl.textContent = `BD & Mangas lus en ${selectedYear}`;
+    const readMangas = ownedBooks.filter(b => b.isManga && b.statut === 'termine' && b.dateFin && parseInt(b.dateFin.substring(0,4)) === selectedYear);
+    readMangas.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+    rawItems = readMangas.map(b => `<div class="stat-detail-item"><span>🎨 ${escHtml(b.titre)}</span> <span style="font-size:11px; color:var(--text3)">${b.dateFin}</span></div>`);
   } else if (type === 'series_active') {
     titleEl.textContent = `Séries en cours`;
     const activeSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => !b.isManga && b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
       const allTermines = sBooks.length >= s.totalTomes && sBooks.every(b => b.statut === 'termine');
       const hasStarted = sBooks.some(b => b.statut === 'termine' || b.statut === 'en_cours');
-      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+      const isWaiting = books.some(b => !b.isManga && b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
 
-      if (!isAbandoned && !allTermines && hasStarted && !isWaiting) {
+      if (!isAbandoned && !allTermines && hasStarted && !isWaiting && sBooks.length > 0) {
         const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
         const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
         activeSeriesList.push({ seriesObj: s, maxTomeLu });
@@ -1947,10 +2030,10 @@ function showStatDetail(type) {
     const waitingSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => !b.isManga && b.type === 'serie' && b.serieId === id);
       const isAbandoned = s.isAbandoned || sBooks.some(b => b.statut === 'abandonne');
-      const isWaiting = books.some(b => b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
-      if (!isAbandoned && isWaiting) {
+      const isWaiting = books.some(b => !b.isManga && b.type === 'serie' && b.serieId === id && b.statut === 'en_attente_publi');
+      if (!isAbandoned && isWaiting && sBooks.length > 0) {
         const readSeriesBooks = sBooks.filter(b => b.statut === 'termine');
         const maxTomeLu = readSeriesBooks.reduce((max, book) => Math.max(max, book.tomeNum || 0), 0);
         waitingSeriesList.push({ seriesObj: s, maxTomeLu });
@@ -1963,9 +2046,9 @@ function showStatDetail(type) {
     const doneSeriesList = [];
     Object.keys(series).forEach(id => {
       const s = series[id];
-      const sBooks = ownedBooks.filter(b => b.type === 'serie' && b.serieId === id);
+      const sBooks = ownedBooks.filter(b => !b.isManga && b.type === 'serie' && b.serieId === id);
       const maxTomeInPal = sBooks.reduce((m, b) => Math.max(m, b.tomeNum || 0), 0);
-      if (maxTomeInPal >= s.totalTomes && sBooks.every(b => b.statut === 'termine')) doneSeriesList.push(s);
+      if (sBooks.length > 0 && maxTomeInPal >= s.totalTomes && sBooks.every(b => b.statut === 'termine')) doneSeriesList.push(s);
     });
     doneSeriesList.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     rawItems = doneSeriesList.map(s => `<div class="stat-detail-item"><span>✓ ${escHtml(s.nom)}</span> <span style="font-size:11px; color:var(--green-dark)">Terminée</span></div>`);
@@ -2048,7 +2131,7 @@ function markDone(idx) {
           congratsNextTomeAction = { type: 'mark_target', book: wishNext };
           nextLabel.textContent = `🎯 Marquer Tome ${nextTomeNum} comme "Prochain achat"`;
         } else {
-          congratsNextTomeAction = { type: 'add_wish', serieId: b.serieId, nextTomeNum, nom: s.nom, auteur: s.auteur };
+          congratsNextTomeAction = { type: 'add_wish', serieId: b.serieId, nextTomeNum, nom: s.nom, auteur: s.auteur, isManga: b.isManga };
           nextLabel.textContent = `🛒 Ajouter Tome ${nextTomeNum} à ma Wishlist`;
         }
       } else {
@@ -2132,6 +2215,7 @@ function saveCongratsAndClose() {
           type: 'serie',
           serieId: congratsNextTomeAction.serieId,
           tomeNum: congratsNextTomeAction.nextTomeNum,
+          isManga: !!congratsNextTomeAction.isManga,
           statut: 'a_acheter',
           prix: 0,
           dateAjout: new Date().toISOString().slice(0,10)
@@ -2182,7 +2266,8 @@ function checkMissingSuites() {
     if (nextTomeNum <= s.totalTomes) {
       const existsInPalOrWish = books.some(b => b.type === 'serie' && b.serieId === sId && Math.floor(b.tomeNum) === nextTomeNum);
       if (!existsInPalOrWish) {
-        syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur });
+        const firstB = readSeriesBooks[0];
+        syncQueue.push({ serieId: sId, nextTomeNum, maxTomeLu, totalTomes: s.totalTomes, nom: s.nom, auteur: s.auteur, isManga: firstB ? firstB.isManga : false });
       }
     }
   });
@@ -2213,7 +2298,7 @@ function handleSyncChoice(choice) {
   if (choice === 'add') {
     books.unshift({
       id: 'wish_auto_' + Date.now(), titre: `${current.nom}, Tome ${current.nextTomeNum}`, auteur: current.auteur || '',
-      type: 'serie', serieId: current.serieId, tomeNum: current.nextTomeNum, statut: 'a_acheter', prix: 0, dateAjout: new Date().toISOString().slice(0,10)
+      type: 'serie', serieId: current.serieId, tomeNum: current.nextTomeNum, isManga: !!current.isManga, statut: 'a_acheter', prix: 0, dateAjout: new Date().toISOString().slice(0,10)
     });
     save();
   }
@@ -2226,6 +2311,9 @@ function addBook() {
   const type = document.getElementById('new-type').value;
   const statut = document.getElementById('new-statut').value;
   const cover = document.getElementById('new-cover') ? document.getElementById('new-cover').value.trim() : '';
+  const isMangaCb = document.getElementById('new-is-manga');
+  const isManga = isMangaCb ? isMangaCb.checked : false;
+
   let serieId = null;
 
   if (type === 'serie') {
@@ -2249,6 +2337,7 @@ function addBook() {
     type, 
     serieId, 
     tomeNum: type==='serie' ? (parseFloat(document.getElementById('new-tome-num').value)||1) : null, 
+    isManga,
     statut, 
     prix: 0, 
     cover, 
@@ -2260,6 +2349,7 @@ function addBook() {
   books.unshift(b); 
   save();
   document.getElementById('new-titre').value = '';
+  if (isMangaCb) isMangaCb.checked = false;
   renderStats();
   showSection(statut === 'a_acheter' || statut === 'en_attente_publi' ? 'wishlist' : 'pal');
 }
