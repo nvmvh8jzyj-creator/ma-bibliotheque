@@ -320,7 +320,9 @@ body {
 .pioche-modal-serie { font-size: 13px; font-weight: 700; color: var(--purple-light); margin-bottom: 2px; }
 .pioche-modal-author { font-size: 13px; color: var(--text2); font-weight: 500; margin-bottom: 16px; }
 
-.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.shopping-item-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 8px; transition: opacity 0.2s; }
+.shopping-item-card.bought-done { opacity: 0.55; }
+.shopping-item-card.bought-done .shopping-item-title { text-decoration: line-through; }
 .shopping-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
 .shopping-item-sub { font-size: 11px; color: var(--text2); }
 .shopping-price-input { width: 65px; font-size: 13px; font-weight: 800; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); text-align: right; background: var(--surface); color: var(--text); }
@@ -397,7 +399,7 @@ body {
     <div id="shopping-list-items-container"></div>
     
     <button class="btn-full btn-secondary-full" id="btn-add-random-oneshot" onclick="addRandomOneshotToShoppingList()" style="margin-top:8px;">🎲 Ajouter un One-shot au hasard</button>
-    <button class="btn-full btn-danger-full" onclick="resetShoppingList()" style="margin-top:4px;">🔄 Réinitialiser la liste</button>
+    <button class="btn-full btn-danger-full" onclick="resetShoppingList()" style="margin-top:4px;">🔄 Nouvelle liste / Réinitialiser</button>
     <button class="btn-full" onclick="closeShoppingListModal()" style="margin-top:4px;">Fermer la liste</button>
   </div>
 </div>
@@ -1020,14 +1022,14 @@ function generateMonthlyShoppingList() {
 
     if (previousTomeRead && !alreadyInPal) {
       let price = b.prix > 0 ? b.prix : 10;
-      activeShoppingItems.push({ bookId: b.id, currentPrice: price, reason: "🔄 Suite de série débloquée" });
+      activeShoppingItems.push({ bookId: b.id, currentPrice: price, isBought: false, reason: "🔄 Suite de série débloquée" });
     }
   }
 
   const targetBooks = wishBooks.filter(b => b.isNextTarget && !activeShoppingItems.some(item => item.bookId === b.id));
   for (let b of targetBooks) {
     let price = b.prix > 0 ? b.prix : 10;
-    activeShoppingItems.push({ bookId: b.id, currentPrice: price, reason: "🎯 Prochain Achat manuel" });
+    activeShoppingItems.push({ bookId: b.id, currentPrice: price, isBought: false, reason: "🎯 Prochain Achat manuel" });
   }
 
   saveShoppingList();
@@ -1050,6 +1052,7 @@ function addCustomShoppingItem() {
   activeShoppingItems.unshift({
     customLabel: label,
     currentPrice: price,
+    isBought: false,
     reason: "🛒 Ajout libre / Simulation"
   });
 
@@ -1060,8 +1063,16 @@ function addCustomShoppingItem() {
   renderShoppingListModal();
 }
 
+function toggleShoppingItemBought(index) {
+  if (activeShoppingItems[index]) {
+    activeShoppingItems[index].isBought = !activeShoppingItems[index].isBought;
+    saveShoppingList();
+    renderShoppingListModal();
+  }
+}
+
 function resetShoppingList() {
-  if (confirm("Réinitialiser la liste de courses en cours ?")) {
+  if (confirm("Réinitialiser la liste de courses en cours pour en générer une nouvelle ?")) {
     activeShoppingItems = [];
     saveShoppingList();
     generateMonthlyShoppingList();
@@ -1089,7 +1100,12 @@ function renderShoppingListModal() {
     }
     if (!titleText) return '';
 
-    return `<div class="shopping-item-card">
+    const isBought = !!item.isBought;
+
+    return `<div class="shopping-item-card ${isBought ? 'bought-done' : ''}">
+      <div style="display:flex; align-items:center; padding-right:4px;">
+        <input type="checkbox" ${isBought ? 'checked' : ''} onchange="toggleShoppingItemBought(${i})" style="width:18px; height:18px; accent-color:var(--green-dark); cursor:pointer;">
+      </div>
       <div style="flex:1; min-width:0;">
         <div class="shopping-item-title">${escHtml(titleText)}</div>
         <div class="shopping-item-sub">${item.reason}</div>
@@ -1126,7 +1142,7 @@ function addRandomOneshotToShoppingList() {
 
   const pick = availableOneshots[Math.floor(Math.random() * availableOneshots.length)];
   let price = pick.prix > 0 ? pick.prix : 10;
-  activeShoppingItems.push({ bookId: pick.id, currentPrice: price, reason: "🎲 One-shot au hasard" });
+  activeShoppingItems.push({ bookId: pick.id, currentPrice: price, isBought: false, reason: "🎲 One-shot au hasard" });
   saveShoppingList();
   renderShoppingListModal();
 }
